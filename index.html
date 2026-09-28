@@ -88,8 +88,17 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .pname{font:600 16px/1.3 var(--body);margin:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .ex{font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);border:1px solid var(--line);padding:1px 6px;border-radius:4px}
 .pct{font:500 22px/1 var(--mono);font-variant-numeric:tabular-nums;text-align:right}
-.bar{grid-column:1/-1;height:6px;border-radius:99px;background:var(--sunk);overflow:hidden}
-.bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.seg{grid-column:1/-1;display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+.seg i{height:12px;border-radius:4px;background:color-mix(in srgb,var(--surface) 55%,transparent);border:1px solid color-mix(in srgb,var(--ti) 18%,transparent)}
+.seg i.on{border-color:transparent}
+/* subject tint: any element with --t/--ti set */
+.tinted{background:var(--t)!important;border-color:color-mix(in srgb,var(--ti) 22%,transparent)!important}
+.tinted .subj{background:var(--ti)!important;color:var(--t)!important}
+.tinted .pct,.tinted .pname{color:var(--ti)}
+.tinted .items li{border-bottom-color:color-mix(in srgb,var(--ti) 20%,transparent)}
+.tinted .body{border-top-color:color-mix(in srgb,var(--ti) 20%,transparent)}
+.tinted input[type=text],.tinted input[type=number],.tinted input[type=datetime-local],.tinted select{background:color-mix(in srgb,var(--surface) 70%,transparent)}
+.themebtn{background:var(--surface);border:1px solid var(--line);color:var(--ink2);border-radius:99px;padding:5px 12px;font:500 12.5px var(--mono);display:inline-flex;gap:6px;align-items:center}
 .pmeta{grid-column:1/-1;display:flex;gap:6px 14px;flex-wrap:wrap;font:13px var(--mono);color:var(--ink2);font-variant-numeric:tabular-nums;align-items:center}
 .status{font:500 11px var(--mono);letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:99px}
 .s-ok{background:var(--ok-soft);color:var(--ok)} .s-warn{background:var(--warn-soft);color:var(--warn)} .s-bad{background:var(--bad-soft);color:var(--bad)} .s-done{background:var(--sunk);color:var(--ink2)}
@@ -162,20 +171,27 @@ input[type=number]{width:80px}
 .kd{font:500 10.5px/1.25 var(--mono);border-radius:4px;padding:2px 4px;word-break:break-word;background:var(--sunk);color:var(--ink2)}
 .k-review{background:var(--ink);color:var(--bg)} .k-due{background:var(--bad-soft);color:var(--bad)} .k-quiz{background:var(--warn-soft);color:var(--warn)}
 .k-online{background:var(--c3);color:var(--c3i)} .k-trip{background:var(--c2);color:var(--c2i)} .k-noclass{text-decoration:line-through}
-.soon{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 16px}
-.soon-row{display:grid;grid-template-columns:92px 1fr auto;gap:4px 12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
-.soon-row:last-child{border-bottom:0}
+.soon{display:flex;flex-direction:column;gap:8px}
+.soon-row{display:grid;grid-template-columns:92px 1fr auto;gap:4px 12px;align-items:center;padding:10px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--line);font-size:14px}
+.soon-row.tinted .dt b{color:var(--ti)}
 .soon-row .dt{font:13px var(--mono);color:var(--ink2);font-variant-numeric:tabular-nums}
 .soon-row .dt b{display:block;color:var(--ink);font-weight:500}
 .soon-row .ttl{display:flex;flex-direction:column;gap:3px;min-width:0}
 .soon-row .ttl .subj{align-self:flex-start}
 .blk.cancel{opacity:.45;text-decoration:line-through}
 .blk .tag{font:500 10px var(--mono);text-transform:uppercase;letter-spacing:.04em}
-.kdrow{display:grid;grid-template-columns:100px 1fr auto auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.kdrow{display:grid;grid-template-columns:100px 1fr auto auto;gap:8px;align-items:center;padding:8px 12px;margin-bottom:6px;border-radius:9px;border:1px solid var(--line);font-size:14px}
 .kdrow .dt{font:13px var(--mono);color:var(--ink2)}
 .kdadd{display:grid;grid-template-columns:150px 100px 1fr;gap:6px}
 .kdadd input[type=text]{grid-column:1/-1}
 @media (max-width:560px){.kdrow{grid-template-columns:84px 1fr auto}.kdrow .kd{display:none}.kdadd{grid-template-columns:1fr 1fr}.soon-row{grid-template-columns:78px 1fr}.soon-row .kd{grid-column:2;justify-self:start}}
+.wins{display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center;font:13px var(--mono);color:var(--ink2);font-variant-numeric:tabular-nums}
+.wins b{color:var(--ink);font-weight:500}
+.wins .trophy{font-size:15px}
+.backup{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.backup h3{margin:0;font:700 16px var(--display)}
+.chip .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:20}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
 .toast.on{opacity:1}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -188,7 +204,7 @@ input[type=number]{width:80px}
 <div class="wrap">
   <header>
     <h1>Next Up <span class="ex" style="vertical-align:middle">beta</span></h1>
-    <span class="today" id="today"></span>
+    <span class="row"><span class="today" id="today"></span><button class="themebtn" id="themeBtn" type="button" aria-label="Switch theme"></button></span>
   </header>
 
   <nav class="tabs" role="tablist">
@@ -226,7 +242,9 @@ input[type=number]{width:80px}
     </div>
 
     <section class="list">
+      <div class="wins" id="wins"></div>
       <span class="label">Projects, most urgent first</span>
+      <div class="chips" id="projChips"></div>
       <div id="projects" class="list"></div>
     </section>
 
@@ -244,6 +262,17 @@ input[type=number]{width:80px}
       </div>
       <div class="row"><button class="btn pri" type="submit">Add project</button><span class="err" id="addErr"></span></div>
     </form>
+
+    <section class="backup">
+      <h3>Backup</h3>
+      <p class="small" style="margin:0" id="backupHint">Your data only lives in this browser. Save a backup now and then, so clearing your browser or switching phones doesn't wipe it.</p>
+      <div class="row">
+        <button class="btn" type="button" id="bkSave">Save backup file</button>
+        <label class="btn" for="bkFile" style="cursor:pointer">Restore from file</label>
+        <input type="file" id="bkFile" accept="application/json,.json" hidden>
+      </div>
+      <div class="row small" id="bkConfirm" hidden></div>
+    </section>
 
     <details class="how">
       <summary>How it picks what's next</summary>
@@ -314,6 +343,7 @@ input[type=number]{width:80px}
     <div id="notes" class="list"></div>
   </section>
 </div>
+<canvas id="confetti" hidden></canvas>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -321,7 +351,7 @@ input[type=number]{width:80px}
   const $ = s => document.querySelector(s);
   const HOUR = 3600e3, DAY = 24 * HOUR;
   const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  let projects = [], classes = [], notes = [], dates = [], showPast = false;
+  let projects = [], classes = [], notes = [], dates = [], showPast = false, projFilter = 'all', pendingRestore = null;
   const KIND = {review:'Review', crit:'Desk crit', due:'Deadline', quiz:'Quiz', online:'Online', noclass:'No class', trip:'Trip', other:'Note'};
   let hpd = 6, hcd = 3;
   let skip = 0, pinned = null, open = new Set();
@@ -350,6 +380,8 @@ input[type=number]{width:80px}
   function subjects(){ const s = [...new Set(classes.map(c => (c.subject || '').trim()).filter(Boolean))]; s.sort((a, b) => isStudio(b) - isStudio(a)); return s; }
   function colorIdx(name){ const list = [...new Set(classes.map(c => (c.subject || '').trim()))]; const i = list.indexOf((name || '').trim()); if (i >= 0) return i % 6; let h = 0; for (const ch of name || '') h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h % 6; }
   const subjStyle = name => { const i = colorIdx(name); return `background:var(--c${i});color:var(--c${i}i)`; };
+  const tint = name => { if (!name) return '--t:var(--surface);--ti:var(--accent)'; const i = colorIdx(name); return `--t:var(--c${i});--ti:var(--c${i}i)`; };
+  const segBar = pct => { const n = Math.floor(pct / 10); return `<div class="seg" aria-hidden="true">${Array.from({length: 10}, (_, k) => k < n ? `<i class="on" style="background:color-mix(in srgb,var(--ti) ${38 + k * 6.5}%,var(--t))"></i>` : '<i></i>').join('')}</div>`; };
 
   // ---------- work-time math ----------
   const cancelled = (dateStr, subject) => dates.some(k => k.kind === 'noclass' && k.date === dateStr && (k.subject || '').trim() === (subject || '').trim());
@@ -465,7 +497,7 @@ input[type=number]{width:80px}
     } else if (isStudio(c.subject) || dayDiff <= 1){
       body = `<button class="linkbtn" data-act="newnote" data-s="${esc(c.subject)}">Write notes after this class →</button>`;
     }
-    el.innerHTML = `<div class="upnext"><div class="when"><span class="subj" style="${subjStyle(c.subject)}">${esc(c.subject)}</span><h3>${title}</h3></div>${body}</div>`;
+    el.innerHTML = `<div class="upnext tinted" style="${tint(c.subject)}"><div class="when"><span class="subj" style="${subjStyle(c.subject)}">${esc(c.subject)}</span><h3>${title}</h3></div>${body}</div>`;
   }
 
   function renderSoon(){
@@ -478,7 +510,7 @@ input[type=number]{width:80px}
     $('#soon').innerHTML = rows.map(r => {
       const dd = Math.round((new Date(r.date + 'T12:00') - dayStart(now)) / DAY - 0.5);
       const rel = r.date === today ? 'Today' : dd === 1 ? 'Tomorrow' : new Date(r.date + 'T12:00').toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'});
-      return `<div class="soon-row"><span class="dt"><b>${rel}</b>${r.time && r.time !== '00:00' ? r.time : ''}</span>
+      return `<div class="soon-row ${r.subject ? 'tinted' : ''}" style="${tint(r.subject)}"><span class="dt"><b>${rel}</b>${r.time && r.time !== '00:00' ? r.time : ''}</span>
         <span class="ttl">${r.subject ? `<span class="subj" style="${subjStyle(r.subject)}">${esc(r.subject)}</span>` : ''}<span>${esc(r.title)}</span></span>
         <span class="kd k-${r.kind}">${KIND[r.kind] || ''}</span></div>`;
     }).join('');
@@ -489,7 +521,7 @@ input[type=number]{width:80px}
     const list = dates.filter(k => showPast || k.date >= today).sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
     $('#kdPast').textContent = showPast ? 'Hide past dates' : 'Show past dates';
     $('#kdList').innerHTML = list.map(k => `
-      <div class="kdrow"><span class="dt">${fmtDate(k.date)}${k.time ? '<br>' + k.time : ''}</span>
+      <div class="kdrow ${k.subject ? 'tinted' : ''}" style="${tint(k.subject)}"><span class="dt">${fmtDate(k.date)}${k.time ? '<br>' + k.time : ''}</span>
         <span>${k.subject ? `<span class="subj" style="${subjStyle(k.subject)}">${esc(k.subject)}</span> ` : ''}${esc(k.title)}</span>
         <span class="kd k-${k.kind}">${KIND[k.kind] || ''}</span>
         <button class="x" aria-label="Remove ${esc(k.title)}" data-act="rmkd" data-k="${k.id}">×</button></div>`).join('') || '<p class="small">No upcoming dates.</p>';
@@ -499,14 +531,17 @@ input[type=number]{width:80px}
 
   function renderProjects(){
     const r = rank();
-    const order = [...r.map(x => x.p), ...projects.filter(p => !r.some(x => x.p === p))];
+    const subs = [...new Set(projects.map(p => p.subject).filter(Boolean))];
+    if (projFilter !== 'all' && !subs.includes(projFilter)) projFilter = 'all';
+    $('#projChips').innerHTML = subs.length > 1 ? ['all', ...subs].map(sb => `<button class="chip" data-act="pfilter" data-s="${esc(sb)}" aria-pressed="${projFilter === sb}">${sb === 'all' ? 'All' : `<span class="dot" style="background:var(--c${colorIdx(sb)}i)"></span>${esc(sb)}`}</button>`).join('') : '';
+    const order = [...r.map(x => x.p), ...projects.filter(p => !r.some(x => x.p === p))].filter(p => projFilter === 'all' || p.subject === projFilter);
     $('#projects').innerHTML = order.map(p => {
       const s = stats(p);
-      return `<details class="proj-card" data-id="${p.id}" ${open.has(p.id) ? 'open' : ''}>
+      return `<details class="proj-card ${p.subject ? 'tinted' : ''}" style="${tint(p.subject)}" data-id="${p.id}" ${open.has(p.id) ? 'open' : ''}>
         <summary>
           <h3 class="pname">${p.subject ? `<span class="subj" style="${subjStyle(p.subject)}">${esc(p.subject)}</span>` : ''}${esc(p.name)} ${p.example ? '<span class="ex">example</span>' : ''}</h3>
           <div class="pct">${s.pct}%</div>
-          <div class="bar"><i style="width:${s.pct}%"></i></div>
+          ${segBar(s.pct)}
           <div class="pmeta"><span class="status s-${s.status}">${statusText[s.status]}</span>
             <span>${fmtH(s.remaining)} of work left</span><span>${fmtLeft(s.msLeft)}</span>
             ${s.remaining > 0 && s.msLeft > 0 ? `<span>slack ${fmtH(s.slack)}</span>` : ''}</div>
@@ -604,7 +639,7 @@ input[type=number]{width:80px}
       <div class="wkgroup"><span class="label">Week of ${new Date(wk + 'T12:00').toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'})}</span>
       ${ns.map(n => {
         const unsent = (n.steps || []).filter(x => !x.sent && !x.done);
-        return `<article class="note ${isStudio(n.subject) ? 'studio' : ''}">
+        return `<article class="note tinted ${isStudio(n.subject) ? 'studio' : ''}" style="${tint(n.subject)}">
           <div class="note-head"><span class="subj" style="${subjStyle(n.subject)}">${esc(n.subject)}</span><span class="date">${fmtDate(n.date)}</span>${n.example ? '<span class="ex">example</span>' : ''}
             <span class="sp"><button class="btn" data-act="editnote" data-n="${n.id}">Edit</button><span id="nd-${n.id}"><button class="btn danger" data-act="asknote" data-n="${n.id}">Delete</button></span></span></div>
           <p class="text">${esc(n.text)}</p>
@@ -615,13 +650,47 @@ input[type=number]{width:80px}
   }
 
   // ---------- render ----------
+  function weekStart(){ const n = new Date(); return dayStart(n).getTime() - dow(n) * DAY; }
+  function renderWins(){
+    const ws = weekStart(); let tasks = 0, hours = 0, fin = 0;
+    projects.forEach(p => { p.items.forEach(i => { if (i.done && i.doneAt >= ws){ tasks++; hours += +i.hours || 0; } }); if (p.finishedAt >= ws) fin++; });
+    $('#wins').innerHTML = tasks || fin
+      ? `<span class="label" style="margin-right:2px">This week</span><span><b>${tasks}</b> task${tasks === 1 ? '' : 's'} done</span><span><b>${fmtH(hours)}</b> of work</span>${fin ? `<span><span class="trophy">🏆</span> <b>${fin}</b> project${fin === 1 ? '' : 's'} finished</span>` : ''}`
+      : `<span class="label" style="margin-right:2px">This week</span><span>Nothing ticked off yet. Your first one counts.</span>`;
+  }
+  // mark an item done/undone, stamp times, celebrate when a project hits 100%
+  function setDone(p, it, done){
+    const before = stats(p).remaining;
+    it.done = done; if (done) it.doneAt = Date.now(); else delete it.doneAt;
+    const after = stats(p).remaining;
+    if (after <= 0 && before > 0){ p.finishedAt = Date.now(); celebrate(p); }
+    else if (after > 0) delete p.finishedAt;
+    saveDoc('projects', p);
+  }
+  function celebrate(p){
+    toast(`🎉 ${p.name}: finished!`);
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cv = $('#confetti'), ctx = cv.getContext('2d'); cv.hidden = false;
+    const W = cv.width = innerWidth * devicePixelRatio, H = cv.height = innerHeight * devicePixelRatio;
+    const cs = getComputedStyle(document.documentElement), i = colorIdx(p.subject || '');
+    const cols = [cs.getPropertyValue(`--c${i}i`), cs.getPropertyValue(`--c${i}`), cs.getPropertyValue('--accent'), cs.getPropertyValue('--warn'), cs.getPropertyValue('--ok')].map(c => c.trim()).filter(Boolean);
+    const parts = Array.from({length: 140}, () => ({x: W / 2, y: H * 0.35, vx: (Math.random() - 0.5) * 22 * devicePixelRatio, vy: (-Math.random() * 18 - 6) * devicePixelRatio, r: (4 + Math.random() * 5) * devicePixelRatio, c: cols[Math.floor(Math.random() * cols.length)], a: Math.random() * 6, va: (Math.random() - 0.5) * 0.4}));
+    const t0 = performance.now();
+    (function frame(t){
+      ctx.clearRect(0, 0, W, H);
+      parts.forEach(q => { q.vy += 0.6 * devicePixelRatio; q.vx *= 0.99; q.x += q.vx; q.y += q.vy; q.a += q.va;
+        ctx.save(); ctx.translate(q.x, q.y); ctx.rotate(q.a); ctx.fillStyle = q.c; ctx.fillRect(-q.r / 2, -q.r / 4, q.r, q.r / 2); ctx.restore(); });
+      if (t - t0 < 2200) requestAnimationFrame(frame); else { ctx.clearRect(0, 0, W, H); cv.hidden = true; }
+    })(t0);
+  }
+
   function render(){
     $('#today').textContent = new Date().toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long'});
     $('#hpd').value = hpd; $('#hcd').value = hcd;
     ['next','week','notes'].forEach(t => { $('#p-' + t).hidden = t !== tab; $('#tab-' + t).setAttribute('aria-selected', t === tab); });
     $('#exBanner').hidden = !(projects.some(p => p.example) || notes.some(n => n.example) || classes.some(c => c.example) || dates.some(k => k.example));
     $('#welcome').hidden = !!(projects.length || classes.length || dates.length || notes.length);
-    renderNext(); renderUpNext(); renderSoon(); renderProjects();
+    renderNext(); renderUpNext(); renderSoon(); renderWins(); renderProjects();
     renderWeek(); renderClassList(); renderKeyDates();
     renderNoteForm(); renderNotes();
     $('#saveState').textContent = store === 'db' ? 'Saved to your account' : 'Saved on this device only';
@@ -653,8 +722,11 @@ input[type=number]{width:80px}
     const b = e.target.closest('[data-act]'); if (!b) return;
     const act = b.dataset.act, pid = b.dataset.p, iid = b.dataset.i;
     if (act === 'tick' || act === 'step') return;
-    if (act === 'done'){ const [p, it] = find(pid, iid); if (!it) return; it.done = true; pinned = null; skip = 0; saveDoc('projects', p);
-      toast(stats(p).remaining <= 0 ? `${p.name} is finished` : "Done. Here's the next one."); render(); }
+    if (act === 'done'){ const [p, it] = find(pid, iid); if (!it) return; pinned = null; skip = 0; setDone(p, it, true);
+      if (stats(p).remaining > 0) toast("Done. Here's the next one."); render(); }
+    if (act === 'pfilter'){ projFilter = b.dataset.s; renderProjects(); }
+    if (act === 'bkyes' && pendingRestore) restoreBackup(pendingRestore);
+    if (act === 'bkno'){ pendingRestore = null; $('#bkConfirm').hidden = true; }
     if (act === 'skip'){ pinned = null; skip++; renderNext(); }
     if (act === 'pin'){ e.preventDefault(); pinned = {pid, iid}; skip = 0; render(); window.scrollTo({top:0, behavior:'smooth'}); }
     if (act === 'rm'){ e.preventDefault(); const [p] = find(pid); p.items = p.items.filter(i => i.id !== iid); saveDoc('projects', p); render(); }
@@ -683,7 +755,7 @@ input[type=number]{width:80px}
   });
   document.addEventListener('change', e => {
     const t = e.target;
-    if (t.dataset.act === 'tick'){ const [p, it] = find(t.dataset.p, t.dataset.i); it.done = t.checked; saveDoc('projects', p); skip = 0; render(); }
+    if (t.dataset.act === 'tick'){ const [p, it] = find(t.dataset.p, t.dataset.i); setDone(p, it, t.checked); skip = 0; render(); }
     if (t.dataset.act === 'step'){ const n = notes.find(x => x.id === t.dataset.n), x = n && n.steps.find(s => s.id === t.dataset.x); if (!x) return; x.done = t.checked; saveDoc('notes', n); renderUpNext(); renderNotes(); }
     if (t.dataset.act === 'deadline' && t.value){ const [p] = find(t.dataset.p); p.deadline = new Date(t.value).toISOString(); saveDoc('projects', p); render(); }
   });
@@ -789,6 +861,55 @@ input[type=number]{width:80px}
   });
 
   setInterval(() => { if (!editing()) render(); }, 60e3);
+
+  // ---------- backup ----------
+  function snapshot(){ return {app: 'nextup', version: 1, exportedAt: new Date().toISOString(), projects, classes, dates, notes, hpd, hcd}; }
+  $('#bkSave').addEventListener('click', async () => {
+    const json = JSON.stringify(snapshot(), null, 2), filename = `nextup-backup-${ymd(new Date())}.json`;
+    let dl = null; try { dl = await window.claude?.use?.('downloads'); } catch(e){}
+    if (dl){ try { await dl.save({filename, data: json}); toast('Backup saved'); } catch(e){ toast('Backup not saved'); } return; }
+    try {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], {type: 'application/json'})); a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); toast('Backup saved to your downloads');
+    } catch(e){ toast('Could not save the file on this device'); }
+  });
+  $('#bkFile').addEventListener('change', e => {
+    const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      let d; try { d = JSON.parse(rd.result); } catch(err){ d = null; }
+      if (!d || d.app !== 'nextup' || !Array.isArray(d.projects)){ toast("That file isn't a Next Up backup"); return; }
+      pendingRestore = d;
+      const box = $('#bkConfirm'); box.hidden = false;
+      box.innerHTML = `<span>Replace everything here with the backup from ${new Date(d.exportedAt).toLocaleString('en-GB', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'})} (${d.projects.length} projects, ${(d.notes || []).length} notes)?</span><button class="btn danger" data-act="bkyes">Replace</button><button class="btn" data-act="bkno">Cancel</button>`;
+    };
+    rd.readAsText(f);
+  });
+  function restoreBackup(d){
+    const old = {projects, notes, dates};
+    projects = d.projects || []; classes = d.classes || []; dates = d.dates || []; notes = d.notes || [];
+    hpd = d.hpd ?? hpd; hcd = d.hcd ?? hcd; pendingRestore = null; $('#bkConfirm').hidden = true; pinned = null; skip = 0;
+    if (store === 'local') saveLocal();
+    else {
+      const cur = {projects: clone(projects), notes: clone(notes), dates: clone(dates)}, tt = {classes: clone(classes)}, st = {hoursPerDay: hpd, classDayHours: hcd};
+      q('restore', async () => {  // one write at a time so the store isn't flooded
+        for (const coll of ['projects', 'notes', 'dates']){
+          const keep = new Set(cur[coll].map(x => x.id));
+          for (const x of old[coll]) if (!keep.has(x.id)) await db.doc(coll + '/' + x.id).delete();
+          for (const x of cur[coll]) await db.doc(coll + '/' + x.id).set(x);
+        }
+        await db.doc('timetable/main').set(tt); await db.doc('settings/main').set(st);
+      });
+    }
+    render(); toast('Backup restored');
+  }
+
+  // ---------- theme ----------
+  const THEMES = ['auto', 'light', 'dark'], TLABEL = {auto:'◐ Auto', light:'☀ Light', dark:'☾ Dark'};
+  let theme = 'auto'; try { theme = localStorage.getItem('nextup.theme') || 'auto'; } catch(e){}
+  function applyTheme(){ if (theme === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', theme); $('#themeBtn').textContent = TLABEL[theme]; }
+  $('#themeBtn').addEventListener('click', () => { theme = THEMES[(THEMES.indexOf(theme) + 1) % 3]; try { localStorage.setItem('nextup.theme', theme); } catch(e){} applyTheme(); });
+  applyTheme();
 
   // ---------- boot ----------
   try { const t = localStorage.getItem('nextup.tab'); if (['next','week','notes'].includes(t)) tab = t; } catch(e){}
