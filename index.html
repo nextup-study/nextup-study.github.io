@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Next Up: tells you which project to work on next, from your deadlines, deliverables and class timetable.">
+<meta name="theme-color" content="#16201D">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif;background:#F3F5F2}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Next Up Beta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F3F5F2; --surface:#FFFFFF; --sunk:#E8ECE7; --line:#D5DBD4;
+  --ink:#16201D; --ink2:#4A5752; --ink3:#7A8681;
+  --accent:#0E6B66; --accent-ink:#FFFFFF; --accent-soft:#D6EBE8;
+  --ok:#2F7D46; --ok-soft:#DDEFE2; --warn:#A8650B; --warn-soft:#F6E7CC; --bad:#B3362B; --bad-soft:#F6DBD7;
+  --c0:#D7E8E6; --c0i:#0C4F4B; --c1:#E9E0F3; --c1i:#4E2F74; --c2:#F5E3CF; --c2i:#7A4510; --c3:#DCE6F5; --c3i:#23456F; --c4:#E6EED6; --c4i:#44561C; --c5:#F4DCE2; --c5i:#7A2638;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#111715; --surface:#19211E; --sunk:#222B28; --line:#2F3A36;
+    --ink:#E6ECE9; --ink2:#AAB6B1; --ink3:#7C8984;
+    --accent:#4FB8AF; --accent-ink:#0B1311; --accent-soft:#18332F;
+    --ok:#6CC486; --ok-soft:#1C3325; --warn:#E3A64A; --warn-soft:#3A2C14; --bad:#F07E72; --bad-soft:#3D1F1B;
+    --c0:#173532; --c0i:#8FD6CE; --c1:#2A2238; --c1i:#C9B0EA; --c2:#382A1A; --c2i:#EDC08E; --c3:#1C2A3D; --c3i:#A9C4EA; --c4:#26301A; --c4i:#BCD38C; --c5:#3A1F26; --c5i:#EFA7B6;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#111715; --surface:#19211E; --sunk:#222B28; --line:#2F3A36;
+  --ink:#E6ECE9; --ink2:#AAB6B1; --ink3:#7C8984;
+  --accent:#4FB8AF; --accent-ink:#0B1311; --accent-soft:#18332F;
+  --ok:#6CC486; --ok-soft:#1C3325; --warn:#E3A64A; --warn-soft:#3A2C14; --bad:#F07E72; --bad-soft:#3D1F1B;
+  --c0:#173532; --c0i:#8FD6CE; --c1:#2A2238; --c1i:#C9B0EA; --c2:#382A1A; --c2i:#EDC08E; --c3:#1C2A3D; --c3i:#A9C4EA; --c4:#26301A; --c4i:#BCD38C; --c5:#3A1F26; --c5i:#EFA7B6;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:20px 72px;display:flex;flex-direction:column;gap:20px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{font:700 26px/1.1 var(--display);letter-spacing:-.01em;margin:0}
+.today{font:13px var(--mono);color:var(--ink3)}
+.label{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tabs{display:flex;gap:4px;background:var(--sunk);padding:4px;border-radius:11px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.tabs button{flex:1;border:0;background:transparent;color:var(--ink2);padding:8px 6px;border-radius:8px;font-weight:500;font-size:14px}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.panel{display:flex;flex-direction:column;gap:20px}
+
+/* hero */
+.next{background:var(--ink);color:var(--bg);border-radius:14px;padding:22px 22px 18px;display:flex;flex-direction:column;gap:12px}
+.next .label{color:color-mix(in srgb,var(--bg) 60%,transparent)}
+.next h2{font:700 clamp(26px,6vw,38px)/1.08 var(--display);margin:0;letter-spacing:-.015em;text-wrap:balance}
+.next .proj{font:500 14px var(--body);color:color-mix(in srgb,var(--bg) 78%,transparent)}
+.next .why{font-size:14px;line-height:1.5;color:color-mix(in srgb,var(--bg) 85%,transparent);max-width:60ch;margin:0}
+.next .meta{display:flex;gap:8px;flex-wrap:wrap}
+.chipd{font:500 12px var(--mono);padding:3px 9px;border-radius:99px;background:color-mix(in srgb,var(--bg) 14%,transparent);color:var(--bg)}
+.next .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.btn-main{background:var(--bg);color:var(--ink);border:0;border-radius:9px;padding:10px 16px;font-weight:600}
+.btn-ghost{background:transparent;color:inherit;border:1px solid currentColor;border-radius:9px;padding:9px 14px;opacity:.8}
+.next.empty h2{font-size:26px}
+
+/* coming up */
+.upnext{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.upnext .when{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.upnext h3{margin:0;font:600 16px var(--body)}
+.subj{font:500 12px var(--mono);padding:2px 8px;border-radius:6px}
+.quote{white-space:pre-wrap;font-size:14px;color:var(--ink2);border-left:3px solid var(--line);padding-left:10px;margin:0;max-width:65ch}
+.steps-mini{margin:0;padding-left:18px;font-size:14px}
+.linkbtn{background:none;border:0;color:var(--accent);padding:0;font-size:13.5px;font-weight:500;text-align:left}
+
+/* strip */
+.strip{display:flex;gap:8px 10px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--ink2)}
+.strip input{width:58px;font:500 13px var(--mono);padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}
+.banner{background:var(--accent-soft);color:var(--ink);border-radius:10px;padding:10px 14px;font-size:13.5px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.banner button{background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:5px 10px;color:var(--ink);font-size:13px}
+
+/* projects */
+.list{display:flex;flex-direction:column;gap:10px}
+.proj-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.proj-card summary{list-style:none;cursor:pointer;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center}
+.proj-card summary::-webkit-details-marker{display:none}
+.pname{font:600 16px/1.3 var(--body);margin:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ex{font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);border:1px solid var(--line);padding:1px 6px;border-radius:4px}
+.pct{font:500 22px/1 var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+.bar{grid-column:1/-1;height:6px;border-radius:99px;background:var(--sunk);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.pmeta{grid-column:1/-1;display:flex;gap:6px 14px;flex-wrap:wrap;font:13px var(--mono);color:var(--ink2);font-variant-numeric:tabular-nums;align-items:center}
+.status{font:500 11px var(--mono);letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:99px}
+.s-ok{background:var(--ok-soft);color:var(--ok)} .s-warn{background:var(--warn-soft);color:var(--warn)} .s-bad{background:var(--bad-soft);color:var(--bad)} .s-done{background:var(--sunk);color:var(--ink2)}
+.body{border-top:1px solid var(--line);padding:12px 16px 16px;display:flex;flex-direction:column;gap:12px}
+.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.items li{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--line)}
+.items li:last-child{border-bottom:0}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);margin:0}
+.items .done span label,.steps .done label{text-decoration:line-through;color:var(--ink3)}
+.hrs{font:13px var(--mono);color:var(--ink2);font-variant-numeric:tabular-nums}
+.x{background:none;border:0;color:var(--ink3);padding:2px 6px;border-radius:5px;font-size:16px;line-height:1}
+.x:hover{color:var(--bad);background:var(--bad-soft)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row input[type=text]{flex:1 1 160px}
+input[type=text],input[type=number],input[type=datetime-local],input[type=date],input[type=time],textarea,select{font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);min-width:0;max-width:100%}
+input[type=number]{width:80px}
+.small{font-size:13px;color:var(--ink2)}
+.btn{background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 12px;font-size:14px}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.danger{color:var(--bad)}
+.foot{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center}
+.add{background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.add h3{margin:0;font:700 17px var(--display)}
+.add textarea{min-height:100px;width:100%}
+.mono{font-family:var(--mono)!important;font-size:13.5px!important}
+.field{display:flex;flex-direction:column;gap:4px;flex:1 1 180px}
+.hint{font-size:12.5px;color:var(--ink3)}
+.err{color:var(--bad);font-size:13px}
+.how{font-size:13px;color:var(--ink2);line-height:1.6}
+.how summary{cursor:pointer;color:var(--ink2);font-weight:500}
+.how p{margin:.5em 0;max-width:65ch}
+
+/* week */
+.gridwrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.week{display:grid;grid-template-columns:44px repeat(7,minmax(74px,1fr));min-width:590px}
+.wh{padding:8px 6px 6px;border-bottom:1px solid var(--line);font-size:12.5px;display:flex;flex-direction:column;gap:3px;min-height:52px}
+.wh b{font:600 13px var(--body)}
+.wh.today b{color:var(--accent)}
+.wh .d{font:12px var(--mono);color:var(--ink3)}
+.due{font:500 10.5px/1.25 var(--mono);color:var(--bad);background:var(--bad-soft);border-radius:4px;padding:2px 4px;word-break:break-word}
+.tcol{position:relative;border-right:1px solid var(--line)}
+.tcol span{position:absolute;right:6px;font:11px var(--mono);color:var(--ink3);transform:translateY(-50%)}
+.dcol{position:relative;border-left:1px solid var(--line);background-image:repeating-linear-gradient(to bottom,var(--line) 0 1px,transparent 1px var(--rowh));}
+.dcol.today{background-color:color-mix(in srgb,var(--accent-soft) 45%,transparent)}
+.blk{position:absolute;left:3px;right:3px;border-radius:7px;padding:5px 6px;font-size:12px;line-height:1.25;overflow:hidden;border:0;text-align:left;display:flex;flex-direction:column;gap:2px}
+.blk b{font-weight:600;font-size:12.5px}
+.blk .t{font:11px var(--mono);opacity:.85}
+.nowline{position:absolute;left:0;right:0;height:2px;background:var(--bad);z-index:2}
+.classes{display:flex;flex-direction:column;gap:8px}
+.crow{display:grid;grid-template-columns:1fr 90px 100px 100px auto;gap:6px;align-items:center}
+.crow.flash{outline:2px solid var(--accent);border-radius:8px}
+@media (max-width:560px){.crow{grid-template-columns:1fr 1fr 1fr auto;}.crow input[type=text]{grid-column:1/-1}}
+
+/* notes */
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink2);border-radius:99px;padding:5px 12px;font-size:13px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.wkgroup{display:flex;flex-direction:column;gap:10px}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.note.studio{border-left:4px solid var(--accent)}
+.note-head{display:flex;gap:8px 10px;align-items:center;flex-wrap:wrap}
+.note-head .date{font:13px var(--mono);color:var(--ink2)}
+.note-head .sp{margin-left:auto;display:flex;gap:4px}
+.note .text{white-space:pre-wrap;margin:0;max-width:68ch;font-size:14.5px}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.steps li{display:flex;gap:9px;align-items:flex-start;font-size:14px}
+.steps li input{margin-top:2px}
+.sent{font:11px var(--mono);color:var(--ink3)}
+/* key dates */
+.kd{font:500 10.5px/1.25 var(--mono);border-radius:4px;padding:2px 4px;word-break:break-word;background:var(--sunk);color:var(--ink2)}
+.k-review{background:var(--ink);color:var(--bg)} .k-due{background:var(--bad-soft);color:var(--bad)} .k-quiz{background:var(--warn-soft);color:var(--warn)}
+.k-online{background:var(--c3);color:var(--c3i)} .k-trip{background:var(--c2);color:var(--c2i)} .k-noclass{text-decoration:line-through}
+.soon{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 16px}
+.soon-row{display:grid;grid-template-columns:92px 1fr auto;gap:4px 12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.soon-row:last-child{border-bottom:0}
+.soon-row .dt{font:13px var(--mono);color:var(--ink2);font-variant-numeric:tabular-nums}
+.soon-row .dt b{display:block;color:var(--ink);font-weight:500}
+.soon-row .ttl{display:flex;flex-direction:column;gap:3px;min-width:0}
+.soon-row .ttl .subj{align-self:flex-start}
+.blk.cancel{opacity:.45;text-decoration:line-through}
+.blk .tag{font:500 10px var(--mono);text-transform:uppercase;letter-spacing:.04em}
+.kdrow{display:grid;grid-template-columns:100px 1fr auto auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.kdrow .dt{font:13px var(--mono);color:var(--ink2)}
+.kdadd{display:grid;grid-template-columns:150px 100px 1fr;gap:6px}
+.kdadd input[type=text]{grid-column:1/-1}
+@media (max-width:560px){.kdrow{grid-template-columns:84px 1fr auto}.kdrow .kd{display:none}.kdadd{grid-template-columns:1fr 1fr}.soon-row{grid-template-columns:78px 1fr}.soon-row .kd{grid-column:2;justify-self:start}}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+.toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:480px){.next{padding:18px}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <h1>Next Up <span class="ex" style="vertical-align:middle">beta</span></h1>
+    <span class="today" id="today"></span>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tab-next" data-tab="next" aria-selected="true">Next</button>
+    <button role="tab" id="tab-week" data-tab="week" aria-selected="false">Week</button>
+    <button role="tab" id="tab-notes" data-tab="notes" aria-selected="false">Crit notes</button>
+  </nav>
+
+  <div class="banner" id="welcome" hidden>
+    <span>Set up for INDA Year 4, Term 1 (2026): Studio, Arch Management, Real Estate and Proposal Writing. Load the term to get every class, crit and deadline, then tick off what you've already done. Your progress and notes are saved on this device only.</span>
+    <span class="row"><button id="loadTerm" class="btn pri">Load Term 1 schedule</button><button id="loadEx">Just show me an example</button></span>
+  </div>
+
+  <div class="banner" id="exBanner" hidden>
+    <span>Items marked "example" are there so you can see how it works. Clear them and add your own.</span>
+    <button id="clearEx">Clear examples</button>
+  </div>
+
+  <!-- NEXT -->
+  <section class="panel" id="p-next">
+    <section class="next" id="next" aria-live="polite"></section>
+    <section id="upnext"></section>
+    <section class="list" id="soonWrap">
+      <span class="label">Next 2 weeks</span>
+      <div class="soon" id="soon"></div>
+    </section>
+
+    <div class="strip">
+      <span>I can work</span>
+      <input type="number" id="hpd" min="0" max="16" step="0.5" value="6" aria-label="Work hours on free days">
+      <span>h on free days,</span>
+      <input type="number" id="hcd" min="0" max="16" step="0.5" value="3" aria-label="Work hours on class days">
+      <span>h on class days</span>
+      <span id="saveState" class="small" style="margin-left:auto"></span>
+    </div>
+
+    <section class="list">
+      <span class="label">Projects, most urgent first</span>
+      <div id="projects" class="list"></div>
+    </section>
+
+    <form class="add" id="addForm" autocomplete="off">
+      <h3>Add a project</h3>
+      <div class="row">
+        <div class="field"><label class="small" for="newName">Project</label><input type="text" id="newName" placeholder="e.g. Studio final review" required></div>
+        <div class="field"><label class="small" for="newDue">Deadline</label><input type="datetime-local" id="newDue" required></div>
+        <div class="field"><label class="small" for="newSubj">Subject</label><select id="newSubj"></select></div>
+      </div>
+      <div class="field">
+        <label class="small" for="newItems">What you need to hand in, one per line, with rough hours</label>
+        <textarea id="newItems" class="mono" placeholder="Site plan, 4&#10;Long section, 6&#10;2 exterior renders, 8&#10;Board layout, 3"></textarea>
+        <span class="hint">Format: <b>name, hours</b>. No hours means 1 h. Put them in the order you'd do them.</span>
+      </div>
+      <div class="row"><button class="btn pri" type="submit">Add project</button><span class="err" id="addErr"></span></div>
+    </form>
+
+    <details class="how">
+      <summary>How it picks what's next</summary>
+      <p><b>% done</b> is weighted by hours, so finishing an 8 h render moves the bar more than a 1 h caption.</p>
+      <p><b>Work time</b> is counted day by day until the deadline, using your timetable: days with class get your class-day hours, free days get your free-day hours.</p>
+      <p><b>Slack</b> = that work time minus the hours still left. Lowest slack goes first.</p>
+      <p><b>Close-it-out rule:</b> if a project is 80%+ done with 2 h or less left, and finishing it won't put your most urgent project behind, it jumps to the top.</p>
+      <p>Status: <span class="status s-ok">On track</span> using under 70% of your time, <span class="status s-warn">Tight</span> 70–100%, <span class="status s-bad">Behind</span> more work than time.</p>
+    </details>
+  </section>
+
+  <!-- WEEK -->
+  <section class="panel" id="p-week" hidden>
+    <div class="row" style="justify-content:space-between">
+      <span class="label" id="weekLabel">This week</span>
+      <span class="row"><button class="btn" id="wkPrev" aria-label="Previous week">←</button><button class="btn" id="wkNow">This week</button><button class="btn" id="wkNext" aria-label="Next week">→</button></span>
+    </div>
+    <div class="gridwrap"><div class="week" id="week"></div></div>
+    <p class="hint" style="margin:0">Tags under each day: red = deadline, black = review or presentation, blue = online class, struck through = no class. Tap a class to edit it.</p>
+
+    <section class="add" style="border-style:solid">
+      <h3>Key dates</h3>
+      <p class="small" style="margin:0">Crits, reviews, quizzes, online or cancelled classes. Things you have to hand in go in as projects on the Next tab.</p>
+      <div id="kdList"></div>
+      <div class="row"><button class="btn" id="kdPast" type="button">Show past dates</button></div>
+      <form class="kdadd" id="kdForm" autocomplete="off">
+        <input type="date" id="kdDate" aria-label="Date" required>
+        <input type="time" id="kdTime" aria-label="Time (optional)">
+        <select id="kdSubj" aria-label="Subject"></select>
+        <select id="kdKind" aria-label="Type">
+          <option value="review">Review / presentation</option><option value="crit">Desk crit</option><option value="due">Deadline</option>
+          <option value="quiz">Quiz / exam</option><option value="online">Online class</option><option value="noclass">No class</option>
+          <option value="trip">Field trip</option><option value="other">Other</option>
+        </select>
+        <input type="text" id="kdTitle" placeholder="What's happening, e.g. Phase 3 review (15%)" aria-label="Title" required>
+        <button class="btn pri" type="submit">Add date</button>
+      </form>
+    </section>
+
+    <section class="add" style="border-style:solid">
+      <h3>Timetable</h3>
+      <p class="small" style="margin:0">Change these whenever your schedule changes, like when term 2 starts. Changes save right away.</p>
+      <div class="classes" id="classes"></div>
+      <div class="row"><button class="btn" id="addClass">+ Add class</button></div>
+    </section>
+  </section>
+
+  <!-- NOTES -->
+  <section class="panel" id="p-notes" hidden>
+    <form class="add" id="noteForm" autocomplete="off">
+      <h3 id="noteFormTitle">New crit note</h3>
+      <div class="row">
+        <div class="field"><label class="small" for="nSubj">Subject</label><select id="nSubj"></select></div>
+        <div class="field"><label class="small" for="nDate">Date</label><input type="date" id="nDate" required></div>
+      </div>
+      <div class="field">
+        <label class="small" for="nText">What we talked about, what Ajan said</label>
+        <textarea id="nText" placeholder="Ajan liked the flood-edge idea but said the section doesn't show how water moves through the site…" required></textarea>
+      </div>
+      <div class="field">
+        <label class="small" for="nSteps">Next steps, one per line</label>
+        <textarea id="nSteps" class="mono" placeholder="Redraw long section with water levels&#10;Test 2 more massing options"></textarea>
+        <span class="hint">You can send these to a project later, so they show up in "Do this next".</span>
+      </div>
+      <div class="row"><button class="btn pri" type="submit" id="noteSubmit">Save note</button><button class="btn" type="button" id="noteCancel" hidden>Cancel edit</button><span class="err" id="noteErr"></span></div>
+    </form>
+    <div class="chips" id="noteChips"></div>
+    <div id="notes" class="list"></div>
+  </section>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const HOUR = 3600e3, DAY = 24 * HOUR;
+  const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let projects = [], classes = [], notes = [], dates = [], showPast = false;
+  const KIND = {review:'Review', crit:'Desk crit', due:'Deadline', quiz:'Quiz', online:'Online', noclass:'No class', trip:'Trip', other:'Note'};
+  let hpd = 6, hcd = 3;
+  let skip = 0, pinned = null, open = new Set();
+  let tab = 'next', weekOffset = 0, noteFilter = 'all', editingNote = null;
+  let db = null, store = 'local', dirty = false;
+  const LS = 'nextup.v2';
+
+  const uid = () => Math.random().toString(36).slice(2, 10);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmtH = h => (Math.round(h * 10) / 10).toString().replace(/\.0$/, '') + ' h';
+  const dow = d => (d.getDay() + 6) % 7; // 0 = Mon
+  const toMin = t => { const [h, m] = String(t || '0:0').split(':').map(Number); return h * 60 + (m || 0); };
+  const dayStart = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const isStudio = s => /studio/i.test(s || '');
+  function fmtLeft(ms){
+    if (ms <= 0) return 'overdue';
+    const h = ms / HOUR;
+    if (h < 24) return Math.floor(h) + 'h ' + Math.round((h % 1) * 60) + 'm left';
+    return Math.floor(h / 24) + 'd ' + Math.floor(h % 24) + 'h left';
+  }
+  const fmtDue = iso => new Date(iso).toLocaleString('en-GB', {weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+  const fmtDate = s => new Date(s + 'T12:00').toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'});
+
+  // subject colours, stable per subject name
+  function subjects(){ const s = [...new Set(classes.map(c => (c.subject || '').trim()).filter(Boolean))]; s.sort((a, b) => isStudio(b) - isStudio(a)); return s; }
+  function colorIdx(name){ const list = [...new Set(classes.map(c => (c.subject || '').trim()))]; const i = list.indexOf((name || '').trim()); if (i >= 0) return i % 6; let h = 0; for (const ch of name || '') h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h % 6; }
+  const subjStyle = name => { const i = colorIdx(name); return `background:var(--c${i});color:var(--c${i}i)`; };
+
+  // ---------- work-time math ----------
+  const cancelled = (dateStr, subject) => dates.some(k => k.kind === 'noclass' && k.date === dateStr && (k.subject || '').trim() === (subject || '').trim());
+  const onlineOn = (dateStr, subject) => dates.some(k => k.kind === 'online' && k.date === dateStr && (k.subject || '').trim() === (subject || '').trim());
+  const isClassDay = d => classes.some(c => c.subject && +c.day === dow(d) && !cancelled(ymd(d), c.subject));
+  function workHours(fromMs, toMs){
+    if (toMs <= fromMs) return 0;
+    let t = fromMs, total = 0, guard = 0;
+    while (t < toMs && guard++ < 800){
+      const d = new Date(t), end = Math.min(dayStart(d).getTime() + DAY, toMs);
+      total += (end - t) / DAY * (isClassDay(d) ? hcd : hpd);
+      t = end;
+    }
+    return total;
+  }
+  function stats(p, now = Date.now()){
+    const total = p.items.reduce((a, i) => a + (+i.hours || 0), 0);
+    const doneH = p.items.filter(i => i.done).reduce((a, i) => a + (+i.hours || 0), 0);
+    const remaining = total - doneH;
+    const pct = total ? Math.round(doneH / total * 100) : 0;
+    const dl = new Date(p.deadline).getTime(), msLeft = dl - now;
+    const available = workHours(now, dl);
+    const slack = available - remaining;
+    const load = available > 0 ? remaining / available : (remaining > 0 ? Infinity : 0);
+    let status = 'ok';
+    if (remaining <= 0) status = 'done';
+    else if (msLeft <= 0 || load > 1) status = 'bad';
+    else if (load > 0.7) status = 'warn';
+    return {total, doneH, remaining, pct, msLeft, available, slack, load, status};
+  }
+  const statusText = {ok:'On track', warn:'Tight', bad:'Behind', done:'Done'};
+  function rank(){
+    const active = projects.map(p => ({p, s: stats(p)})).filter(x => x.s.remaining > 0);
+    active.sort((a, b) => a.s.slack - b.s.slack);
+    if (!active.length) return [];
+    const urgent = active[0];
+    const closers = active.filter(x => x !== urgent && x.s.pct >= 80 && x.s.remaining <= 2 && urgent.s.slack - x.s.remaining >= 0);
+    closers.sort((a, b) => a.s.remaining - b.s.remaining);
+    return [...closers.map(x => ({...x, reason:'close', vs: urgent})), ...active.filter(x => !closers.includes(x)).map(x => ({...x, reason: x === urgent ? 'urgent' : 'next'}))];
+  }
+
+  // ---------- NEXT tab ----------
+  function renderNext(){
+    const el = $('#next'), r = rank();
+    let pick, item;
+    if (pinned){
+      const p = projects.find(p => p.id === pinned.pid), it = p && p.items.find(i => i.id === pinned.iid && !i.done);
+      if (it){ pick = {p, s: stats(p), reason:'pinned'}; item = it; } else pinned = null;
+    }
+    if (!pick && r.length){ pick = r[skip % r.length]; item = pick.p.items.find(i => !i.done); }
+    if (!pick){
+      el.className = 'next empty';
+      el.innerHTML = projects.length
+        ? `<span class="label">Do this next</span><h2>Everything's done. Go outside.</h2><p class="why">Add your next project below when it lands.</p>`
+        : `<span class="label">Do this next</span><h2>Add a project to get your first pick.</h2><p class="why">List what you have to hand in with rough hours, and this will tell you where to start.</p>`;
+      return;
+    }
+    const {p, s} = pick; let why;
+    if (pick.reason === 'close') why = `${esc(p.name)} is ${s.pct}% done with only ${fmtH(s.remaining)} left. Finish it now and it's off your mind. ${esc(pick.vs.p.name)} still has ${fmtH(Math.max(0, pick.vs.s.slack - s.remaining))} of slack after this.`;
+    else if (pick.reason === 'urgent') why = s.status === 'bad'
+      ? `This is behind: ${fmtH(s.remaining)} of work left, about ${fmtH(s.available)} of work time before ${fmtDue(p.deadline)} once classes are counted. Start now, or cut scope.`
+      : `Lowest slack of everything you've got: ${fmtH(s.remaining)} of work left, about ${fmtH(s.available)} of work time before ${fmtDue(p.deadline)} once classes are counted.`;
+    else if (pick.reason === 'pinned') why = `You picked this one. ${fmtH(s.remaining)} left on ${esc(p.name)}.`;
+    else why = `Option ${(skip % r.length) + 1} of ${r.length}. ${fmtH(s.slack)} of slack before ${fmtDue(p.deadline)}.`;
+    el.className = 'next';
+    el.innerHTML = `
+      <span class="label">Do this next</span>
+      <div><h2>${esc(item.name)}</h2><div class="proj">${esc(p.name)}</div></div>
+      <div class="meta"><span class="chipd">≈ ${fmtH(+item.hours || 0)}</span><span class="chipd">${s.pct}% done</span><span class="chipd">${fmtLeft(s.msLeft)}</span></div>
+      <p class="why">${why}</p>
+      <div class="actions">
+        <button class="btn-main" data-act="done" data-p="${p.id}" data-i="${item.id}">Mark done</button>
+        ${r.length > 1 || pinned ? `<button class="btn-ghost" data-act="skip">Not now, show another</button>` : ''}
+      </div>`;
+  }
+
+  // next class occurrence (or current one)
+  function upcomingClass(now = new Date()){
+    let best = null;
+    for (const c of classes){
+      if (!c.subject || !c.start || !c.end) continue;
+      for (let k = 0; k < 8; k++){
+        const d = new Date(dayStart(now).getTime() + k * DAY + 2 * HOUR); // +2h avoids DST edge
+        if (dow(d) !== +c.day) continue;
+        const s = new Date(dayStart(d).getTime() + toMin(c.start) * 60e3), e = new Date(dayStart(d).getTime() + toMin(c.end) * 60e3);
+        if (e <= now || cancelled(ymd(d), c.subject)) continue;
+        if (!best || s < best.s) best = {c, s, e};
+        break;
+      }
+    }
+    return best;
+  }
+  function renderUpNext(){
+    const el = $('#upnext'), u = upcomingClass(), now = new Date();
+    if (!u){ el.innerHTML = ''; return; }
+    const {c, s, e} = u;
+    const inNow = s <= now;
+    const dayDiff = Math.round((dayStart(s) - dayStart(now)) / DAY);
+    const dayWord = dayDiff === 0 ? 'today' : dayDiff === 1 ? 'tomorrow' : s.toLocaleDateString('en-GB', {weekday:'long'});
+    const t = x => x.toTimeString().slice(0, 5);
+    const special = dates.filter(k => k.date === ymd(s) && (k.subject || '').trim() === c.subject.trim() && k.kind !== 'noclass');
+    const title = (inNow ? `In ${esc(c.subject)} now, until ${t(e)}` : `Next: ${esc(c.subject)} ${dayWord}, ${t(s)}–${t(e)}`)
+      + special.map(k => ` · ${esc(k.title)}`).join('');
+    const last = notes.filter(n => (n.subject || '').trim() === c.subject.trim()).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt)[0];
+    let body = '';
+    if (last){
+      const openSteps = (last.steps || []).filter(x => !x.done);
+      const excerpt = last.text.length > 240 ? last.text.slice(0, 240).trim() + '…' : last.text;
+      body = `<span class="label">Last time (${fmtDate(last.date)})</span>
+        <p class="quote">${esc(excerpt)}</p>
+        ${openSteps.length ? `<span class="label">Still open from that crit</span><ul class="steps-mini">${openSteps.map(x => `<li>${esc(x.text)}</li>`).join('')}</ul>` : ''}
+        <button class="linkbtn" data-act="gonotes" data-s="${esc(c.subject)}">All ${esc(c.subject)} notes →</button>`;
+    } else if (isStudio(c.subject) || dayDiff <= 1){
+      body = `<button class="linkbtn" data-act="newnote" data-s="${esc(c.subject)}">Write notes after this class →</button>`;
+    }
+    el.innerHTML = `<div class="upnext"><div class="when"><span class="subj" style="${subjStyle(c.subject)}">${esc(c.subject)}</span><h3>${title}</h3></div>${body}</div>`;
+  }
+
+  function renderSoon(){
+    const now = new Date(), today = ymd(now), limit = ymd(new Date(now.getTime() + 14 * DAY));
+    const rows = [];
+    dates.filter(k => k.date >= today && k.date <= limit).forEach(k => rows.push({date: k.date, time: k.time || '', title: k.title, subject: k.subject, kind: k.kind}));
+    projects.forEach(p => { const d = new Date(p.deadline); const ds = ymd(d); if (ds >= today && ds <= limit && stats(p).remaining > 0) rows.push({date: ds, time: d.toTimeString().slice(0,5), title: p.name, subject: p.subject, kind: 'due'}); });
+    rows.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+    $('#soonWrap').hidden = !rows.length;
+    $('#soon').innerHTML = rows.map(r => {
+      const dd = Math.round((new Date(r.date + 'T12:00') - dayStart(now)) / DAY - 0.5);
+      const rel = r.date === today ? 'Today' : dd === 1 ? 'Tomorrow' : new Date(r.date + 'T12:00').toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'});
+      return `<div class="soon-row"><span class="dt"><b>${rel}</b>${r.time && r.time !== '00:00' ? r.time : ''}</span>
+        <span class="ttl">${r.subject ? `<span class="subj" style="${subjStyle(r.subject)}">${esc(r.subject)}</span>` : ''}<span>${esc(r.title)}</span></span>
+        <span class="kd k-${r.kind}">${KIND[r.kind] || ''}</span></div>`;
+    }).join('');
+  }
+
+  function renderKeyDates(){
+    const today = ymd(new Date());
+    const list = dates.filter(k => showPast || k.date >= today).sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
+    $('#kdPast').textContent = showPast ? 'Hide past dates' : 'Show past dates';
+    $('#kdList').innerHTML = list.map(k => `
+      <div class="kdrow"><span class="dt">${fmtDate(k.date)}${k.time ? '<br>' + k.time : ''}</span>
+        <span>${k.subject ? `<span class="subj" style="${subjStyle(k.subject)}">${esc(k.subject)}</span> ` : ''}${esc(k.title)}</span>
+        <span class="kd k-${k.kind}">${KIND[k.kind] || ''}</span>
+        <button class="x" aria-label="Remove ${esc(k.title)}" data-act="rmkd" data-k="${k.id}">×</button></div>`).join('') || '<p class="small">No upcoming dates.</p>';
+    const opts = [...subjects(), 'Other'].map(s => `<option>${esc(s)}</option>`).join('');
+    for (const id of ['#kdSubj', '#newSubj']){ const sel = $(id), cur = sel.value; sel.innerHTML = (id === '#newSubj' ? '<option value="">None</option>' : '') + opts; if (cur !== undefined) sel.value = cur; if (sel.selectedIndex < 0) sel.selectedIndex = 0; }
+  }
+
+  function renderProjects(){
+    const r = rank();
+    const order = [...r.map(x => x.p), ...projects.filter(p => !r.some(x => x.p === p))];
+    $('#projects').innerHTML = order.map(p => {
+      const s = stats(p);
+      return `<details class="proj-card" data-id="${p.id}" ${open.has(p.id) ? 'open' : ''}>
+        <summary>
+          <h3 class="pname">${p.subject ? `<span class="subj" style="${subjStyle(p.subject)}">${esc(p.subject)}</span>` : ''}${esc(p.name)} ${p.example ? '<span class="ex">example</span>' : ''}</h3>
+          <div class="pct">${s.pct}%</div>
+          <div class="bar"><i style="width:${s.pct}%"></i></div>
+          <div class="pmeta"><span class="status s-${s.status}">${statusText[s.status]}</span>
+            <span>${fmtH(s.remaining)} of work left</span><span>${fmtLeft(s.msLeft)}</span>
+            ${s.remaining > 0 && s.msLeft > 0 ? `<span>slack ${fmtH(s.slack)}</span>` : ''}</div>
+        </summary>
+        <div class="body">
+          <ul class="items">${p.items.map(i => `
+            <li class="${i.done ? 'done' : ''}">
+              <input type="checkbox" id="c-${i.id}" data-act="tick" data-p="${p.id}" data-i="${i.id}" ${i.done ? 'checked' : ''}>
+              <span><label for="c-${i.id}">${esc(i.name)}</label></span>
+              <span class="hrs">${fmtH(+i.hours || 0)}</span>
+              <span>${i.done ? '' : `<button class="x" title="Do this now" aria-label="Do this now" data-act="pin" data-p="${p.id}" data-i="${i.id}">▲</button>`}<button class="x" title="Remove" aria-label="Remove ${esc(i.name)}" data-act="rm" data-p="${p.id}" data-i="${i.id}">×</button></span>
+            </li>`).join('') || '<li class="small">No deliverables yet.</li>'}</ul>
+          <div class="row">
+            <input type="text" id="ni-${p.id}" placeholder="Add a deliverable" aria-label="New deliverable">
+            <input type="number" id="nh-${p.id}" min="0.25" step="0.25" value="1" aria-label="Hours">
+            <button class="btn" data-act="additem" data-p="${p.id}">Add</button>
+          </div>
+          <div class="foot">
+            <label class="small row">Deadline <input type="datetime-local" id="dl-${p.id}" data-act="deadline" data-p="${p.id}" value="${toLocalInput(p.deadline)}"></label>
+            <span class="row" id="del-${p.id}"><button class="btn danger" data-act="askdel" data-p="${p.id}">Delete project</button></span>
+          </div>
+        </div>
+      </details>`;
+    }).join('') || '<p class="small">No projects yet.</p>';
+  }
+
+  // ---------- WEEK tab ----------
+  function renderWeek(){
+    const now = new Date();
+    const monday = new Date(dayStart(now).getTime() - dow(now) * DAY + weekOffset * 7 * DAY + 2 * HOUR);
+    const days = DAYS.map((_, i) => dayStart(new Date(monday.getTime() + i * DAY)));
+    const sun = days[6];
+    $('#weekLabel').textContent = weekOffset === 0 ? 'This week' : `Week of ${days[0].toLocaleDateString('en-GB', {day:'numeric', month:'short'})}`;
+    const valid = classes.filter(c => c.subject && c.start && c.end && toMin(c.end) > toMin(c.start));
+    let h0 = 8, h1 = 19;
+    valid.forEach(c => { h0 = Math.min(h0, Math.floor(toMin(c.start) / 60)); h1 = Math.max(h1, Math.ceil(toMin(c.end) / 60)); });
+    const rowh = 40, height = (h1 - h0) * rowh;
+    let html = `<div class="wh"></div>`;
+    days.forEach((d, i) => {
+      const isToday = ymd(d) === ymd(now);
+      const dues = projects.filter(p => ymd(new Date(p.deadline)) === ymd(d) && stats(p).remaining > 0);
+      const kds = dates.filter(k => k.date === ymd(d) && k.kind !== 'online').sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+      html += `<div class="wh ${isToday ? 'today' : ''}"><b>${DAYS[i]}</b><span class="d">${d.getDate()} ${d.toLocaleDateString('en-GB', {month:'short'})}</span>
+        ${dues.map(p => `<span class="due">Due ${new Date(p.deadline).toTimeString().slice(0,5)} · ${esc(p.name)}</span>`).join('')}
+        ${kds.map(k => `<span class="kd k-${k.kind}">${k.kind === 'noclass' ? 'No class · ' + esc(k.subject) : esc(k.title)}</span>`).join('')}</div>`;
+    });
+    html += `<div class="tcol" style="height:${height}px">${Array.from({length: h1 - h0 + 1}, (_, k) => k === 0 ? '' : `<span style="top:${k * rowh}px">${String(h0 + k).padStart(2,'0')}</span>`).join('')}</div>`;
+    days.forEach((d, i) => {
+      const isToday = ymd(d) === ymd(now);
+      const blocks = valid.filter(c => +c.day === i).map(c => {
+        const top = (toMin(c.start) - h0 * 60) / 60 * rowh, h = (toMin(c.end) - toMin(c.start)) / 60 * rowh;
+        const cx = cancelled(ymd(d), c.subject), on = onlineOn(ymd(d), c.subject);
+        return `<button class="blk ${cx ? 'cancel' : ''}" data-act="editclass" data-c="${c.id}" style="top:${top}px;height:${h - 2}px;${subjStyle(c.subject)}"><b>${esc(c.subject)}</b><span class="t">${c.start}–${c.end}</span>${on ? '<span class="tag">Online</span>' : ''}${cx ? '<span class="tag">No class</span>' : ''}</button>`;
+      }).join('')
+      + dates.filter(k => k.date === ymd(d) && k.kind === 'online' && k.time && !valid.some(c => +c.day === i && c.subject.trim() === (k.subject || '').trim())).map(k => {
+        const top = (toMin(k.time) - h0 * 60) / 60 * rowh;
+        return `<div class="blk" style="top:${top}px;height:${3 * rowh - 2}px;${subjStyle(k.subject)};outline:1px dashed currentColor"><b>${esc(k.subject)}</b><span class="t">${k.time}</span><span class="tag">${esc(k.title)}</span></div>`;
+      }).join('');
+      let nowl = '';
+      if (isToday){ const m = now.getHours() * 60 + now.getMinutes(); if (m >= h0 * 60 && m <= h1 * 60) nowl = `<div class="nowline" style="top:${(m - h0 * 60) / 60 * rowh}px"></div>`; }
+      html += `<div class="dcol ${isToday ? 'today' : ''}" style="height:${height}px;--rowh:${rowh}px">${blocks}${nowl}</div>`;
+    });
+    $('#week').innerHTML = html;
+  }
+  function renderClassList(){
+    $('#classes').innerHTML = classes.map(c => `
+      <div class="crow" id="cr-${c.id}">
+        <input type="text" value="${esc(c.subject)}" placeholder="Subject" aria-label="Subject" data-cf="subject" data-c="${c.id}">
+        <select aria-label="Day" data-cf="day" data-c="${c.id}">${DAYS.map((d, i) => `<option value="${i}" ${+c.day === i ? 'selected' : ''}>${d}</option>`).join('')}</select>
+        <input type="time" value="${esc(c.start)}" aria-label="Start" data-cf="start" data-c="${c.id}">
+        <input type="time" value="${esc(c.end)}" aria-label="End" data-cf="end" data-c="${c.id}">
+        <button class="x" aria-label="Remove ${esc(c.subject)}" data-act="rmclass" data-c="${c.id}">×</button>
+      </div>`).join('') || '<p class="small">No classes yet.</p>';
+  }
+
+  // ---------- NOTES tab ----------
+  function renderNoteForm(){
+    const sel = $('#nSubj'), cur = sel.value;
+    const subs = subjects();
+    const extra = [...new Set(notes.map(n => n.subject).filter(s => s && !subs.includes(s)))];
+    sel.innerHTML = [...subs, ...extra, 'Other'].map(s => `<option ${s === cur ? 'selected' : ''}>${esc(s)}</option>`).join('');
+    if (!cur && subs.length) sel.value = subs[0];
+    if (!$('#nDate').value) $('#nDate').value = ymd(new Date());
+  }
+  function weekKey(dateStr){ const d = new Date(dateStr + 'T12:00'); const m = new Date(d.getTime() - dow(d) * DAY); return ymd(m); }
+  function renderNotes(){
+    const subs = [...new Set([...subjects(), ...notes.map(n => n.subject).filter(Boolean)])];
+    $('#noteChips').innerHTML = ['all', ...subs].map(s => `<button class="chip" data-act="nfilter" data-s="${esc(s)}" aria-pressed="${noteFilter === s}">${s === 'all' ? 'All' : esc(s)}</button>`).join('');
+    const list = notes.filter(n => noteFilter === 'all' || n.subject === noteFilter).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
+    if (!list.length){ $('#notes').innerHTML = `<p class="small">No notes${noteFilter === 'all' ? '' : ' for ' + esc(noteFilter)} yet. After your next crit, write down what Ajan said while it's fresh.</p>`; return; }
+    const groups = {};
+    list.forEach(n => (groups[weekKey(n.date)] ||= []).push(n));
+    const projOpts = projects.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+    $('#notes').innerHTML = Object.entries(groups).map(([wk, ns]) => `
+      <div class="wkgroup"><span class="label">Week of ${new Date(wk + 'T12:00').toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'})}</span>
+      ${ns.map(n => {
+        const unsent = (n.steps || []).filter(x => !x.sent && !x.done);
+        return `<article class="note ${isStudio(n.subject) ? 'studio' : ''}">
+          <div class="note-head"><span class="subj" style="${subjStyle(n.subject)}">${esc(n.subject)}</span><span class="date">${fmtDate(n.date)}</span>${n.example ? '<span class="ex">example</span>' : ''}
+            <span class="sp"><button class="btn" data-act="editnote" data-n="${n.id}">Edit</button><span id="nd-${n.id}"><button class="btn danger" data-act="asknote" data-n="${n.id}">Delete</button></span></span></div>
+          <p class="text">${esc(n.text)}</p>
+          ${(n.steps || []).length ? `<ul class="steps">${n.steps.map(x => `<li class="${x.done ? 'done' : ''}"><input type="checkbox" id="st-${x.id}" data-act="step" data-n="${n.id}" data-x="${x.id}" ${x.done ? 'checked' : ''}><label for="st-${x.id}">${esc(x.text)} ${x.sent ? `<span class="sent">→ in ${esc(x.sent)}</span>` : ''}</label></li>`).join('')}</ul>` : ''}
+          ${unsent.length && projects.length ? `<div class="row small"><span>Send ${unsent.length} step${unsent.length > 1 ? 's' : ''} to</span><select id="sp-${n.id}" aria-label="Project">${projOpts}</select><button class="btn" data-act="sendsteps" data-n="${n.id}">Add as tasks</button></div>` : ''}
+        </article>`;
+      }).join('')}</div>`).join('');
+  }
+
+  // ---------- render ----------
+  function render(){
+    $('#today').textContent = new Date().toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long'});
+    $('#hpd').value = hpd; $('#hcd').value = hcd;
+    ['next','week','notes'].forEach(t => { $('#p-' + t).hidden = t !== tab; $('#tab-' + t).setAttribute('aria-selected', t === tab); });
+    $('#exBanner').hidden = !(projects.some(p => p.example) || notes.some(n => n.example) || classes.some(c => c.example) || dates.some(k => k.example));
+    $('#welcome').hidden = !!(projects.length || classes.length || dates.length || notes.length);
+    renderNext(); renderUpNext(); renderSoon(); renderProjects();
+    renderWeek(); renderClassList(); renderKeyDates();
+    renderNoteForm(); renderNotes();
+    $('#saveState').textContent = store === 'db' ? 'Saved to your account' : 'Saved on this device only';
+  }
+  const editing = () => { const a = document.activeElement; return a && a.matches('input:not([type=checkbox]),textarea,select'); };
+  function softRender(){ if (editing()){ dirty = true; renderNext(); renderUpNext(); renderWeek(); } else render(); }
+  document.addEventListener('focusout', () => setTimeout(() => { if (dirty && !editing()){ dirty = false; render(); } }, 50));
+
+  function toLocalInput(iso){ const d = new Date(iso); const z = n => String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}`; }
+  let tt; function toast(m){ const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 1800); }
+
+  // ---------- persistence ----------
+  const queues = {};
+  function q(key, fn){ queues[key] = (queues[key] || Promise.resolve()).then(fn).catch(e => toast(e && e.code === 'quota_exceeded' ? 'Storage is full. Delete old items.' : 'Could not save. Check your connection.')); }
+  function saveLocal(){ try { localStorage.setItem(LS, JSON.stringify({projects, classes, notes, dates, hpd, hcd})); } catch(e){} }
+  function loadLocal(){ try { const d = JSON.parse(localStorage.getItem(LS) || 'null'); if (d){ projects = d.projects || []; classes = d.classes || []; notes = d.notes || []; dates = d.dates || []; hpd = d.hpd ?? 6; hcd = d.hcd ?? 3; } } catch(e){} }
+  const clone = o => JSON.parse(JSON.stringify(o));
+  function saveDoc(coll, obj){ if (store === 'local') return saveLocal(); const b = clone(obj); q(coll + obj.id, () => db.doc(coll + '/' + obj.id).set(b)); }
+  function delDoc(coll, id){ if (store === 'local') return saveLocal(); q(coll + id, () => db.doc(coll + '/' + id).delete()); }
+  let ttT, stT;
+  function saveTimetable(){ clearTimeout(ttT); ttT = setTimeout(() => { if (store === 'local') return saveLocal(); const b = {classes: clone(classes)}; q('tt', () => db.doc('timetable/main').set(b)); }, 400); }
+  function saveSettings(){ clearTimeout(stT); stT = setTimeout(() => { if (store === 'local') return saveLocal(); q('st', () => db.doc('settings/main').set({hoursPerDay: hpd, classDayHours: hcd})); }, 600); }
+
+  // ---------- events ----------
+  const find = (pid, iid) => { const p = projects.find(x => x.id === pid); return [p, p && p.items.find(i => i.id === iid)]; };
+  function setTab(t){ tab = t; try { localStorage.setItem('nextup.tab', t); } catch(e){} render(); }
+  document.addEventListener('click', e => {
+    const tb = e.target.closest('[data-tab]'); if (tb) return setTab(tb.dataset.tab);
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const act = b.dataset.act, pid = b.dataset.p, iid = b.dataset.i;
+    if (act === 'tick' || act === 'step') return;
+    if (act === 'done'){ const [p, it] = find(pid, iid); if (!it) return; it.done = true; pinned = null; skip = 0; saveDoc('projects', p);
+      toast(stats(p).remaining <= 0 ? `${p.name} is finished` : "Done. Here's the next one."); render(); }
+    if (act === 'skip'){ pinned = null; skip++; renderNext(); }
+    if (act === 'pin'){ e.preventDefault(); pinned = {pid, iid}; skip = 0; render(); window.scrollTo({top:0, behavior:'smooth'}); }
+    if (act === 'rm'){ e.preventDefault(); const [p] = find(pid); p.items = p.items.filter(i => i.id !== iid); saveDoc('projects', p); render(); }
+    if (act === 'additem'){ const [p] = find(pid); const n = $('#ni-' + pid).value.trim(); const h = parseFloat($('#nh-' + pid).value) || 1;
+      if (!n) return $('#ni-' + pid).focus(); p.items.push({id: uid(), name: n, hours: h, done: false}); saveDoc('projects', p); render(); setTimeout(() => $('#ni-' + pid)?.focus(), 0); }
+    if (act === 'askdel') $('#del-' + pid).innerHTML = `<span class="small">Delete for good?</span><button class="btn danger" data-act="del" data-p="${pid}">Delete</button><button class="btn" data-act="keep">Keep</button>`;
+    if (act === 'keep') render();
+    if (act === 'del'){ projects = projects.filter(p => p.id !== pid); open.delete(pid); delDoc('projects', pid); toast('Project deleted'); render(); }
+    // week
+    if (act === 'editclass'){ const row = $('#cr-' + b.dataset.c); if (row){ row.scrollIntoView({behavior:'smooth', block:'center'}); row.classList.add('flash'); setTimeout(() => row.classList.remove('flash'), 1500); row.querySelector('input').focus({preventScroll:true}); } }
+    if (act === 'rmkd'){ dates = dates.filter(k => k.id !== b.dataset.k); delDoc('dates', b.dataset.k); render(); }
+    if (act === 'rmclass'){ classes = classes.filter(c => c.id !== b.dataset.c); saveTimetable(); render(); }
+    // notes
+    if (act === 'nfilter'){ noteFilter = b.dataset.s; renderNotes(); }
+    if (act === 'gonotes'){ noteFilter = b.dataset.s; setTab('notes'); }
+    if (act === 'newnote'){ setTab('notes'); $('#nSubj').value = b.dataset.s; $('#nText').focus(); }
+    if (act === 'editnote'){ const n = notes.find(x => x.id === b.dataset.n); if (!n) return; editingNote = n.id;
+      renderNoteForm(); $('#nSubj').value = n.subject; $('#nDate').value = n.date; $('#nText').value = n.text; $('#nSteps').value = (n.steps || []).map(x => x.text).join('\n');
+      $('#noteFormTitle').textContent = 'Edit note'; $('#noteSubmit').textContent = 'Save changes'; $('#noteCancel').hidden = false; window.scrollTo({top:0, behavior:'smooth'}); }
+    if (act === 'asknote') $('#nd-' + b.dataset.n).innerHTML = `<button class="btn danger" data-act="delnote" data-n="${b.dataset.n}">Delete for good</button>`;
+    if (act === 'delnote'){ notes = notes.filter(n => n.id !== b.dataset.n); delDoc('notes', b.dataset.n); toast('Note deleted'); render(); }
+    if (act === 'sendsteps'){ const n = notes.find(x => x.id === b.dataset.n), p = projects.find(x => x.id === $('#sp-' + b.dataset.n).value); if (!n || !p) return;
+      const unsent = n.steps.filter(x => !x.sent && !x.done);
+      unsent.forEach(x => { p.items.push({id: uid(), name: x.text, hours: 1, done: false}); x.sent = p.name; });
+      saveDoc('projects', p); saveDoc('notes', n); toast(`Added ${unsent.length} task${unsent.length > 1 ? 's' : ''} to ${p.name} (1 h each, edit if needed)`); render(); }
+  });
+  document.addEventListener('change', e => {
+    const t = e.target;
+    if (t.dataset.act === 'tick'){ const [p, it] = find(t.dataset.p, t.dataset.i); it.done = t.checked; saveDoc('projects', p); skip = 0; render(); }
+    if (t.dataset.act === 'step'){ const n = notes.find(x => x.id === t.dataset.n), x = n && n.steps.find(s => s.id === t.dataset.x); if (!x) return; x.done = t.checked; saveDoc('notes', n); renderUpNext(); renderNotes(); }
+    if (t.dataset.act === 'deadline' && t.value){ const [p] = find(t.dataset.p); p.deadline = new Date(t.value).toISOString(); saveDoc('projects', p); render(); }
+  });
+  document.addEventListener('input', e => {
+    const t = e.target; if (!t.dataset.cf) return;
+    const c = classes.find(x => x.id === t.dataset.c); if (!c) return;
+    c[t.dataset.cf] = t.dataset.cf === 'day' ? +t.value : t.value;
+    saveTimetable(); renderWeek(); renderNext(); renderUpNext();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.id && e.target.id.startsWith('ni-')){ e.preventDefault(); document.querySelector(`[data-act="additem"][data-p="${e.target.id.slice(3)}"]`).click(); }
+  });
+  document.addEventListener('toggle', e => { const d = e.target; if (d.classList && d.classList.contains('proj-card')) d.open ? open.add(d.dataset.id) : open.delete(d.dataset.id); }, true);
+  $('#hpd').addEventListener('input', e => { const v = parseFloat(e.target.value); if (v >= 0 && v <= 24){ hpd = v; renderNext(); renderProjects(); saveSettings(); } });
+  $('#hcd').addEventListener('input', e => { const v = parseFloat(e.target.value); if (v >= 0 && v <= 24){ hcd = v; renderNext(); renderProjects(); saveSettings(); } });
+  $('#clearEx').addEventListener('click', () => {
+    projects.filter(p => p.example).forEach(p => delDoc('projects', p.id)); notes.filter(n => n.example).forEach(n => delDoc('notes', n.id));
+    projects = projects.filter(p => !p.example); notes = notes.filter(n => !n.example);
+    classes = classes.filter(c => !c.example); dates = dates.filter(k => !k.example); saveLocal(); pinned = null; render(); toast('Examples cleared');
+  });
+  const TERM = {"classes": [{"id": "cl-studio", "subject": "Studio", "day": 0, "start": "10:00", "end": "18:00"}, {"id": "cl-mgmt", "subject": "Arch Management", "day": 1, "start": "09:00", "end": "12:00"}, {"id": "cl-re", "subject": "Real Estate", "day": 1, "start": "13:00", "end": "16:00"}, {"id": "cl-eng", "subject": "Proposal Writing", "day": 2, "start": "13:00", "end": "16:00"}], "projects": [{"id": "re-mid", "name": "Midterm presentation (15%, group)", "subject": "Real Estate", "deadline": "2026-09-29T06:00:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "re-mid-0", "name": "Pro-forma / financials (my part)", "hours": 3, "done": false}, {"id": "re-mid-1", "name": "Presentation deck (my slides)", "hours": 3, "done": false}, {"id": "re-mid-2", "name": "Group run-through + verbal prep", "hours": 1.5, "done": false}]}, {"id": "pw-hw", "name": "Unit 6 + Unit 7 homework", "subject": "Proposal Writing", "deadline": "2026-09-30T06:00:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "pw-hw-0", "name": "Unit 6 video + assignment", "hours": 1.5, "done": false}, {"id": "pw-hw-1", "name": "Unit 7 assignment", "hours": 1.5, "done": false}]}, {"id": "am-mid", "name": "Midterm assignment (35%)", "subject": "Arch Management", "deadline": "2026-10-05T16:59:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "am-mid-0", "name": "Re-read brief + C7 finance notes", "hours": 1.5, "done": false}, {"id": "am-mid-1", "name": "Outline", "hours": 1.5, "done": false}, {"id": "am-mid-2", "name": "Write draft", "hours": 5, "done": false}, {"id": "am-mid-3", "name": "Edit + submit", "hours": 1.5, "done": false}]}, {"id": "re-peer1", "name": "Midterm peer assessment form", "subject": "Real Estate", "deadline": "2026-10-06T16:59:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "re-peer1-0", "name": "Fill in the Google Form", "hours": 0.5, "done": false}]}, {"id": "studio-p3", "name": "Phase 3 review (15%), upload by 23:59", "subject": "Studio", "deadline": "2026-10-18T16:59:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "studio-p3-0", "name": "Final solution + selected strategies", "hours": 4, "done": false}, {"id": "studio-p3-1", "name": "Research summary book", "hours": 6, "done": false}, {"id": "studio-p3-2", "name": "Tectonic + experimentation drawings", "hours": 8, "done": false}, {"id": "studio-p3-3", "name": "Site model + study models", "hours": 10, "done": false}, {"id": "studio-p3-4", "name": "Ground floor plan (A1)", "hours": 5, "done": false}, {"id": "studio-p3-5", "name": "Non-typical plans", "hours": 5, "done": false}, {"id": "studio-p3-6", "name": "Elevation + section", "hours": 6, "done": false}, {"id": "studio-p3-7", "name": "Draft perspectives", "hours": 8, "done": false}, {"id": "studio-p3-8", "name": "Aerial views showing massing", "hours": 3, "done": false}, {"id": "studio-p3-9", "name": "Exploded isometric", "hours": 5, "done": false}]}, {"id": "re-ex2", "name": "Exercise 02: Back Door Analysis (5%)", "subject": "Real Estate", "deadline": "2026-10-20T06:00:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "re-ex2-0", "name": "Back door analysis for desk crit", "hours": 3, "done": false}]}, {"id": "pw-quiz", "name": "End-of-term quiz (20%)", "subject": "Proposal Writing", "deadline": "2026-10-28T06:00:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "pw-quiz-0", "name": "Review Units 1–11", "hours": 4, "done": false}]}], "dates": [{"id": "s01", "date": "2026-09-28", "time": "10:00", "subject": "Studio", "kind": "crit", "title": "Desk crit"}, {"id": "s02", "date": "2026-10-05", "time": "10:00", "subject": "Studio", "kind": "review", "title": "Collective pinup"}, {"id": "s03", "date": "2026-10-09", "time": "", "subject": "Studio", "kind": "trip", "title": "Field trip 9–11 Oct (TBC)"}, {"id": "s04", "date": "2026-10-12", "time": "10:00", "subject": "Studio", "kind": "crit", "title": "Desk crit"}, {"id": "s05", "date": "2026-10-19", "time": "10:00", "subject": "Studio", "kind": "review", "title": "Phase 3 review (15%)"}, {"id": "s06", "date": "2026-10-26", "time": "10:00", "subject": "Studio", "kind": "crit", "title": "Desk crit"}, {"id": "s07", "date": "2026-11-01", "time": "23:59", "subject": "Studio", "kind": "due", "title": "Phase 4 online submission"}, {"id": "s08", "date": "2026-11-02", "time": "10:00", "subject": "Studio", "kind": "review", "title": "Phase 4 cross crits (15%)"}, {"id": "s09", "date": "2026-11-09", "time": "10:00", "subject": "Studio", "kind": "crit", "title": "Desk crit"}, {"id": "s10", "date": "2026-11-16", "time": "10:00", "subject": "Studio", "kind": "crit", "title": "Desk crit"}, {"id": "s11", "date": "2026-11-22", "time": "23:59", "subject": "Studio", "kind": "due", "title": "Final submission"}, {"id": "s12", "date": "2026-11-23", "time": "", "subject": "Studio", "kind": "review", "title": "Final reviews 23–25 Nov (30%)"}, {"id": "s13", "date": "2026-12-04", "time": "", "subject": "Studio", "kind": "due", "title": "Research book (5%)"}, {"id": "a01", "date": "2026-10-06", "time": "09:00", "subject": "Arch Management", "kind": "trip", "title": "Field trip: A49 Architects (tbc)"}, {"id": "a02", "date": "2026-10-13", "time": "09:00", "subject": "Arch Management", "kind": "online", "title": "Zoom class"}, {"id": "a03", "date": "2026-10-20", "time": "09:00", "subject": "Arch Management", "kind": "review", "title": "Innovation Lab interim reviews"}, {"id": "a04", "date": "2026-11-10", "time": "09:00", "subject": "Arch Management", "kind": "review", "title": "Innovation Lab final presentations (25%, Zoom)"}, {"id": "a05", "date": "2026-12-01", "time": "09:00", "subject": "Arch Management", "kind": "other", "title": "Final assignment tutorials"}, {"id": "a06", "date": "2026-12-04", "time": "", "subject": "Arch Management", "kind": "due", "title": "Final assignment (35%)"}, {"id": "r01", "date": "2026-10-13", "time": "13:00", "subject": "Real Estate", "kind": "noclass", "title": "No class (King Bhumibol Memorial Day)"}, {"id": "r02", "date": "2026-10-16", "time": "13:00", "subject": "Real Estate", "kind": "online", "title": "Online make-up class"}, {"id": "r03", "date": "2026-11-10", "time": "13:00", "subject": "Real Estate", "kind": "review", "title": "Final presentation: deck + financial model + verbal (35%)"}, {"id": "r04", "date": "2026-11-17", "time": "23:59", "subject": "Real Estate", "kind": "due", "title": "Final peer assessment form"}, {"id": "r05", "date": "2026-12-01", "time": "", "subject": "Real Estate", "kind": "due", "title": "Final reflection paper (15%)"}, {"id": "p01", "date": "2026-09-30", "time": "13:00", "subject": "Proposal Writing", "kind": "online", "title": "Online class, Unit 8"}, {"id": "p02", "date": "2026-10-07", "time": "13:00", "subject": "Proposal Writing", "kind": "other", "title": "Unit 9 video + assignment set"}, {"id": "p03", "date": "2026-10-21", "time": "", "subject": "Proposal Writing", "kind": "other", "title": "Last day to withdraw"}, {"id": "p04", "date": "2026-11-04", "time": "13:00", "subject": "Proposal Writing", "kind": "other", "title": "Group project research day"}, {"id": "p05", "date": "2026-11-11", "time": "", "subject": "Proposal Writing", "kind": "other", "title": "Group project consultations (by appointment)"}, {"id": "p06", "date": "2026-11-18", "time": "13:00", "subject": "Proposal Writing", "kind": "review", "title": "Group presentations + written proposal (20%)"}]};
+  $('#loadTerm').addEventListener('click', () => {
+    const t = JSON.parse(JSON.stringify(TERM));
+    classes = t.classes; dates = t.dates; projects = t.projects.map(p => ({...p, createdAt: Date.now()}));
+    saveLocal(); render(); toast('Term 1 loaded. Tick off anything you have already done.');
+  });
+  $('#loadEx').addEventListener('click', () => {
+    const now = new Date(), day = n => new Date(dayStart(now).getTime() + n * DAY + 2 * HOUR);
+    const at = (n, h, m = 0) => { const d = dayStart(day(n)); d.setHours(h, m); return d.toISOString(); };
+    const nextDow = (dw, min = 1) => { for (let k = min; k < min + 7; k++) if (dow(day(k)) === dw) return k; return min; };
+    classes = [
+      {id: uid(), subject: 'Design Studio', day: 0, start: '10:00', end: '17:00', example: true},
+      {id: uid(), subject: 'History & Theory', day: 1, start: '09:00', end: '12:00', example: true},
+      {id: uid(), subject: 'Building Tech', day: 2, start: '13:00', end: '16:00', example: true},
+      {id: uid(), subject: 'Elective', day: 3, start: '13:00', end: '15:00', example: true}];
+    const s = nextDow(0);
+    projects = [
+      {id: uid(), name: 'Studio review', subject: 'Design Studio', deadline: at(s + 7, 9), example: true, createdAt: Date.now(), items: [
+        {id: uid(), name: 'Site analysis diagrams', hours: 4, done: true}, {id: uid(), name: 'Massing model', hours: 6, done: true},
+        {id: uid(), name: 'Plans', hours: 8, done: false}, {id: uid(), name: 'Section', hours: 5, done: false},
+        {id: uid(), name: '2 renders', hours: 8, done: false}, {id: uid(), name: 'Board layout', hours: 3, done: false}]},
+      {id: uid(), name: 'Theory essay', subject: 'History & Theory', deadline: at(3, 23, 59), example: true, createdAt: Date.now() + 1, items: [
+        {id: uid(), name: 'Outline', hours: 1, done: true}, {id: uid(), name: 'Research notes', hours: 2, done: true},
+        {id: uid(), name: 'First draft', hours: 4, done: true}, {id: uid(), name: 'Final edit + citations', hours: 1.5, done: false}]},
+      {id: uid(), name: 'Tech drawing set', subject: 'Building Tech', deadline: at(12, 13), example: true, createdAt: Date.now() + 2, items: [
+        {id: uid(), name: 'Wall section 1:20', hours: 5, done: false}, {id: uid(), name: 'Details x3', hours: 6, done: false}]}];
+    dates = [
+      {id: uid(), date: ymd(day(s)), time: '10:00', subject: 'Design Studio', kind: 'crit', title: 'Desk crit', example: true},
+      {id: uid(), date: ymd(day(s + 7)), time: '10:00', subject: 'Design Studio', kind: 'review', title: 'Studio review', example: true},
+      {id: uid(), date: ymd(day(nextDow(2))), time: '13:00', subject: 'Building Tech', kind: 'online', title: 'Online class', example: true}];
+    notes = [{id: uid(), subject: 'Design Studio', date: ymd(day(s - 7)), example: true, createdAt: Date.now(),
+      text: 'Tutor liked the concept but said the section does not show how people move through the site. Too many massing options: pick one and push it.',
+      steps: [{id: uid(), text: 'Redraw section with circulation', done: false}, {id: uid(), text: 'Choose one massing option', done: true}]}];
+    saveLocal(); render(); toast('Example week loaded');
+  });
+  $('#kdPast').addEventListener('click', () => { showPast = !showPast; renderKeyDates(); });
+  $('#kdForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const k = {id: uid(), date: $('#kdDate').value, time: $('#kdTime').value, subject: $('#kdSubj').value === 'Other' ? '' : $('#kdSubj').value, kind: $('#kdKind').value, title: $('#kdTitle').value.trim()};
+    if (!k.date || !k.title) return;
+    dates.push(k); saveDoc('dates', k); $('#kdTitle').value = ''; $('#kdTime').value = ''; render(); toast('Date added');
+  });
+  $('#wkPrev').addEventListener('click', () => { weekOffset--; renderWeek(); });
+  $('#wkNext').addEventListener('click', () => { weekOffset++; renderWeek(); });
+  $('#wkNow').addEventListener('click', () => { weekOffset = 0; renderWeek(); });
+  $('#addClass').addEventListener('click', () => {
+    const c = {id: uid(), subject: '', day: 3, start: '09:00', end: '12:00'}; classes.push(c); saveTimetable(); render();
+    setTimeout(() => $(`#cr-${c.id} input`)?.focus(), 0);
+  });
+
+  $('#addForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const name = $('#newName').value.trim(), due = $('#newDue').value;
+    const items = $('#newItems').value.split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+      const m = l.match(/^(.*?)[,\-–:]\s*([\d.]+)\s*h?\w*\s*$/i);
+      return {id: uid(), name: (m ? m[1] : l).trim() || l, hours: m ? parseFloat(m[2]) || 1 : 1, done: false};
+    });
+    if (!name || !due){ $('#addErr').textContent = 'Give it a name and a deadline.'; return; }
+    if (!items.length){ $('#addErr').textContent = 'Add at least one deliverable so it can work out the %.'; return; }
+    $('#addErr').textContent = '';
+    const p = {id: uid(), name, subject: $('#newSubj').value === 'Other' ? '' : $('#newSubj').value, deadline: new Date(due).toISOString(), items, example: false, createdAt: Date.now()};
+    projects.push(p); saveDoc('projects', p); e.target.reset(); skip = 0; render(); toast('Project added'); window.scrollTo({top:0, behavior:'smooth'});
+  });
+
+  function resetNoteForm(){ editingNote = null; $('#noteForm').reset(); $('#nDate').value = ymd(new Date()); $('#noteFormTitle').textContent = 'New crit note'; $('#noteSubmit').textContent = 'Save note'; $('#noteCancel').hidden = true; renderNoteForm(); }
+  $('#noteCancel').addEventListener('click', resetNoteForm);
+  $('#noteForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const subject = $('#nSubj').value, date = $('#nDate').value, text = $('#nText').value.trim();
+    if (!text || !date){ $('#noteErr').textContent = 'Write something and pick a date.'; return; }
+    $('#noteErr').textContent = '';
+    const lines = $('#nSteps').value.split('\n').map(l => l.trim()).filter(Boolean);
+    let n = editingNote && notes.find(x => x.id === editingNote);
+    if (n){
+      const old = n.steps || [];
+      n.steps = lines.map(l => old.find(o => o.text === l) || {id: uid(), text: l, done: false});
+      Object.assign(n, {subject, date, text});
+    } else {
+      n = {id: uid(), subject, date, text, steps: lines.map(l => ({id: uid(), text: l, done: false})), example: false, createdAt: Date.now()};
+      notes.push(n);
+    }
+    saveDoc('notes', n); toast(editingNote ? 'Note updated' : 'Note saved'); noteFilter = 'all'; resetNoteForm(); render();
+  });
+
+  setInterval(() => { if (!editing()) render(); }, 60e3);
+
+  // ---------- boot ----------
+  try { const t = localStorage.getItem('nextup.tab'); if (['next','week','notes'].includes(t)) tab = t; } catch(e){}
+  if (location.hash && ['#next','#week','#notes'].includes(location.hash)) tab = location.hash.slice(1);
+  loadLocal(); render();
+  (async () => {
+    try { db = await window.claude?.use?.('db'); } catch(e){ db = null; }
+    if (!db) return;
+    store = 'db';
+    const fail = () => { store = 'local'; loadLocal(); render(); };
+    db.collection('projects').onSnapshot(snap => { projects = snap.docs.map(d => clone(d.data())); softRender(); }, fail);
+    db.collection('notes').onSnapshot(snap => { notes = snap.docs.map(d => clone(d.data())); softRender(); }, () => {});
+    db.collection('dates').onSnapshot(snap => { dates = snap.docs.map(d => clone(d.data())); softRender(); }, () => {});
+    db.doc('timetable/main').onSnapshot(s => { if (s.exists){ classes = clone(s.data().classes || []); softRender(); } }, () => {});
+    db.doc('settings/main').onSnapshot(s => { if (s.exists){ const d = s.data(); if (d.hoursPerDay != null) hpd = d.hoursPerDay; if (d.classDayHours != null) hcd = d.classDayHours; softRender(); } }, () => {});
+  })();
+})();
+</script>
+
+</body>
+</html>
