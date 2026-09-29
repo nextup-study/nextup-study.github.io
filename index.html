@@ -13,9 +13,10 @@
 :root{
   --bg:#F3F5F2; --surface:#FFFFFF; --sunk:#E8ECE7; --line:#D5DBD4;
   --ink:#16201D; --ink2:#4A5752; --ink3:#7A8681;
-  --accent:#0E6B66; --accent-ink:#FFFFFF; --accent-soft:#D6EBE8;
+  --accent:#0E6B66; --accent-ink:#FFFFFF; --accent-soft:#D6EBE8; --cta:#FFAE62; --cta-hover:#FF9B42; --cta-ink:#3A1A03;
   --ok:#2F7D46; --ok-soft:#DDEFE2; --warn:#A8650B; --warn-soft:#F6E7CC; --bad:#B3362B; --bad-soft:#F6DBD7;
   --c0:#D7E8E6; --c0i:#0C4F4B; --c1:#E9E0F3; --c1i:#4E2F74; --c2:#F5E3CF; --c2i:#7A4510; --c3:#DCE6F5; --c3i:#23456F; --c4:#E6EED6; --c4i:#44561C; --c5:#F4DCE2; --c5i:#7A2638;
+  --d0:#3AA79C; --d1:#9B7BD0; --d2:#E58E3C; --d3:#5E8FD6; --d4:#8FB04A; --d5:#D9667F;
   --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
   --body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
@@ -25,7 +26,7 @@
     color-scheme:dark;
     --bg:#111715; --surface:#19211E; --sunk:#222B28; --line:#2F3A36;
     --ink:#E6ECE9; --ink2:#AAB6B1; --ink3:#7C8984;
-    --accent:#4FB8AF; --accent-ink:#0B1311; --accent-soft:#18332F;
+    --accent:#4FB8AF; --accent-ink:#0B1311; --accent-soft:#18332F; --cta:#F7A35C; --cta-hover:#FFB77A; --cta-ink:#241002;
     --ok:#6CC486; --ok-soft:#1C3325; --warn:#E3A64A; --warn-soft:#3A2C14; --bad:#F07E72; --bad-soft:#3D1F1B;
     --c0:#173532; --c0i:#8FD6CE; --c1:#2A2238; --c1i:#C9B0EA; --c2:#382A1A; --c2i:#EDC08E; --c3:#1C2A3D; --c3i:#A9C4EA; --c4:#26301A; --c4i:#BCD38C; --c5:#3A1F26; --c5i:#EFA7B6;
   }
@@ -34,11 +35,12 @@
   color-scheme:dark;
   --bg:#111715; --surface:#19211E; --sunk:#222B28; --line:#2F3A36;
   --ink:#E6ECE9; --ink2:#AAB6B1; --ink3:#7C8984;
-  --accent:#4FB8AF; --accent-ink:#0B1311; --accent-soft:#18332F;
+  --accent:#4FB8AF; --accent-ink:#0B1311; --accent-soft:#18332F; --cta:#F7A35C; --cta-hover:#FFB77A; --cta-ink:#241002;
   --ok:#6CC486; --ok-soft:#1C3325; --warn:#E3A64A; --warn-soft:#3A2C14; --bad:#F07E72; --bad-soft:#3D1F1B;
   --c0:#173532; --c0i:#8FD6CE; --c1:#2A2238; --c1i:#C9B0EA; --c2:#382A1A; --c2i:#EDC08E; --c3:#1C2A3D; --c3i:#A9C4EA; --c4:#26301A; --c4i:#BCD38C; --c5:#3A1F26; --c5i:#EFA7B6;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);}
 .wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:20px 72px;display:flex;flex-direction:column;gap:20px}
 header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -61,7 +63,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .next .meta{display:flex;gap:8px;flex-wrap:wrap}
 .chipd{font:500 12px var(--mono);padding:3px 9px;border-radius:99px;background:color-mix(in srgb,var(--bg) 14%,transparent);color:var(--bg)}
 .next .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
-.btn-main{background:var(--bg);color:var(--ink);border:0;border-radius:9px;padding:10px 16px;font-weight:600}
+.btn-main{background:var(--cta);color:var(--cta-ink);border:0;border-radius:9px;padding:11px 18px;font-weight:600;font-size:15px}
+.btn-main:hover{background:var(--cta-hover)}
 .btn-ghost{background:transparent;color:inherit;border:1px solid currentColor;border-radius:9px;padding:9px 14px;opacity:.8}
 .next.empty h2{font-size:26px}
 
@@ -75,6 +78,27 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .linkbtn{background:none;border:0;color:var(--accent);padding:0;font-size:13.5px;font-weight:500;text-align:left}
 
 /* strip */
+.sec-title{font:700 20px/1.2 var(--display);color:var(--ink);margin:6px 0 0;letter-spacing:-.01em}
+.hero-main{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start}
+.countdown{background:color-mix(in srgb,var(--bg) 12%,transparent);border-radius:12px;padding:10px 14px;text-align:right;min-width:132px;display:flex;flex-direction:column;gap:3px}
+.countdown b{font:600 30px/1 var(--mono);color:var(--bg);font-variant-numeric:tabular-nums;white-space:nowrap}
+.countdown .when{font:12px var(--mono);color:color-mix(in srgb,var(--bg) 72%,transparent)}
+.countdown.hot{background:var(--cta)} .countdown.hot b,.countdown.hot .when,.countdown.hot .label{color:var(--cta-ink)!important}
+.countdown.over{background:var(--bad)} .countdown.over b,.countdown.over .when,.countdown.over .label{color:#fff!important}
+.hero-coming{border-top:1px solid color-mix(in srgb,var(--bg) 18%,transparent);padding-top:12px;margin-top:2px;display:flex;flex-direction:column;gap:7px}
+.hc-row{display:grid;grid-template-columns:10px 1fr auto;gap:10px;align-items:center;font-size:14px;color:color-mix(in srgb,var(--bg) 90%,transparent)}
+.hc-row .dot{width:10px;height:10px;border-radius:50%}
+.hc-row .in{font:500 13px var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hc-row .in.hot{color:var(--cta)}
+@media (max-width:480px){.hero-main{grid-template-columns:1fr}.countdown{text-align:left;flex-direction:row;align-items:baseline;gap:10px;flex-wrap:wrap}}
+.modal{position:fixed;inset:0;background:rgba(10,16,14,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:30}
+.modal-card{background:var(--surface);color:var(--ink);border-radius:16px;padding:22px;max-width:420px;width:100%;display:flex;flex-direction:column;gap:14px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.modal-card h3{margin:0;font:700 22px/1.2 var(--display)}
+.modal-card p{margin:0}
+.qrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:var(--bg)}
+.qrow span{font-size:14.5px}
+.qrow small{display:block;color:var(--ink3);font-size:12.5px}
+.qrow input{width:74px;font:600 18px var(--mono);text-align:center}
 .strip{display:flex;gap:8px 10px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--ink2)}
 .strip input{width:58px;font:500 13px var(--mono);padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}
 .banner{background:var(--accent-soft);color:var(--ink);border-radius:10px;padding:10px 14px;font-size:13.5px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
@@ -117,7 +141,8 @@ input[type=text],input[type=number],input[type=datetime-local],input[type=date],
 input[type=number]{width:80px}
 .small{font-size:13px;color:var(--ink2)}
 .btn{background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 12px;font-size:14px}
-.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.pri{background:var(--cta);border-color:var(--cta);color:var(--cta-ink);font-weight:600}
+.btn.pri:hover{background:var(--cta-hover);border-color:var(--cta-hover)}
 .btn.danger{color:var(--bad)}
 .foot{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center}
 .add{background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px}
@@ -192,9 +217,67 @@ input[type=number]{width:80px}
 .backup h3{margin:0;font:700 16px var(--display)}
 .chip .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
 #confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:20}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:40;display:flex;gap:14px;align-items:center;max-width:calc(100% - 32px)}
+.toast.has-undo{pointer-events:auto}
+.toast .undo{background:none;border:0;color:var(--cta);font-weight:700;padding:2px 0;font-size:14px}
+.iname{background:none;border:0;padding:2px 0;color:inherit;font:inherit;text-align:left;cursor:text}
+.iname:hover{text-decoration:underline dotted;text-underline-offset:3px}
+.hrs-btn{background:color-mix(in srgb,var(--surface) 60%,transparent);border:1px dashed color-mix(in srgb,var(--ti,var(--ink3)) 45%,transparent);border-radius:6px;padding:2px 8px;font:13px var(--mono);color:var(--ink2);font-variant-numeric:tabular-nums}
+.items .done .iname{text-decoration:line-through;color:var(--ink3)}
+.inl{font:inherit;padding:4px 8px!important;border-radius:6px;border:1px solid var(--accent)!important;background:var(--surface)!important;color:var(--ink);width:100%}
+.inl.num{width:72px;font-family:var(--mono)}
+.sec-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.donebox{border:1px dashed var(--line);border-radius:12px;padding:4px 12px}
+.donebox>summary{cursor:pointer;padding:10px 4px;font-weight:600;color:var(--ink2)}
+.donebox .list{padding-bottom:10px}
+.nrow{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}
+.stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--bg)}
+.stepper button{background:none;border:0;width:34px;height:38px;font-size:18px;color:var(--ink2)}
+.stepper input{width:52px;border:0!important;border-radius:0!important;text-align:center;font-family:var(--mono);padding:8px 0!important;background:transparent!important}
+.modal-card{max-height:calc(100vh - 32px);overflow:auto}
+.modal-card .more{display:flex;flex-direction:column;gap:14px;border-top:1px solid var(--line);padding-top:14px}
+.modal.first .more{display:none}
+.modal-card h4{margin:0;font:700 16px var(--display)}
+.kdedit{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px;border-radius:10px;border:1px solid var(--accent);margin-bottom:6px;background:var(--surface)}
+.kdedit input[type=text]{grid-column:1/-1}
+.kdedit .row{grid-column:1/-1}
+.kdrow .kdt{background:none;border:0;padding:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.showall{align-self:flex-start}
+@media (max-width:640px){
+  .tabs{position:fixed;left:0;right:0;bottom:0;top:auto;border-radius:0;padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -4px 14px rgba(0,0,0,.07)}
+  .tabs button{padding:11px 6px;font-size:14.5px}
+  .tabs button[aria-selected="true"]{background:var(--sunk);box-shadow:none}
+  .wrap{padding-bottom:110px}
+  .toast{bottom:calc(78px + env(safe-area-inset-bottom,0px))}
+}
 .toast.on{opacity:1}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (prefers-reduced-motion:no-preference){
+  html{scroll-behavior:smooth}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @keyframes pop{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+  @keyframes swap{from{opacity:.35;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @keyframes tickpop{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
+  @keyframes grow{from{transform:scaleX(0);opacity:.3}to{transform:none;opacity:1}}
+  @keyframes glow{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--cta) 60%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
+  .panel{animation:rise .24s ease-out}
+  .modal{animation:fade .18s ease-out}
+  .modal-card{animation:pop .24s cubic-bezier(.2,.8,.3,1)}
+  .toast{transform:translate(-50%,12px);transition:opacity .2s ease,transform .22s cubic-bezier(.2,.8,.3,1)}
+  .toast.on{transform:translate(-50%,0)}
+  .next.swap>*{animation:swap .32s ease-out both}
+  .next.swap>*:nth-child(2){animation-delay:.03s} .next.swap>*:nth-child(3){animation-delay:.06s} .next.swap>*:nth-child(4){animation-delay:.09s}
+  .justopened .body{animation:rise .22s ease-out}
+  .items li.justticked input{animation:tickpop .3s ease-out}
+  .seg i.grow{transform-origin:left;animation:grow .35s cubic-bezier(.2,.8,.3,1)}
+  .proj-card.fresh{animation:rise .3s ease-out,glow .9s ease-out .1s}
+  .soon-row.fresh{animation:rise .25s ease-out both}
+  .countdown.hot{animation:glow 1.6s ease-out 2}
+  button,.chip,.tabs button,.proj-card,.soon-row,.hrs-btn{transition:background-color .15s ease,color .15s ease,border-color .15s ease,transform .1s ease,box-shadow .15s ease}
+  .btn:active,.btn-main:active,.btn-ghost:active,.chip:active,.tabs button:active,.hrs-btn:active{transform:scale(.97)}
+  .proj-card>summary:hover{background:color-mix(in srgb,var(--ti,var(--ink)) 5%,transparent)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media (max-width:480px){.next{padding:18px}}
 </style>
 </head>
@@ -204,7 +287,7 @@ input[type=number]{width:80px}
 <div class="wrap">
   <header>
     <h1>Next Up <span class="ex" style="vertical-align:middle">beta</span></h1>
-    <span class="row"><span class="today" id="today"></span><button class="themebtn" id="themeBtn" type="button" aria-label="Switch theme"></button></span>
+    <span class="row"><span class="today" id="today"></span><button class="themebtn" id="themeBtn" type="button" aria-label="Switch theme"></button><button class="themebtn" id="settingsBtn" type="button">⚙ Settings</button></span>
   </header>
 
   <nav class="tabs" role="tablist">
@@ -228,60 +311,19 @@ input[type=number]{width:80px}
     <section class="next" id="next" aria-live="polite"></section>
     <section id="upnext"></section>
     <section class="list" id="soonWrap">
-      <span class="label">Next 2 weeks</span>
+      <h2 class="sec-title">Deadlines &amp; events in the next 2 weeks</h2>
       <div class="soon" id="soon"></div>
+      <button class="btn showall" type="button" id="soonMore" hidden></button>
     </section>
 
-    <div class="strip">
-      <span>I can work</span>
-      <input type="number" id="hpd" min="0" max="16" step="0.5" value="6" aria-label="Work hours on free days">
-      <span>h on free days,</span>
-      <input type="number" id="hcd" min="0" max="16" step="0.5" value="3" aria-label="Work hours on class days">
-      <span>h on class days</span>
-      <span id="saveState" class="small" style="margin-left:auto"></span>
-    </div>
 
     <section class="list">
       <div class="wins" id="wins"></div>
-      <span class="label">Projects, most urgent first</span>
+      <div class="sec-head"><h2 class="sec-title">Projects, most urgent first</h2><button class="btn pri" type="button" data-act="openadd">+ Add project</button></div>
       <div class="chips" id="projChips"></div>
       <div id="projects" class="list"></div>
     </section>
 
-    <form class="add" id="addForm" autocomplete="off">
-      <h3>Add a project</h3>
-      <div class="row">
-        <div class="field"><label class="small" for="newName">Project</label><input type="text" id="newName" placeholder="e.g. Studio final review" required></div>
-        <div class="field"><label class="small" for="newDue">Deadline</label><input type="datetime-local" id="newDue" required></div>
-        <div class="field"><label class="small" for="newSubj">Subject</label><select id="newSubj"></select></div>
-      </div>
-      <div class="field">
-        <label class="small" for="newItems">What you need to hand in, one per line, with rough hours</label>
-        <textarea id="newItems" class="mono" placeholder="Site plan, 4&#10;Long section, 6&#10;2 exterior renders, 8&#10;Board layout, 3"></textarea>
-        <span class="hint">Format: <b>name, hours</b>. No hours means 1 h. Put them in the order you'd do them.</span>
-      </div>
-      <div class="row"><button class="btn pri" type="submit">Add project</button><span class="err" id="addErr"></span></div>
-    </form>
-
-    <section class="backup">
-      <h3>Backup</h3>
-      <p class="small" style="margin:0" id="backupHint">Your data only lives in this browser. Save a backup now and then, so clearing your browser or switching phones doesn't wipe it.</p>
-      <div class="row">
-        <button class="btn" type="button" id="bkSave">Save backup file</button>
-        <label class="btn" for="bkFile" style="cursor:pointer">Restore from file</label>
-        <input type="file" id="bkFile" accept="application/json,.json" hidden>
-      </div>
-      <div class="row small" id="bkConfirm" hidden></div>
-    </section>
-
-    <details class="how">
-      <summary>How it picks what's next</summary>
-      <p><b>% done</b> is weighted by hours, so finishing an 8 h render moves the bar more than a 1 h caption.</p>
-      <p><b>Work time</b> is counted day by day until the deadline, using your timetable: days with class get your class-day hours, free days get your free-day hours.</p>
-      <p><b>Slack</b> = that work time minus the hours still left. Lowest slack goes first.</p>
-      <p><b>Close-it-out rule:</b> if a project is 80%+ done with 2 h or less left, and finishing it won't put your most urgent project behind, it jumps to the top.</p>
-      <p>Status: <span class="status s-ok">On track</span> using under 70% of your time, <span class="status s-warn">Tight</span> 70–100%, <span class="status s-bad">Behind</span> more work than time.</p>
-    </details>
   </section>
 
   <!-- WEEK -->
@@ -343,6 +385,50 @@ input[type=number]{width:80px}
     <div id="notes" class="list"></div>
   </section>
 </div>
+<div class="modal" id="setup" hidden role="dialog" aria-modal="true" aria-labelledby="setupTitle">
+  <div class="modal-card">
+    <h3 id="setupTitle">How much can you really work?</h3>
+    <p class="small" id="setupIntro">Next Up uses this to work out if you're on track. Go with a normal day, not your best day. You can change it anytime in Settings.</p>
+    <label class="qrow" for="hpd"><span>On a free day<small>No classes</small></span><span class="row"><input type="number" id="hpd" min="0" max="16" step="0.5" value="6"> h</span></label>
+    <label class="qrow" for="hcd"><span>On a class day<small>After class, evenings</small></span><span class="row"><input type="number" id="hcd" min="0" max="16" step="0.5" value="3"> h</span></label>
+    <div class="more">
+    <section class="backup" style="border:0;padding:0;background:none">
+      <h4>Backup</h4>
+      <p class="small" style="margin:0" id="backupHint">Your data only lives in this browser. Save a backup now and then, so clearing your browser or switching phones doesn't wipe it.</p>
+      <div class="row">
+        <button class="btn" type="button" id="bkSave">Save backup file</button>
+        <label class="btn" for="bkFile" style="cursor:pointer">Restore from file</label>
+        <input type="file" id="bkFile" accept="application/json,.json" hidden>
+      </div>
+      <div class="row small" id="bkConfirm" hidden></div>
+    </section>
+    <details class="how">
+      <summary>How it picks what's next</summary>
+      <p><b>% done</b> is weighted by hours, so finishing an 8 h render moves the bar more than a 1 h caption.</p>
+      <p><b>Work time</b> is counted day by day until the deadline, using your timetable: days with class get your class-day hours, free days get your free-day hours.</p>
+      <p><b>Slack</b> = that work time minus the hours still left. Lowest slack goes first.</p>
+      <p><b>Close-it-out rule:</b> if a project is 80%+ done with 2 h or less left, and finishing it won't put your most urgent project behind, it jumps to the top.</p>
+      <p>Status: <span class="status s-ok">On track</span> using under 70% of your time, <span class="status s-warn">Tight</span> 70–100%, <span class="status s-bad">Behind</span> more work than time.</p>
+    </details>
+    </div>
+    <div class="row" style="justify-content:space-between"><button class="btn pri" type="button" id="setupSave">Save</button><span id="saveState" class="small"></span></div>
+  </div>
+</div>
+<div class="modal" id="addModal" hidden role="dialog" aria-modal="true" aria-labelledby="addTitle">
+  <form class="modal-card" id="addForm" autocomplete="off">
+    <h3 id="addTitle">Add a project</h3>
+    <div class="field"><label class="small" for="newName">Project name</label><input type="text" id="newName" placeholder="e.g. Studio final review"></div>
+    <div class="row">
+      <div class="field"><label class="small" for="newSubj">Subject</label><select id="newSubj"></select></div>
+      <div class="field"><label class="small" for="newDue">Deadline</label><input type="datetime-local" id="newDue"></div>
+    </div>
+    <div class="field"><span class="small">What you have to hand in, in the order you'd do it, with rough hours</span>
+      <div class="list" id="newRows" style="gap:8px"></div>
+      <button class="btn" type="button" id="addRow" style="align-self:flex-start">+ Add another</button>
+    </div>
+    <div class="row" style="justify-content:space-between"><span class="row"><button class="btn pri" type="submit">Add project</button><button class="btn" type="button" id="addCancel">Cancel</button></span><span class="err" id="addErr"></span></div>
+  </form>
+</div>
 <canvas id="confetti" hidden></canvas>
 <div class="toast" id="toast" role="status"></div>
 
@@ -351,9 +437,10 @@ input[type=number]{width:80px}
   const $ = s => document.querySelector(s);
   const HOUR = 3600e3, DAY = 24 * HOUR;
   const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  let projects = [], classes = [], notes = [], dates = [], showPast = false, projFilter = 'all', pendingRestore = null;
+  let lastPick = '', lastTick = null, freshProj = null, freshSoon = 99;
+  let projects = [], classes = [], notes = [], dates = [], showPast = false, projFilter = 'all', pendingRestore = null, editingKd = null, showAllSoon = false;
   const KIND = {review:'Review', crit:'Desk crit', due:'Deadline', quiz:'Quiz', online:'Online', noclass:'No class', trip:'Trip', other:'Note'};
-  let hpd = 6, hcd = 3;
+  let hpd = 6, hcd = 3, asked = false;
   let skip = 0, pinned = null, open = new Set();
   let tab = 'next', weekOffset = 0, noteFilter = 'all', editingNote = null;
   let db = null, store = 'local', dirty = false;
@@ -381,7 +468,7 @@ input[type=number]{width:80px}
   function colorIdx(name){ const list = [...new Set(classes.map(c => (c.subject || '').trim()))]; const i = list.indexOf((name || '').trim()); if (i >= 0) return i % 6; let h = 0; for (const ch of name || '') h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h % 6; }
   const subjStyle = name => { const i = colorIdx(name); return `background:var(--c${i});color:var(--c${i}i)`; };
   const tint = name => { if (!name) return '--t:var(--surface);--ti:var(--accent)'; const i = colorIdx(name); return `--t:var(--c${i});--ti:var(--c${i}i)`; };
-  const segBar = pct => { const n = Math.floor(pct / 10); return `<div class="seg" aria-hidden="true">${Array.from({length: 10}, (_, k) => k < n ? `<i class="on" style="background:color-mix(in srgb,var(--ti) ${38 + k * 6.5}%,var(--t))"></i>` : '<i></i>').join('')}</div>`; };
+  const segBar = (pct, anim) => { const n = Math.floor(pct / 10); return `<div class="seg" aria-hidden="true">${Array.from({length: 10}, (_, k) => k < n ? `<i class="on${anim && k === n - 1 ? ' grow' : ''}" style="background:color-mix(in srgb,var(--ti) ${38 + k * 6.5}%,var(--t))"></i>` : '<i></i>').join('')}</div>`; };
 
   // ---------- work-time math ----------
   const cancelled = (dateStr, subject) => dates.some(k => k.kind === 'noclass' && k.date === dateStr && (k.subject || '').trim() === (subject || '').trim());
@@ -424,6 +511,22 @@ input[type=number]{width:80px}
   }
 
   // ---------- NEXT tab ----------
+  function countdown(ms){
+    if (ms <= 0) return fmtLeft(-ms).replace(' left', '');
+    const h = ms / HOUR;
+    if (h < 24) return `${Math.floor(h)}h ${String(Math.floor((h % 1) * 60)).padStart(2, '0')}m`;
+    if (h < 24 * 7) return `${Math.floor(h / 24)}d ${Math.floor(h % 24)}h`;
+    return `${Math.round(h / 24)} days`;
+  }
+  // next few deadlines/reviews, shown inside the hero card
+  function heroComing(excludePid){
+    const now = Date.now(), rows = [];
+    projects.forEach(p => { if (p.id !== excludePid && stats(p).remaining > 0){ const t = new Date(p.deadline).getTime(); if (t > now) rows.push({t, title: p.name, subject: p.subject}); } });
+    dates.forEach(k => { if (['due', 'review', 'quiz'].includes(k.kind)){ const t = new Date(k.date + 'T' + (k.time || '23:59')).getTime(); if (t > now) rows.push({t, title: k.title, subject: k.subject}); } });
+    rows.sort((a, b) => a.t - b.t);
+    const top = rows.slice(0, 3); if (!top.length) return '';
+    return `<div class="hero-coming"><span class="label">Also coming up</span>${top.map(x => `<div class="hc-row"><span class="dot" style="background:var(--d${colorIdx(x.subject || '')})"></span><span>${x.subject ? `<b style="font-weight:600">${esc(x.subject)}</b> · ` : ''}${esc(x.title)}</span><span class="in ${x.t - now < 2 * DAY ? 'hot' : ''}">${countdown(x.t - now)}</span></div>`).join('')}</div>`;
+  }
   function renderNext(){
     const el = $('#next'), r = rank();
     let pick, item;
@@ -436,7 +539,7 @@ input[type=number]{width:80px}
       el.className = 'next empty';
       el.innerHTML = projects.length
         ? `<span class="label">Do this next</span><h2>Everything's done. Go outside.</h2><p class="why">Add your next project below when it lands.</p>`
-        : `<span class="label">Do this next</span><h2>Add a project to get your first pick.</h2><p class="why">List what you have to hand in with rough hours, and this will tell you where to start.</p>`;
+        : `<span class="label">Do this next</span><h2>Add a project to get your first pick.</h2><p class="why">List what you have to hand in with rough hours, and this will tell you where to start.</p><div class="actions"><button class="btn-main" data-act="openadd">+ Add project</button></div>`;
       return;
     }
     const {p, s} = pick; let why;
@@ -446,16 +549,21 @@ input[type=number]{width:80px}
       : `Lowest slack of everything you've got: ${fmtH(s.remaining)} of work left, about ${fmtH(s.available)} of work time before ${fmtDue(p.deadline)} once classes are counted.`;
     else if (pick.reason === 'pinned') why = `You picked this one. ${fmtH(s.remaining)} left on ${esc(p.name)}.`;
     else why = `Option ${(skip % r.length) + 1} of ${r.length}. ${fmtH(s.slack)} of slack before ${fmtDue(p.deadline)}.`;
-    el.className = 'next';
+    const pickKey = p.id + '/' + item.id; el.className = 'next' + (lastPick && lastPick !== pickKey ? ' swap' : ''); lastPick = pickKey;
+    const heat = s.msLeft <= 0 ? 'over' : s.msLeft < DAY ? 'hot' : '';
     el.innerHTML = `
       <span class="label">Do this next</span>
-      <div><h2>${esc(item.name)}</h2><div class="proj">${esc(p.name)}</div></div>
-      <div class="meta"><span class="chipd">≈ ${fmtH(+item.hours || 0)}</span><span class="chipd">${s.pct}% done</span><span class="chipd">${fmtLeft(s.msLeft)}</span></div>
+      <div class="hero-main">
+        <div><h2>${esc(item.name)}</h2><div class="proj">${p.subject ? esc(p.subject) + ' · ' : ''}${esc(p.name)}</div></div>
+        <div class="countdown ${heat}"><span class="label">${s.msLeft <= 0 ? 'Overdue' : 'Due in'}</span><b>${countdown(s.msLeft)}</b><span class="when">${fmtDue(p.deadline)}</span></div>
+      </div>
+      <div class="meta"><span class="chipd">≈ ${fmtH(+item.hours || 0)} for this</span><span class="chipd">${s.pct}% done</span><span class="chipd">${fmtH(s.remaining)} left on project</span></div>
       <p class="why">${why}</p>
       <div class="actions">
         <button class="btn-main" data-act="done" data-p="${p.id}" data-i="${item.id}">Mark done</button>
         ${r.length > 1 || pinned ? `<button class="btn-ghost" data-act="skip">Not now, show another</button>` : ''}
-      </div>`;
+      </div>
+      ${heroComing(p.id)}`;
   }
 
   // next class occurrence (or current one)
@@ -507,10 +615,12 @@ input[type=number]{width:80px}
     projects.forEach(p => { const d = new Date(p.deadline); const ds = ymd(d); if (ds >= today && ds <= limit && stats(p).remaining > 0) rows.push({date: ds, time: d.toTimeString().slice(0,5), title: p.name, subject: p.subject, kind: 'due'}); });
     rows.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
     $('#soonWrap').hidden = !rows.length;
-    $('#soon').innerHTML = rows.map(r => {
+    const more = $('#soonMore'); more.hidden = rows.length <= 5; more.dataset.act = 'soonmore';
+    more.textContent = showAllSoon ? 'Show fewer' : `Show all ${rows.length}`;
+    $('#soon').innerHTML = (showAllSoon ? rows : rows.slice(0, 5)).map((r, idx) => {
       const dd = Math.round((new Date(r.date + 'T12:00') - dayStart(now)) / DAY - 0.5);
       const rel = r.date === today ? 'Today' : dd === 1 ? 'Tomorrow' : new Date(r.date + 'T12:00').toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'});
-      return `<div class="soon-row ${r.subject ? 'tinted' : ''}" style="${tint(r.subject)}"><span class="dt"><b>${rel}</b>${r.time && r.time !== '00:00' ? r.time : ''}</span>
+      return `<div class="soon-row ${r.subject ? 'tinted' : ''} ${idx >= freshSoon ? 'fresh' : ''}" data-i="${idx}" style="${tint(r.subject)}"><span class="dt"><b>${rel}</b>${r.time && r.time !== '00:00' ? r.time : ''}</span>
         <span class="ttl">${r.subject ? `<span class="subj" style="${subjStyle(r.subject)}">${esc(r.subject)}</span>` : ''}<span>${esc(r.title)}</span></span>
         <span class="kd k-${r.kind}">${KIND[r.kind] || ''}</span></div>`;
     }).join('');
@@ -521,10 +631,16 @@ input[type=number]{width:80px}
     const list = dates.filter(k => showPast || k.date >= today).sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
     $('#kdPast').textContent = showPast ? 'Hide past dates' : 'Show past dates';
     $('#kdList').innerHTML = list.map(k => `
+      ${editingKd === k.id ? `<div class="kdedit">
+        <input type="date" name="d" value="${k.date}" aria-label="Date"><input type="time" name="h" value="${k.time || ''}" aria-label="Time">
+        <select name="s" aria-label="Subject">${[...subjects(), 'Other'].map(sb => `<option ${sb === (k.subject || 'Other') ? 'selected' : ''}>${esc(sb)}</option>`).join('')}</select>
+        <select name="k" aria-label="Type">${Object.entries(KIND).map(([v, l]) => `<option value="${v}" ${v === k.kind ? 'selected' : ''}>${l}</option>`).join('')}</select>
+        <input type="text" name="t" value="${esc(k.title)}" aria-label="Title">
+        <div class="row"><button class="btn pri" data-act="kdsave" data-k="${k.id}">Save</button><button class="btn" data-act="kdcancel">Cancel</button></div></div>` : `
       <div class="kdrow ${k.subject ? 'tinted' : ''}" style="${tint(k.subject)}"><span class="dt">${fmtDate(k.date)}${k.time ? '<br>' + k.time : ''}</span>
-        <span>${k.subject ? `<span class="subj" style="${subjStyle(k.subject)}">${esc(k.subject)}</span> ` : ''}${esc(k.title)}</span>
+        <button class="kdt" type="button" data-act="editkd" data-k="${k.id}" title="Tap to edit">${k.subject ? `<span class="subj" style="${subjStyle(k.subject)}">${esc(k.subject)}</span> ` : ''}${esc(k.title)}</button>
         <span class="kd k-${k.kind}">${KIND[k.kind] || ''}</span>
-        <button class="x" aria-label="Remove ${esc(k.title)}" data-act="rmkd" data-k="${k.id}">×</button></div>`).join('') || '<p class="small">No upcoming dates.</p>';
+        <button class="x" aria-label="Remove ${esc(k.title)}" data-act="rmkd" data-k="${k.id}">×</button></div>`}`).join('') || '<p class="small">No upcoming dates.</p>';
     const opts = [...subjects(), 'Other'].map(s => `<option>${esc(s)}</option>`).join('');
     for (const id of ['#kdSubj', '#newSubj']){ const sel = $(id), cur = sel.value; sel.innerHTML = (id === '#newSubj' ? '<option value="">None</option>' : '') + opts; if (cur !== undefined) sel.value = cur; if (sel.selectedIndex < 0) sel.selectedIndex = 0; }
   }
@@ -535,23 +651,23 @@ input[type=number]{width:80px}
     if (projFilter !== 'all' && !subs.includes(projFilter)) projFilter = 'all';
     $('#projChips').innerHTML = subs.length > 1 ? ['all', ...subs].map(sb => `<button class="chip" data-act="pfilter" data-s="${esc(sb)}" aria-pressed="${projFilter === sb}">${sb === 'all' ? 'All' : `<span class="dot" style="background:var(--c${colorIdx(sb)}i)"></span>${esc(sb)}`}</button>`).join('') : '';
     const order = [...r.map(x => x.p), ...projects.filter(p => !r.some(x => x.p === p))].filter(p => projFilter === 'all' || p.subject === projFilter);
-    $('#projects').innerHTML = order.map(p => {
+    const card = p => {
       const s = stats(p);
-      return `<details class="proj-card ${p.subject ? 'tinted' : ''}" style="${tint(p.subject)}" data-id="${p.id}" ${open.has(p.id) ? 'open' : ''}>
+      return `<details class="proj-card ${p.subject ? 'tinted' : ''} ${freshProj === p.id ? 'fresh' : ''}" style="${tint(p.subject)}" data-id="${p.id}" ${open.has(p.id) ? 'open' : ''}>
         <summary>
           <h3 class="pname">${p.subject ? `<span class="subj" style="${subjStyle(p.subject)}">${esc(p.subject)}</span>` : ''}${esc(p.name)} ${p.example ? '<span class="ex">example</span>' : ''}</h3>
           <div class="pct">${s.pct}%</div>
-          ${segBar(s.pct)}
+          ${segBar(s.pct, lastTick && lastTick.p === p.id && lastTick.done)}
           <div class="pmeta"><span class="status s-${s.status}">${statusText[s.status]}</span>
             <span>${fmtH(s.remaining)} of work left</span><span>${fmtLeft(s.msLeft)}</span>
             ${s.remaining > 0 && s.msLeft > 0 ? `<span>slack ${fmtH(s.slack)}</span>` : ''}</div>
         </summary>
         <div class="body">
           <ul class="items">${p.items.map(i => `
-            <li class="${i.done ? 'done' : ''}">
-              <input type="checkbox" id="c-${i.id}" data-act="tick" data-p="${p.id}" data-i="${i.id}" ${i.done ? 'checked' : ''}>
-              <span><label for="c-${i.id}">${esc(i.name)}</label></span>
-              <span class="hrs">${fmtH(+i.hours || 0)}</span>
+            <li class="${i.done ? 'done' : ''} ${lastTick && lastTick.i === i.id ? 'justticked' : ''}">
+              <input type="checkbox" id="c-${i.id}" data-act="tick" data-p="${p.id}" data-i="${i.id}" ${i.done ? 'checked' : ''} aria-label="${esc(i.name)}">
+              <span><button class="iname" type="button" data-act="editname" data-p="${p.id}" data-i="${i.id}" title="Tap to rename">${esc(i.name)}</button></span>
+              <button class="hrs-btn" type="button" data-act="edithrs" data-p="${p.id}" data-i="${i.id}" title="Tap to change hours">${fmtH(+i.hours || 0)}</button>
               <span>${i.done ? '' : `<button class="x" title="Do this now" aria-label="Do this now" data-act="pin" data-p="${p.id}" data-i="${i.id}">▲</button>`}<button class="x" title="Remove" aria-label="Remove ${esc(i.name)}" data-act="rm" data-p="${p.id}" data-i="${i.id}">×</button></span>
             </li>`).join('') || '<li class="small">No deliverables yet.</li>'}</ul>
           <div class="row">
@@ -560,12 +676,19 @@ input[type=number]{width:80px}
             <button class="btn" data-act="additem" data-p="${p.id}">Add</button>
           </div>
           <div class="foot">
+            <label class="small row" style="flex:1 1 200px">Name <input type="text" id="pn-${p.id}" data-act="pname" data-p="${p.id}" value="${esc(p.name)}" style="flex:1"></label>
+            <label class="small row">Subject <select id="ps-${p.id}" data-act="psubj" data-p="${p.id}"><option value="">None</option>${subjects().map(sb => `<option ${sb === p.subject ? 'selected' : ''}>${esc(sb)}</option>`).join('')}</select></label>
+          </div>
+          <div class="foot">
             <label class="small row">Deadline <input type="datetime-local" id="dl-${p.id}" data-act="deadline" data-p="${p.id}" value="${toLocalInput(p.deadline)}"></label>
-            <span class="row" id="del-${p.id}"><button class="btn danger" data-act="askdel" data-p="${p.id}">Delete project</button></span>
+            <button class="btn danger" data-act="del" data-p="${p.id}">Delete project</button>
           </div>
         </div>
       </details>`;
-    }).join('') || '<p class="small">No projects yet.</p>';
+    };
+    const active = order.filter(p => stats(p).remaining > 0 || !p.items.length), done = order.filter(p => p.items.length && stats(p).remaining <= 0);
+    $('#projects').innerHTML = (active.map(card).join('') || `<p class="small">${done.length ? 'Everything here is finished. 🎉' : 'No projects yet. Tap + Add project to start.'}</p>`)
+      + (done.length ? `<details class="donebox" ${open.has('__done') ? 'open' : ''} data-id="__done"><summary>Done (${done.length})</summary><div class="list">${done.map(card).join('')}</div></details>` : '');
   }
 
   // ---------- WEEK tab ----------
@@ -641,7 +764,7 @@ input[type=number]{width:80px}
         const unsent = (n.steps || []).filter(x => !x.sent && !x.done);
         return `<article class="note tinted ${isStudio(n.subject) ? 'studio' : ''}" style="${tint(n.subject)}">
           <div class="note-head"><span class="subj" style="${subjStyle(n.subject)}">${esc(n.subject)}</span><span class="date">${fmtDate(n.date)}</span>${n.example ? '<span class="ex">example</span>' : ''}
-            <span class="sp"><button class="btn" data-act="editnote" data-n="${n.id}">Edit</button><span id="nd-${n.id}"><button class="btn danger" data-act="asknote" data-n="${n.id}">Delete</button></span></span></div>
+            <span class="sp"><button class="btn" data-act="editnote" data-n="${n.id}">Edit</button><button class="btn danger" data-act="delnote" data-n="${n.id}">Delete</button></span></div>
           <p class="text">${esc(n.text)}</p>
           ${(n.steps || []).length ? `<ul class="steps">${n.steps.map(x => `<li class="${x.done ? 'done' : ''}"><input type="checkbox" id="st-${x.id}" data-act="step" data-n="${n.id}" data-x="${x.id}" ${x.done ? 'checked' : ''}><label for="st-${x.id}">${esc(x.text)} ${x.sent ? `<span class="sent">→ in ${esc(x.sent)}</span>` : ''}</label></li>`).join('')}</ul>` : ''}
           ${unsent.length && projects.length ? `<div class="row small"><span>Send ${unsent.length} step${unsent.length > 1 ? 's' : ''} to</span><select id="sp-${n.id}" aria-label="Project">${projOpts}</select><button class="btn" data-act="sendsteps" data-n="${n.id}">Add as tasks</button></div>` : ''}
@@ -660,6 +783,7 @@ input[type=number]{width:80px}
   }
   // mark an item done/undone, stamp times, celebrate when a project hits 100%
   function setDone(p, it, done){
+    lastTick = {p: p.id, i: it.id, done};
     const before = stats(p).remaining;
     it.done = done; if (done) it.doneAt = Date.now(); else delete it.doneAt;
     const after = stats(p).remaining;
@@ -668,7 +792,6 @@ input[type=number]{width:80px}
     saveDoc('projects', p);
   }
   function celebrate(p){
-    toast(`🎉 ${p.name}: finished!`);
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const cv = $('#confetti'), ctx = cv.getContext('2d'); cv.hidden = false;
     const W = cv.width = innerWidth * devicePixelRatio, H = cv.height = innerHeight * devicePixelRatio;
@@ -687,6 +810,7 @@ input[type=number]{width:80px}
   function render(){
     $('#today').textContent = new Date().toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long'});
     $('#hpd').value = hpd; $('#hcd').value = hcd;
+    setTimeout(() => { lastTick = null; freshProj = null; }, 0);
     ['next','week','notes'].forEach(t => { $('#p-' + t).hidden = t !== tab; $('#tab-' + t).setAttribute('aria-selected', t === tab); });
     $('#exBanner').hidden = !(projects.some(p => p.example) || notes.some(n => n.example) || classes.some(c => c.example) || dates.some(k => k.example));
     $('#welcome').hidden = !!(projects.length || classes.length || dates.length || notes.length);
@@ -700,19 +824,27 @@ input[type=number]{width:80px}
   document.addEventListener('focusout', () => setTimeout(() => { if (dirty && !editing()){ dirty = false; render(); } }, 50));
 
   function toLocalInput(iso){ const d = new Date(iso); const z = n => String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}`; }
-  let tt; function toast(m){ const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 1800); }
+  let tt, undoFn = null;
+  function toast(m, undo){
+    const t = $('#toast'); t.textContent = ''; const sp = document.createElement('span'); sp.textContent = m; t.appendChild(sp);
+    undoFn = undo || null;
+    if (undo){ const b = document.createElement('button'); b.className = 'undo'; b.type = 'button'; b.textContent = 'Undo';
+      b.addEventListener('click', () => { const f = undoFn; undoFn = null; t.classList.remove('on', 'has-undo'); if (f){ f(); render(); toast('Undone'); } }); t.appendChild(b); }
+    t.classList.toggle('has-undo', !!undo); t.classList.add('on'); clearTimeout(tt);
+    tt = setTimeout(() => { t.classList.remove('on', 'has-undo'); undoFn = null; }, undo ? 5500 : 1800);
+  }
 
   // ---------- persistence ----------
   const queues = {};
   function q(key, fn){ queues[key] = (queues[key] || Promise.resolve()).then(fn).catch(e => toast(e && e.code === 'quota_exceeded' ? 'Storage is full. Delete old items.' : 'Could not save. Check your connection.')); }
-  function saveLocal(){ try { localStorage.setItem(LS, JSON.stringify({projects, classes, notes, dates, hpd, hcd})); } catch(e){} }
-  function loadLocal(){ try { const d = JSON.parse(localStorage.getItem(LS) || 'null'); if (d){ projects = d.projects || []; classes = d.classes || []; notes = d.notes || []; dates = d.dates || []; hpd = d.hpd ?? 6; hcd = d.hcd ?? 3; } } catch(e){} }
+  function saveLocal(){ try { localStorage.setItem(LS, JSON.stringify({projects, classes, notes, dates, hpd, hcd, asked})); } catch(e){} }
+  function loadLocal(){ try { const d = JSON.parse(localStorage.getItem(LS) || 'null'); if (d){ projects = d.projects || []; classes = d.classes || []; notes = d.notes || []; dates = d.dates || []; hpd = d.hpd ?? 6; hcd = d.hcd ?? 3; asked = !!d.asked; } } catch(e){} }
   const clone = o => JSON.parse(JSON.stringify(o));
   function saveDoc(coll, obj){ if (store === 'local') return saveLocal(); const b = clone(obj); q(coll + obj.id, () => db.doc(coll + '/' + obj.id).set(b)); }
   function delDoc(coll, id){ if (store === 'local') return saveLocal(); q(coll + id, () => db.doc(coll + '/' + id).delete()); }
   let ttT, stT;
   function saveTimetable(){ clearTimeout(ttT); ttT = setTimeout(() => { if (store === 'local') return saveLocal(); const b = {classes: clone(classes)}; q('tt', () => db.doc('timetable/main').set(b)); }, 400); }
-  function saveSettings(){ clearTimeout(stT); stT = setTimeout(() => { if (store === 'local') return saveLocal(); q('st', () => db.doc('settings/main').set({hoursPerDay: hpd, classDayHours: hcd})); }, 600); }
+  function saveSettings(){ clearTimeout(stT); stT = setTimeout(() => { if (store === 'local') return saveLocal(); q('st', () => db.doc('settings/main').set({hoursPerDay: hpd, classDayHours: hcd, asked})); }, 600); }
 
   // ---------- events ----------
   const find = (pid, iid) => { const p = projects.find(x => x.id === pid); return [p, p && p.items.find(i => i.id === iid)]; };
@@ -723,22 +855,36 @@ input[type=number]{width:80px}
     const act = b.dataset.act, pid = b.dataset.p, iid = b.dataset.i;
     if (act === 'tick' || act === 'step') return;
     if (act === 'done'){ const [p, it] = find(pid, iid); if (!it) return; pinned = null; skip = 0; setDone(p, it, true);
-      if (stats(p).remaining > 0) toast("Done. Here's the next one."); render(); }
+      toast(stats(p).remaining > 0 ? "Done. Here's the next one." : `🎉 ${p.name}: finished!`, () => setDone(p, it, false)); render(); }
+    if (act === 'openadd') openAdd();
+    if (act === 'nrrm'){ b.closest('.nrow').remove(); if (!$('#newRows').children.length) addRow(); }
+    if (b.dataset.step){ const inp = b.parentElement.querySelector('input'); inp.value = Math.max(0.5, Math.round(((parseFloat(inp.value) || 0) + parseFloat(b.dataset.step)) * 2) / 2); }
+    if (act === 'editname'){ const [p, it] = find(pid, iid); inlineEdit(b, it.name, 'text', v => { if (v.trim()){ it.name = v.trim(); saveDoc('projects', p); } }); }
+    if (act === 'edithrs'){ const [p, it] = find(pid, iid); inlineEdit(b, it.hours, 'num', v => { const h = parseFloat(v); if (h > 0){ it.hours = h; saveDoc('projects', p); } }); }
+    if (act === 'editkd'){ editingKd = b.dataset.k; renderKeyDates(); }
+    if (act === 'kdcancel'){ editingKd = null; renderKeyDates(); }
+    if (act === 'kdsave'){ const k = dates.find(x => x.id === b.dataset.k); if (!k) return; const box = b.closest('.kdedit');
+      const title = box.querySelector('[name=t]').value.trim(), date = box.querySelector('[name=d]').value; if (!title || !date) return;
+      Object.assign(k, {title, date, time: box.querySelector('[name=h]').value, subject: box.querySelector('[name=s]').value === 'Other' ? '' : box.querySelector('[name=s]').value, kind: box.querySelector('[name=k]').value});
+      editingKd = null; saveDoc('dates', k); render(); toast('Date updated'); }
+    if (act === 'soonmore'){ showAllSoon = !showAllSoon; freshSoon = showAllSoon ? 5 : 99; renderSoon(); freshSoon = 99; }
     if (act === 'pfilter'){ projFilter = b.dataset.s; renderProjects(); }
     if (act === 'bkyes' && pendingRestore) restoreBackup(pendingRestore);
     if (act === 'bkno'){ pendingRestore = null; $('#bkConfirm').hidden = true; }
     if (act === 'skip'){ pinned = null; skip++; renderNext(); }
     if (act === 'pin'){ e.preventDefault(); pinned = {pid, iid}; skip = 0; render(); window.scrollTo({top:0, behavior:'smooth'}); }
-    if (act === 'rm'){ e.preventDefault(); const [p] = find(pid); p.items = p.items.filter(i => i.id !== iid); saveDoc('projects', p); render(); }
+    if (act === 'rm'){ e.preventDefault(); const [p] = find(pid); const idx = p.items.findIndex(i => i.id === iid); const it = p.items[idx];
+      p.items.splice(idx, 1); saveDoc('projects', p); render(); toast(`Removed "${it.name}"`, () => { p.items.splice(idx, 0, it); saveDoc('projects', p); }); }
     if (act === 'additem'){ const [p] = find(pid); const n = $('#ni-' + pid).value.trim(); const h = parseFloat($('#nh-' + pid).value) || 1;
       if (!n) return $('#ni-' + pid).focus(); p.items.push({id: uid(), name: n, hours: h, done: false}); saveDoc('projects', p); render(); setTimeout(() => $('#ni-' + pid)?.focus(), 0); }
-    if (act === 'askdel') $('#del-' + pid).innerHTML = `<span class="small">Delete for good?</span><button class="btn danger" data-act="del" data-p="${pid}">Delete</button><button class="btn" data-act="keep">Keep</button>`;
-    if (act === 'keep') render();
-    if (act === 'del'){ projects = projects.filter(p => p.id !== pid); open.delete(pid); delDoc('projects', pid); toast('Project deleted'); render(); }
+    if (act === 'del'){ const p = projects.find(x => x.id === pid); projects = projects.filter(x => x.id !== pid); delDoc('projects', pid); render();
+      toast('Project deleted', () => { projects.push(p); saveDoc('projects', p); }); }
     // week
     if (act === 'editclass'){ const row = $('#cr-' + b.dataset.c); if (row){ row.scrollIntoView({behavior:'smooth', block:'center'}); row.classList.add('flash'); setTimeout(() => row.classList.remove('flash'), 1500); row.querySelector('input').focus({preventScroll:true}); } }
-    if (act === 'rmkd'){ dates = dates.filter(k => k.id !== b.dataset.k); delDoc('dates', b.dataset.k); render(); }
-    if (act === 'rmclass'){ classes = classes.filter(c => c.id !== b.dataset.c); saveTimetable(); render(); }
+    if (act === 'rmkd'){ const k = dates.find(x => x.id === b.dataset.k); dates = dates.filter(x => x.id !== b.dataset.k); delDoc('dates', b.dataset.k); render();
+      toast('Date removed', () => { dates.push(k); saveDoc('dates', k); }); }
+    if (act === 'rmclass'){ const idx = classes.findIndex(c => c.id === b.dataset.c), c = classes[idx]; classes.splice(idx, 1); saveTimetable(); render();
+      toast(`Removed ${c.subject || 'class'}`, () => { classes.splice(idx, 0, c); saveTimetable(); }); }
     // notes
     if (act === 'nfilter'){ noteFilter = b.dataset.s; renderNotes(); }
     if (act === 'gonotes'){ noteFilter = b.dataset.s; setTab('notes'); }
@@ -746,8 +892,8 @@ input[type=number]{width:80px}
     if (act === 'editnote'){ const n = notes.find(x => x.id === b.dataset.n); if (!n) return; editingNote = n.id;
       renderNoteForm(); $('#nSubj').value = n.subject; $('#nDate').value = n.date; $('#nText').value = n.text; $('#nSteps').value = (n.steps || []).map(x => x.text).join('\n');
       $('#noteFormTitle').textContent = 'Edit note'; $('#noteSubmit').textContent = 'Save changes'; $('#noteCancel').hidden = false; window.scrollTo({top:0, behavior:'smooth'}); }
-    if (act === 'asknote') $('#nd-' + b.dataset.n).innerHTML = `<button class="btn danger" data-act="delnote" data-n="${b.dataset.n}">Delete for good</button>`;
-    if (act === 'delnote'){ notes = notes.filter(n => n.id !== b.dataset.n); delDoc('notes', b.dataset.n); toast('Note deleted'); render(); }
+    if (act === 'delnote'){ const n = notes.find(x => x.id === b.dataset.n); notes = notes.filter(x => x.id !== b.dataset.n); delDoc('notes', b.dataset.n); render();
+      toast('Note deleted', () => { notes.push(n); saveDoc('notes', n); }); }
     if (act === 'sendsteps'){ const n = notes.find(x => x.id === b.dataset.n), p = projects.find(x => x.id === $('#sp-' + b.dataset.n).value); if (!n || !p) return;
       const unsent = n.steps.filter(x => !x.sent && !x.done);
       unsent.forEach(x => { p.items.push({id: uid(), name: x.text, hours: 1, done: false}); x.sent = p.name; });
@@ -755,7 +901,10 @@ input[type=number]{width:80px}
   });
   document.addEventListener('change', e => {
     const t = e.target;
-    if (t.dataset.act === 'tick'){ const [p, it] = find(t.dataset.p, t.dataset.i); setDone(p, it, t.checked); skip = 0; render(); }
+    if (t.dataset.act === 'tick'){ const [p, it] = find(t.dataset.p, t.dataset.i); const was = stats(p).remaining; setDone(p, it, t.checked); skip = 0;
+      if (t.checked && was > 0 && stats(p).remaining <= 0) toast(`🎉 ${p.name}: finished!`, () => setDone(p, it, false)); render(); }
+    if (t.dataset.act === 'pname' && t.value.trim()){ const [p] = find(t.dataset.p); p.name = t.value.trim(); saveDoc('projects', p); render(); }
+    if (t.dataset.act === 'psubj'){ const [p] = find(t.dataset.p); p.subject = t.value; saveDoc('projects', p); render(); }
     if (t.dataset.act === 'step'){ const n = notes.find(x => x.id === t.dataset.n), x = n && n.steps.find(s => s.id === t.dataset.x); if (!x) return; x.done = t.checked; saveDoc('notes', n); renderUpNext(); renderNotes(); }
     if (t.dataset.act === 'deadline' && t.value){ const [p] = find(t.dataset.p); p.deadline = new Date(t.value).toISOString(); saveDoc('projects', p); render(); }
   });
@@ -768,7 +917,7 @@ input[type=number]{width:80px}
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter' && e.target.id && e.target.id.startsWith('ni-')){ e.preventDefault(); document.querySelector(`[data-act="additem"][data-p="${e.target.id.slice(3)}"]`).click(); }
   });
-  document.addEventListener('toggle', e => { const d = e.target; if (d.classList && d.classList.contains('proj-card')) d.open ? open.add(d.dataset.id) : open.delete(d.dataset.id); }, true);
+  document.addEventListener('toggle', e => { const d = e.target; if (d.classList && (d.classList.contains('proj-card') || d.classList.contains('donebox'))){ if (d.open){ open.add(d.dataset.id); d.classList.add('justopened'); } else { open.delete(d.dataset.id); d.classList.remove('justopened'); } } }, true);
   $('#hpd').addEventListener('input', e => { const v = parseFloat(e.target.value); if (v >= 0 && v <= 24){ hpd = v; renderNext(); renderProjects(); saveSettings(); } });
   $('#hcd').addEventListener('input', e => { const v = parseFloat(e.target.value); if (v >= 0 && v <= 24){ hcd = v; renderNext(); renderProjects(); saveSettings(); } });
   $('#clearEx').addEventListener('click', () => {
@@ -829,15 +978,13 @@ input[type=number]{width:80px}
   $('#addForm').addEventListener('submit', e => {
     e.preventDefault();
     const name = $('#newName').value.trim(), due = $('#newDue').value;
-    const items = $('#newItems').value.split('\n').map(l => l.trim()).filter(Boolean).map(l => {
-      const m = l.match(/^(.*?)[,\-–:]\s*([\d.]+)\s*h?\w*\s*$/i);
-      return {id: uid(), name: (m ? m[1] : l).trim() || l, hours: m ? parseFloat(m[2]) || 1 : 1, done: false};
-    });
+    const items = [...document.querySelectorAll('#newRows .nrow')].map(r => ({name: r.querySelector('.nr-name').value.trim(), hours: parseFloat(r.querySelector('.nr-hrs').value) || 1}))
+      .filter(x => x.name).map(x => ({id: uid(), name: x.name, hours: x.hours, done: false}));
     if (!name || !due){ $('#addErr').textContent = 'Give it a name and a deadline.'; return; }
     if (!items.length){ $('#addErr').textContent = 'Add at least one deliverable so it can work out the %.'; return; }
     $('#addErr').textContent = '';
     const p = {id: uid(), name, subject: $('#newSubj').value === 'Other' ? '' : $('#newSubj').value, deadline: new Date(due).toISOString(), items, example: false, createdAt: Date.now()};
-    projects.push(p); saveDoc('projects', p); e.target.reset(); skip = 0; render(); toast('Project added'); window.scrollTo({top:0, behavior:'smooth'});
+    projects.push(p); saveDoc('projects', p); closeAdd(); skip = 0; freshProj = p.id; render(); setTimeout(() => document.querySelector(`.proj-card[data-id="${p.id}"]`)?.scrollIntoView({block: 'center'}), 60); toast('Project added', () => { projects = projects.filter(x => x.id !== p.id); delDoc('projects', p.id); });
   });
 
   function resetNoteForm(){ editingNote = null; $('#noteForm').reset(); $('#nDate').value = ymd(new Date()); $('#noteFormTitle').textContent = 'New crit note'; $('#noteSubmit').textContent = 'Save note'; $('#noteCancel').hidden = true; renderNoteForm(); }
@@ -898,11 +1045,51 @@ input[type=number]{width:80px}
           for (const x of old[coll]) if (!keep.has(x.id)) await db.doc(coll + '/' + x.id).delete();
           for (const x of cur[coll]) await db.doc(coll + '/' + x.id).set(x);
         }
-        await db.doc('timetable/main').set(tt); await db.doc('settings/main').set(st);
+        await db.doc('timetable/main').set(tt); await db.doc('settings/main').set({...st, asked: true});
       });
     }
     render(); toast('Backup restored');
   }
+
+  // ---------- inline editing ----------
+  function inlineEdit(el, value, type, onSave){
+    const inp = document.createElement('input'); inp.type = type === 'num' ? 'number' : 'text'; inp.className = 'inl' + (type === 'num' ? ' num' : '');
+    if (type === 'num'){ inp.step = '0.5'; inp.min = '0.5'; } inp.value = value; el.replaceWith(inp); inp.focus(); inp.select();
+    let done = false;
+    const finish = save => { if (done) return; done = true; if (save) onSave(inp.value); render(); };
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); finish(true); } if (e.key === 'Escape') finish(false); });
+    inp.addEventListener('blur', () => finish(true));
+  }
+
+  // ---------- add-project popup ----------
+  function addRow(name = '', hours = 2){
+    const r = document.createElement('div'); r.className = 'nrow';
+    r.innerHTML = `<input type="text" class="nr-name" placeholder="e.g. Site plan" aria-label="Deliverable"><div class="stepper"><button data-act="hstep" type="button" data-step="-0.5" aria-label="Less">−</button><input type="number" class="nr-hrs" step="0.5" min="0.5" aria-label="Hours"><button data-act="hstep" type="button" data-step="0.5" aria-label="More">+</button></div><button class="x" type="button" data-act="nrrm" aria-label="Remove row">×</button>`;
+    r.querySelector('.nr-name').value = name; r.querySelector('.nr-hrs').value = hours;
+    r.querySelector('.nr-name').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); const nr = addRow(); nr.querySelector('.nr-name').focus(); } });
+    $('#newRows').appendChild(r); return r;
+  }
+  function openAdd(){
+    $('#addForm').reset(); $('#addErr').textContent = ''; $('#newRows').innerHTML = ''; addRow(); addRow(); addRow();
+    renderKeyDates(); $('#newSubj').value = projFilter !== 'all' ? projFilter : '';
+    $('#addModal').hidden = false; setTimeout(() => $('#newName').focus(), 50);
+  }
+  const closeAdd = () => { $('#addModal').hidden = true; };
+  $('#addRow').addEventListener('click', () => addRow().querySelector('.nr-name').focus());
+  $('#addCancel').addEventListener('click', closeAdd);
+
+  // ---------- settings popup ----------
+  function openSetup(first){ $('#hpd').value = hpd; $('#hcd').value = hcd; $('#setup').classList.toggle('first', first === true); $('#setupTitle').textContent = first === true ? 'How much can you really work?' : 'Settings'; $('#setupIntro').textContent = first === true ? "Next Up uses this to work out if you're on track. Go with a normal day, not your best day. You can change it anytime in Settings." : 'Hours you can work on a normal day. Next Up uses these to work out if you\'re on track.'; $('#setup').hidden = false; setTimeout(() => $('#hpd').focus(), 50); }
+  function closeSetup(){
+    const v1 = parseFloat($('#hpd').value), v2 = parseFloat($('#hcd').value);
+    if (v1 >= 0 && v1 <= 24) hpd = v1; if (v2 >= 0 && v2 <= 24) hcd = v2;
+    asked = true; $('#setup').hidden = true;
+    if (store === 'local'){ clearTimeout(stT); saveLocal(); } else { clearTimeout(stT); q('st', () => db.doc('settings/main').set({hoursPerDay: hpd, classDayHours: hcd, asked: true})); }
+    render();
+  }
+  $('#settingsBtn').addEventListener('click', () => openSetup(false));
+  $('#setupSave').addEventListener('click', () => { closeSetup(); toast('Saved'); });
+  document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (!$('#addModal').hidden) closeAdd(); else if (!$('#setup').hidden) closeSetup(); });
 
   // ---------- theme ----------
   const THEMES = ['auto', 'light', 'dark'], TLABEL = {auto:'◐ Auto', light:'☀ Light', dark:'☾ Dark'};
@@ -917,14 +1104,15 @@ input[type=number]{width:80px}
   loadLocal(); render();
   (async () => {
     try { db = await window.claude?.use?.('db'); } catch(e){ db = null; }
-    if (!db) return;
+    if (!db){ if (!asked) openSetup(true); return; }
     store = 'db';
     const fail = () => { store = 'local'; loadLocal(); render(); };
     db.collection('projects').onSnapshot(snap => { projects = snap.docs.map(d => clone(d.data())); softRender(); }, fail);
     db.collection('notes').onSnapshot(snap => { notes = snap.docs.map(d => clone(d.data())); softRender(); }, () => {});
     db.collection('dates').onSnapshot(snap => { dates = snap.docs.map(d => clone(d.data())); softRender(); }, () => {});
     db.doc('timetable/main').onSnapshot(s => { if (s.exists){ classes = clone(s.data().classes || []); softRender(); } }, () => {});
-    db.doc('settings/main').onSnapshot(s => { if (s.exists){ const d = s.data(); if (d.hoursPerDay != null) hpd = d.hoursPerDay; if (d.classDayHours != null) hcd = d.classDayHours; softRender(); } }, () => {});
+    let firstSettings = true;
+    db.doc('settings/main').onSnapshot(s => { const d = s.exists ? s.data() : {}; if (d.hoursPerDay != null) hpd = d.hoursPerDay; if (d.classDayHours != null) hcd = d.classDayHours; asked = !!d.asked; if (firstSettings){ firstSettings = false; if (!asked) openSetup(true); } softRender(); }, () => {});
   })();
 })();
 </script>
