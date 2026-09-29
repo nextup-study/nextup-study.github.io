@@ -251,8 +251,32 @@ input[type=number]{width:80px}
   .toast{bottom:calc(78px + env(safe-area-inset-bottom,0px))}
 }
 .toast.on{opacity:1}
+.pet{position:fixed;right:22px;bottom:22px;z-index:25;display:flex;align-items:flex-end;gap:10px;max-width:360px}
+.pet-body{width:92px;height:88px;border:0;background:none;padding:0;cursor:pointer;flex:0 0 auto;filter:drop-shadow(0 6px 10px rgba(0,0,0,.12))}
+.pet-body img{width:100%;height:100%;object-fit:contain}
+.pet .pbody{fill:var(--cta)} .pet .pl{fill:none;stroke:var(--cta-ink);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.pet .pf{fill:var(--cta-ink)} .pet .pa{fill:none;stroke:var(--cta-hover);stroke-width:7;stroke-linecap:round}
+.pet .pb{fill:var(--accent)} .pet .ps{stroke:var(--warn);stroke-width:3;stroke-linecap:round} .pet .pz{fill:var(--ink3);font:700 13px var(--mono)}
+.pet .pcheek{fill:#ff7a7a;opacity:.35} .pet .psh{fill:#000;opacity:.08}
+.pet-bubble{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px 14px 4px 14px;padding:10px 13px;font-size:13.5px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.12);white-space:pre-line;display:flex;flex-direction:column;gap:8px;margin-bottom:34px;min-width:170px}
+.pet.mini .pet-bubble{display:none}
+.pet-menu{display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--line);padding-top:8px}
+.pet-menu button{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px;text-align:left;color:var(--ink);font-size:13px}
+.pet-menu button:hover{border-color:var(--cta)}
+.pet-menu [data-pet="focus"]{background:var(--cta);border-color:var(--cta);color:var(--cta-ink);font-weight:600}
+@media (max-width:559px), (hover: none), (pointer: coarse){body:not(.pip) .pet{display:none!important}}
+@media (max-width:1000px){.pet{right:14px;bottom:14px;max-width:300px}.pet-body{width:76px;height:72px}.pet-bubble{margin-bottom:26px}}
+body.pip{margin:0;background:var(--bg);display:flex;align-items:center;justify-content:center;min-height:100vh;font:14px var(--body)}
+body.pip .pet{position:static;max-width:none;padding:10px;flex-direction:row-reverse}
+body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
 @media (prefers-reduced-motion:no-preference){
   html{scroll-behavior:smooth}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+  @keyframes hop{0%,100%{transform:translateY(0)}30%{transform:translateY(-12px)}60%{transform:translateY(0)}75%{transform:translateY(-5px)}}
+  .pet-body svg,.pet-body img{animation:bob 3.2s ease-in-out infinite}
+  .pet[data-mood="celebrating"] .pet-body svg,.pet[data-mood="celebrating"] .pet-body img{animation:hop .8s ease-out 2}
+  .pet[data-mood="sleepy"] .pet-body svg{animation-duration:5s}
+  .pet-bubble{animation:rise .2s ease-out}
   @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   @keyframes fade{from{opacity:0}to{opacity:1}}
   @keyframes pop{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
@@ -392,6 +416,11 @@ input[type=number]{width:80px}
     <label class="qrow" for="hpd"><span>On a free day<small>No classes</small></span><span class="row"><input type="number" id="hpd" min="0" max="16" step="0.5" value="6"> h</span></label>
     <label class="qrow" for="hcd"><span>On a class day<small>After class, evenings</small></span><span class="row"><input type="number" id="hcd" min="0" max="16" step="0.5" value="3"> h</span></label>
     <div class="more">
+    <section style="display:flex;flex-direction:column;gap:8px">
+      <h4>Study buddy</h4>
+      <label class="row small" for="petOn"><input type="checkbox" id="petOn"> Show the buddy (on computers with a mouse or trackpad)</label>
+      <div class="row small"><label for="focusMin">Work for</label><input type="number" id="focusMin" min="5" max="180" step="5" style="width:70px"> <span>min, then break for</span><input type="number" id="breakMin" min="1" max="60" style="width:62px"> <span>min</span></div>
+    </section>
     <section class="backup" style="border:0;padding:0;background:none">
       <h4>Backup</h4>
       <p class="small" style="margin:0" id="backupHint">Your data only lives in this browser. Save a backup now and then, so clearing your browser or switching phones doesn't wipe it.</p>
@@ -428,6 +457,19 @@ input[type=number]{width:80px}
     </div>
     <div class="row" style="justify-content:space-between"><span class="row"><button class="btn pri" type="submit">Add project</button><button class="btn" type="button" id="addCancel">Cancel</button></span><span class="err" id="addErr"></span></div>
   </form>
+</div>
+<div class="pet" id="pet" hidden>
+  <div class="pet-bubble"><div id="petText"></div>
+    <div class="pet-menu" id="petMenu" hidden>
+      <button type="button" data-pet="focus">▶ Start working</button>
+      <button type="button" data-pet="stop" hidden>Stop timer</button>
+      <button type="button" data-pet="next">What's next?</button>
+      <button type="button" data-pet="how">How am I doing?</button>
+      <button type="button" data-pet="pop">⧉ Pop out (stays on top)</button>
+      <button type="button" data-pet="hide">Quiet mode</button>
+    </div>
+  </div>
+  <button class="pet-body" id="petBody" type="button" aria-label="Study buddy: tap for options"><span id="petArt"></span></button>
 </div>
 <canvas id="confetti" hidden></canvas>
 <div class="toast" id="toast" role="status"></div>
@@ -787,7 +829,8 @@ input[type=number]{width:80px}
     const before = stats(p).remaining;
     it.done = done; if (done) it.doneAt = Date.now(); else delete it.doneAt;
     const after = stats(p).remaining;
-    if (after <= 0 && before > 0){ p.finishedAt = Date.now(); celebrate(p); }
+    if (after <= 0 && before > 0){ p.finishedAt = Date.now(); celebrate(p); try { flashPet('celebrating', `${p.name}: DONE! 🎉 You did it.`, 6000); } catch(e){} }
+    else if (done){ try { flashPet('celebrating', ['Nice, one down!', 'Ticked! Keep the streak going.', 'Good work. What\'s next?'][Math.floor(Math.random() * 3)], 3500); } catch(e){} }
     else if (after > 0) delete p.finishedAt;
     saveDoc('projects', p);
   }
@@ -814,7 +857,7 @@ input[type=number]{width:80px}
     ['next','week','notes'].forEach(t => { $('#p-' + t).hidden = t !== tab; $('#tab-' + t).setAttribute('aria-selected', t === tab); });
     $('#exBanner').hidden = !(projects.some(p => p.example) || notes.some(n => n.example) || classes.some(c => c.example) || dates.some(k => k.example));
     $('#welcome').hidden = !!(projects.length || classes.length || dates.length || notes.length);
-    renderNext(); renderUpNext(); renderSoon(); renderWins(); renderProjects();
+    renderNext(); renderUpNext(); renderSoon(); renderWins(); renderProjects(); if (typeof renderPet === 'function') try { renderPet(); } catch(e){}
     renderWeek(); renderClassList(); renderKeyDates();
     renderNoteForm(); renderNotes();
     $('#saveState').textContent = store === 'db' ? 'Saved to your account' : 'Saved on this device only';
@@ -928,7 +971,7 @@ input[type=number]{width:80px}
   const TERM = {"classes": [{"id": "cl-studio", "subject": "Studio", "day": 0, "start": "10:00", "end": "18:00"}, {"id": "cl-mgmt", "subject": "Arch Management", "day": 1, "start": "09:00", "end": "12:00"}, {"id": "cl-re", "subject": "Real Estate", "day": 1, "start": "13:00", "end": "16:00"}, {"id": "cl-eng", "subject": "Proposal Writing", "day": 2, "start": "13:00", "end": "16:00"}], "projects": [{"id": "re-mid", "name": "Midterm presentation (15%, group)", "subject": "Real Estate", "deadline": "2026-09-29T06:00:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "re-mid-0", "name": "Pro-forma / financials (my part)", "hours": 3, "done": false}, {"id": "re-mid-1", "name": "Presentation deck (my slides)", "hours": 3, "done": false}, {"id": "re-mid-2", "name": "Group run-through + verbal prep", "hours": 1.5, "done": false}]}, {"id": "pw-hw", "name": "Unit 6 + Unit 7 homework", "subject": "Proposal Writing", "deadline": "2026-09-30T06:00:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "pw-hw-0", "name": "Unit 6 video + assignment", "hours": 1.5, "done": false}, {"id": "pw-hw-1", "name": "Unit 7 assignment", "hours": 1.5, "done": false}]}, {"id": "am-mid", "name": "Midterm assignment (35%)", "subject": "Arch Management", "deadline": "2026-10-05T16:59:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "am-mid-0", "name": "Re-read brief + C7 finance notes", "hours": 1.5, "done": false}, {"id": "am-mid-1", "name": "Outline", "hours": 1.5, "done": false}, {"id": "am-mid-2", "name": "Write draft", "hours": 5, "done": false}, {"id": "am-mid-3", "name": "Edit + submit", "hours": 1.5, "done": false}]}, {"id": "re-peer1", "name": "Midterm peer assessment form", "subject": "Real Estate", "deadline": "2026-10-06T16:59:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "re-peer1-0", "name": "Fill in the Google Form", "hours": 0.5, "done": false}]}, {"id": "studio-p3", "name": "Phase 3 review (15%), upload by 23:59", "subject": "Studio", "deadline": "2026-10-18T16:59:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "studio-p3-0", "name": "Final solution + selected strategies", "hours": 4, "done": false}, {"id": "studio-p3-1", "name": "Research summary book", "hours": 6, "done": false}, {"id": "studio-p3-2", "name": "Tectonic + experimentation drawings", "hours": 8, "done": false}, {"id": "studio-p3-3", "name": "Site model + study models", "hours": 10, "done": false}, {"id": "studio-p3-4", "name": "Ground floor plan (A1)", "hours": 5, "done": false}, {"id": "studio-p3-5", "name": "Non-typical plans", "hours": 5, "done": false}, {"id": "studio-p3-6", "name": "Elevation + section", "hours": 6, "done": false}, {"id": "studio-p3-7", "name": "Draft perspectives", "hours": 8, "done": false}, {"id": "studio-p3-8", "name": "Aerial views showing massing", "hours": 3, "done": false}, {"id": "studio-p3-9", "name": "Exploded isometric", "hours": 5, "done": false}]}, {"id": "re-ex2", "name": "Exercise 02: Back Door Analysis (5%)", "subject": "Real Estate", "deadline": "2026-10-20T06:00:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "re-ex2-0", "name": "Back door analysis for desk crit", "hours": 3, "done": false}]}, {"id": "pw-quiz", "name": "End-of-term quiz (20%)", "subject": "Proposal Writing", "deadline": "2026-10-28T06:00:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "pw-quiz-0", "name": "Review Units 1–11", "hours": 4, "done": false}]}], "dates": [{"id": "s01", "date": "2026-09-28", "time": "10:00", "subject": "Studio", "kind": "crit", "title": "Desk crit"}, {"id": "s02", "date": "2026-10-05", "time": "10:00", "subject": "Studio", "kind": "review", "title": "Collective pinup"}, {"id": "s03", "date": "2026-10-09", "time": "", "subject": "Studio", "kind": "trip", "title": "Field trip 9–11 Oct (TBC)"}, {"id": "s04", "date": "2026-10-12", "time": "10:00", "subject": "Studio", "kind": "crit", "title": "Desk crit"}, {"id": "s05", "date": "2026-10-19", "time": "10:00", "subject": "Studio", "kind": "review", "title": "Phase 3 review (15%)"}, {"id": "s06", "date": "2026-10-26", "time": "10:00", "subject": "Studio", "kind": "crit", "title": "Desk crit"}, {"id": "s07", "date": "2026-11-01", "time": "23:59", "subject": "Studio", "kind": "due", "title": "Phase 4 online submission"}, {"id": "s08", "date": "2026-11-02", "time": "10:00", "subject": "Studio", "kind": "review", "title": "Phase 4 cross crits (15%)"}, {"id": "s09", "date": "2026-11-09", "time": "10:00", "subject": "Studio", "kind": "crit", "title": "Desk crit"}, {"id": "s10", "date": "2026-11-16", "time": "10:00", "subject": "Studio", "kind": "crit", "title": "Desk crit"}, {"id": "s11", "date": "2026-11-22", "time": "23:59", "subject": "Studio", "kind": "due", "title": "Final submission"}, {"id": "s12", "date": "2026-11-23", "time": "", "subject": "Studio", "kind": "review", "title": "Final reviews 23–25 Nov (30%)"}, {"id": "s13", "date": "2026-12-04", "time": "", "subject": "Studio", "kind": "due", "title": "Research book (5%)"}, {"id": "a01", "date": "2026-10-06", "time": "09:00", "subject": "Arch Management", "kind": "trip", "title": "Field trip: A49 Architects (tbc)"}, {"id": "a02", "date": "2026-10-13", "time": "09:00", "subject": "Arch Management", "kind": "online", "title": "Zoom class"}, {"id": "a03", "date": "2026-10-20", "time": "09:00", "subject": "Arch Management", "kind": "review", "title": "Innovation Lab interim reviews"}, {"id": "a04", "date": "2026-11-10", "time": "09:00", "subject": "Arch Management", "kind": "review", "title": "Innovation Lab final presentations (25%, Zoom)"}, {"id": "a05", "date": "2026-12-01", "time": "09:00", "subject": "Arch Management", "kind": "other", "title": "Final assignment tutorials"}, {"id": "a06", "date": "2026-12-04", "time": "", "subject": "Arch Management", "kind": "due", "title": "Final assignment (35%)"}, {"id": "r01", "date": "2026-10-13", "time": "13:00", "subject": "Real Estate", "kind": "noclass", "title": "No class (King Bhumibol Memorial Day)"}, {"id": "r02", "date": "2026-10-16", "time": "13:00", "subject": "Real Estate", "kind": "online", "title": "Online make-up class"}, {"id": "r03", "date": "2026-11-10", "time": "13:00", "subject": "Real Estate", "kind": "review", "title": "Final presentation: deck + financial model + verbal (35%)"}, {"id": "r04", "date": "2026-11-17", "time": "23:59", "subject": "Real Estate", "kind": "due", "title": "Final peer assessment form"}, {"id": "r05", "date": "2026-12-01", "time": "", "subject": "Real Estate", "kind": "due", "title": "Final reflection paper (15%)"}, {"id": "p01", "date": "2026-09-30", "time": "13:00", "subject": "Proposal Writing", "kind": "online", "title": "Online class, Unit 8"}, {"id": "p02", "date": "2026-10-07", "time": "13:00", "subject": "Proposal Writing", "kind": "other", "title": "Unit 9 video + assignment set"}, {"id": "p03", "date": "2026-10-21", "time": "", "subject": "Proposal Writing", "kind": "other", "title": "Last day to withdraw"}, {"id": "p04", "date": "2026-11-04", "time": "13:00", "subject": "Proposal Writing", "kind": "other", "title": "Group project research day"}, {"id": "p05", "date": "2026-11-11", "time": "", "subject": "Proposal Writing", "kind": "other", "title": "Group project consultations (by appointment)"}, {"id": "p06", "date": "2026-11-18", "time": "13:00", "subject": "Proposal Writing", "kind": "review", "title": "Group presentations + written proposal (20%)"}]};
   $('#loadTerm').addEventListener('click', () => {
     const t = JSON.parse(JSON.stringify(TERM));
-    classes = t.classes; dates = t.dates; projects = t.projects.map(p => ({...p, createdAt: Date.now()}));
+    classes = t.classes; dates = t.dates; projects = t.projects.filter(p => new Date(p.deadline) > new Date()).map(p => ({...p, createdAt: Date.now()}));
     saveLocal(); render(); toast('Term 1 loaded. Tick off anything you have already done.');
   });
   $('#loadEx').addEventListener('click', () => {
@@ -1091,6 +1134,182 @@ input[type=number]{width:80px}
   $('#setupSave').addEventListener('click', () => { closeSetup(); toast('Saved'); });
   document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (!$('#addModal').hidden) closeAdd(); else if (!$('#setup').hidden) closeSetup(); });
 
+  // ---------- study buddy (pet) ----------
+  // Drop the user's own character art in here later: mood -> image URL (transparent PNG). Empty = placeholder drawing.
+  const PET_IMAGES = {happy: '', focused: '', worried: '', sleepy: '', celebrating: '', stretching: ''};
+  const PETKEY = 'nextup.pet', SESSKEY = 'nextup.sessions';
+  let petCfg = {on: true, focusMin: 50, breakMin: 10, min: false};
+  let timer = {mode: 'idle', start: 0, end: 0, pid: null, iid: null, label: ''};
+  let sessions = [], petFlash = null, petLineIdx = 0, petMenuOpen = false, petWin = null;
+  try { Object.assign(petCfg, JSON.parse(localStorage.getItem(PETKEY) || '{}')); } catch(e){}
+  try { const t = JSON.parse(localStorage.getItem(PETKEY + '.timer') || 'null'); if (t && t.mode !== 'idle') timer = t; } catch(e){}
+  try { sessions = JSON.parse(localStorage.getItem(SESSKEY) || '[]'); } catch(e){}
+  const savePet = () => { try { localStorage.setItem(PETKEY, JSON.stringify(petCfg)); localStorage.setItem(PETKEY + '.timer', JSON.stringify(timer)); } catch(e){} };
+  function saveSessions(){
+    sessions = sessions.slice(-300);
+    try { localStorage.setItem(SESSKEY, JSON.stringify(sessions)); } catch(e){}
+    if (store === 'db'){ const b = {sessions: clone(sessions)}; q('sess', () => db.doc('stats/focus').set(b)); }
+  }
+  const petEl = $('#pet'), petText = $('#petText'), petMenu = $('#petMenu'), petArt = $('#petArt');
+
+  // placeholder character: a round buddy whose face and arms change with mood
+  function petSVG(mood){
+    const eyes = {
+      happy: '<path d="M36 50q5-6 10 0M58 50q5-6 10 0" class="pl"/>',
+      focused: '<path d="M35 49h11M58 49h11" class="pl"/>',
+      worried: '<circle cx="41" cy="51" r="3.4" class="pf"/><circle cx="63" cy="51" r="3.4" class="pf"/><path d="M34 45l11-4M70 45l-11-4" class="pl"/>',
+      sleepy: '<path d="M35 51q6 4 11 0M58 51q6 4 11 0" class="pl"/>',
+      celebrating: '<path d="M36 51q5-7 10 0M58 51q5-7 10 0" class="pl"/>',
+      stretching: '<path d="M36 50q5-6 10 0M58 50q5-6 10 0" class="pl"/>'}[mood];
+    const mouth = {
+      happy: '<path d="M45 62q7 6 14 0" class="pl"/>', focused: '<path d="M47 63h10" class="pl"/>',
+      worried: '<path d="M46 65q6-5 12 0" class="pl"/>', sleepy: '<ellipse cx="52" cy="64" rx="3" ry="2.4" class="pf"/>',
+      celebrating: '<path d="M43 60q9 12 18 0z" class="pf"/>', stretching: '<ellipse cx="52" cy="63" rx="4.5" ry="5" class="pf"/>'}[mood];
+    const arms = {
+      happy: '<path d="M22 66q-8 4-7 12M82 66q8 4 7 12" class="pa"/>',
+      focused: '<path d="M24 68q6 10 18 8M80 68q-6 10-18 8" class="pa"/><rect x="36" y="76" width="32" height="6" rx="2" class="pb"/>',
+      worried: '<path d="M24 64q-4 8 6 12M80 64q4 8-6 12" class="pa"/>',
+      sleepy: '<path d="M22 70q-6 4-5 10M82 70q6 4 5 10" class="pa"/>',
+      celebrating: '<path d="M22 60q-10-10-8-22M82 60q10-10 8-22" class="pa"/><path d="M10 30l3 5M92 30l-3 5M52 6v6" class="ps"/>',
+      stretching: '<path d="M26 56q-6-18 4-30M78 56q6-18-4-30" class="pa"/>'}[mood];
+    const extra = mood === 'sleepy' ? '<text x="78" y="26" class="pz">z</text><text x="88" y="16" class="pz" style="font-size:9px">z</text>' : '';
+    return `<svg viewBox="0 0 104 100" width="100%" height="100%" aria-hidden="true">${arms}<ellipse cx="52" cy="92" rx="26" ry="4" class="psh"/><path d="M52 20c20 0 32 16 32 38 0 20-14 30-32 30S20 78 20 58c0-22 12-38 32-38z" class="pbody"/><circle cx="33" cy="60" r="4" class="pcheek"/><circle cx="71" cy="60" r="4" class="pcheek"/>${eyes}${mouth}${extra}</svg>`;
+  }
+  function petMood(){
+    if (petFlash && Date.now() < petFlash.until) return petFlash.mood;
+    if (timer.mode === 'focus') return 'focused';
+    if (timer.mode === 'break') return 'stretching';
+    const h = new Date().getHours();
+    const r = rank(); const top = r[0];
+    if (h >= 23 || h < 5) return 'sleepy';
+    if (top && top.s.status === 'bad') return 'worried';
+    return 'happy';
+  }
+  const mmss = ms => { const t = Math.max(0, Math.round(ms / 1000)); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`; };
+  function petLines(){
+    const r = rank(), top = r[0], h = new Date().getHours(), lines = [];
+    if (!projects.length) return ["Hi! Add your first project and I'll tell you where to start."];
+    if (!top) return ["Everything's done. Proud of you. Go do something fun."];
+    const item = top.p.items.find(i => !i.done);
+    const cd = countdown(top.s.msLeft), dueTxt = top.s.msLeft <= 0 ? `was due ${cd} ago` : `is due in ${cd}`;
+    if (h >= 23 || h < 5){
+      if (top.s.msLeft > 14 * HOUR) lines.push(`It's late. Nothing's due until ${fmtDue(top.p.deadline)}. Sleep is part of the work, go rest.`);
+      else lines.push(`Late, but ${top.p.name} ${dueTxt}. One focused block, then sleep?`);
+    }
+    if (top.s.status === 'bad') lines.push(top.s.msLeft <= 0 ? `${top.p.name} is overdue (${cd}). Finish it or move the deadline?` : `${top.p.name} is behind: ${fmtH(top.s.remaining)} left, due in ${cd}. Want to start a ${petCfg.focusMin}-min block?`);
+    lines.push(`Next up: ${item ? item.name : 'finish ' + top.p.name} (~${fmtH(item ? +item.hours || 0 : top.s.remaining)}).`);
+    lines.push(`${top.p.name} ${dueTxt}.`);
+    const best = projects.map(p => ({p, s: stats(p)})).filter(x => x.s.remaining > 0 && x.s.pct > 0).sort((a, b) => b.s.pct - a.s.pct)[0];
+    if (best) lines.push(`${best.p.name} is ${best.s.pct}% done. ${best.s.pct >= 80 ? 'Almost there!' : 'Keep going.'}`);
+    const u = upcomingClass(); if (u && u.s - new Date() < 18 * HOUR && u.s > new Date()) lines.push(`${u.c.subject} starts ${u.s.toDateString() === new Date().toDateString() ? 'today' : 'tomorrow'} at ${u.s.toTimeString().slice(0, 5)}.`);
+    return lines;
+  }
+  function renderPet(){
+    if (!petEl) return;
+    const wide = petWin || (matchMedia('(hover: hover) and (pointer: fine)').matches && matchMedia('(min-width: 560px)').matches);
+    petEl.hidden = !petCfg.on || !wide;
+    if (petEl.hidden) return;
+    const mood = petMood();
+    petEl.dataset.mood = mood;
+    petArt.innerHTML = PET_IMAGES[mood] ? `<img src="${PET_IMAGES[mood]}" alt="">` : petSVG(mood);
+    let text;
+    if (petFlash && Date.now() < petFlash.until && petFlash.text) text = petFlash.text;
+    else if (timer.mode === 'focus') text = `Focus · ${mmss(timer.end - Date.now())} left${timer.label ? `\n${timer.label}` : ''}`;
+    else if (timer.mode === 'break') text = `Break · ${mmss(timer.end - Date.now())}\nStand up, stretch, drink some water.`;
+    else { const L = petLines(); text = L[petLineIdx % L.length]; }
+    petText.textContent = text;
+    petEl.classList.toggle('mini', petCfg.min && !petMenuOpen);
+    petMenu.hidden = !petMenuOpen;
+    const running = timer.mode !== 'idle';
+    petMenu.querySelector('[data-pet="focus"]').hidden = running;
+    petMenu.querySelector('[data-pet="stop"]').hidden = !running;
+    petMenu.querySelector('[data-pet="stop"]').textContent = timer.mode === 'break' ? 'Skip break' : 'Stop timer';
+    petMenu.querySelector('[data-pet="pop"]').hidden = !('documentPictureInPicture' in window) || !!petWin;
+    petMenu.querySelector('[data-pet="hide"]').textContent = petCfg.min ? 'Show messages' : 'Quiet mode';
+  }
+  function flashPet(mood, text, ms = 5000){ petFlash = {mood, text, until: Date.now() + ms}; renderPet(); setTimeout(renderPet, ms + 50); }
+  function logSession(){
+    const min = Math.round((Math.min(Date.now(), timer.end) - timer.start) / 60000);
+    if (min >= 1){ sessions.push({at: timer.start, min, pid: timer.pid, iid: timer.iid}); saveSessions(); }
+    return min;
+  }
+  function notify(title, body){
+    try { if ('Notification' in window && Notification.permission === 'granted' && (document.hidden || petWin)) new Notification(title, {body}); } catch(e){}
+  }
+  function startFocus(){
+    const r = rank(), top = r[0], item = top && top.p.items.find(i => !i.done);
+    timer = {mode: 'focus', start: Date.now(), end: Date.now() + petCfg.focusMin * 60000, pid: top ? top.p.id : null, iid: item ? item.id : null, label: item ? item.name : ''};
+    savePet(); petMenuOpen = false;
+    try { if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); } catch(e){}
+    flashPet('focused', `Let's go! ${petCfg.focusMin} minutes${item ? ` on ${item.name}` : ''}. I'll tell you when to rest.`, 3500);
+  }
+  function stopTimer(){
+    if (timer.mode === 'focus'){ const m = logSession(); flashPet('happy', m >= 1 ? `Nice, ${m} min logged.` : 'Stopped.', 3500); }
+    timer = {mode: 'idle', start: 0, end: 0, pid: null, iid: null, label: ''}; savePet(); petMenuOpen = false; renderPet();
+  }
+  function tickTimer(){
+    if (timer.mode === 'idle') return;
+    if (Date.now() >= timer.end){
+      if (timer.mode === 'focus'){
+        const m = logSession();
+        timer = {mode: 'break', start: Date.now(), end: Date.now() + petCfg.breakMin * 60000, pid: timer.pid, iid: timer.iid, label: timer.label};
+        notify('Break time 🧃', `${m} minutes done. Take ${petCfg.breakMin} minutes off.`);
+        flashPet('stretching', `${m} minutes done! Break time: ${petCfg.breakMin} min. Look away from the screen.`, 6000);
+      } else {
+        timer = {mode: 'idle', start: 0, end: 0, pid: null, iid: null, label: ''};
+        notify('Break over', 'Ready for another round?');
+        flashPet('happy', 'Break over. Ready for another round? Tap me.', 8000);
+      }
+      savePet();
+    }
+    renderPet();
+  }
+  setInterval(tickTimer, 1000);
+  setInterval(() => { if (timer.mode === 'idle' && !petMenuOpen){ petLineIdx++; renderPet(); } }, 40000);
+  // how fast you really are: logged focus time vs your estimate, on tasks you finished
+  function speedRatio(){
+    const perItem = {}; sessions.forEach(x => { if (x.iid) perItem[x.iid] = (perItem[x.iid] || 0) + x.min; });
+    const rs = []; projects.forEach(p => p.items.forEach(i => { if (i.done && perItem[i.id] >= 10 && +i.hours > 0) rs.push(perItem[i.id] / 60 / +i.hours); }));
+    return rs.length >= 2 ? {r: rs.reduce((a, b) => a + b, 0) / rs.length, n: rs.length} : null;
+  }
+  function petHow(){
+    const ws = weekStart(), mins = sessions.filter(x => x.at >= ws).reduce((a, x) => a + x.min, 0);
+    let tasks = 0; projects.forEach(p => p.items.forEach(i => { if (i.done && i.doneAt >= ws) tasks++; }));
+    const sp = speedRatio();
+    let t = `This week: ${Math.floor(mins / 60)}h ${mins % 60}m of focus, ${tasks} task${tasks === 1 ? '' : 's'} done.`;
+    if (sp) t += sp.r > 1.15 ? ` Tasks take you about ${sp.r.toFixed(1)}× your estimate, so pad your hours a bit.` : sp.r < 0.85 ? ` You're faster than your estimates (${sp.r.toFixed(1)}×). Nice.` : ' Your estimates are spot on.';
+    return t;
+  }
+  async function popOut(){
+    petMenuOpen = false;
+    try {
+      const w = await documentPictureInPicture.requestWindow({width: 340, height: 300});
+      [...document.styleSheets].forEach(ss => { try { const st = w.document.createElement('style'); st.textContent = [...ss.cssRules].map(r => r.cssText).join('\n'); w.document.head.appendChild(st); } catch(e){ if (ss.href){ const l = w.document.createElement('link'); l.rel = 'stylesheet'; l.href = ss.href; w.document.head.appendChild(l); } } });
+      const th = document.documentElement.getAttribute('data-theme'); if (th) w.document.documentElement.setAttribute('data-theme', th);
+      w.document.body.classList.add('pip'); w.document.title = 'Next Up buddy';
+      petWin = w; w.document.body.append(petEl); renderPet();
+      w.addEventListener('pagehide', () => { petWin = null; document.body.append(petEl); renderPet(); });
+    } catch(e){ toast('Pop-out only works in Chrome or Edge on a computer'); }
+  }
+  $('#petBody').addEventListener('click', () => { petMenuOpen = !petMenuOpen; renderPet(); });
+  petMenu.addEventListener('click', e => {
+    const b = e.target.closest('[data-pet]'); if (!b) return;
+    const a = b.dataset.pet;
+    if (a === 'next'){ petMenuOpen = false; petLineIdx = 0; const r = rank(), top = r[0], it = top && top.p.items.find(i => !i.done);
+      flashPet(petMood(), top ? `Next: ${it ? it.name : top.p.name} for ${top.p.name}. ${top.s.msLeft <= 0 ? 'Overdue by ' : 'Due in '}${countdown(top.s.msLeft)}.` : 'Nothing left to do. Enjoy it!', 7000); }
+    if (a === 'focus') startFocus();
+    if (a === 'stop') stopTimer();
+    if (a === 'how'){ petMenuOpen = false; flashPet(petMood(), petHow(), 9000); }
+    if (a === 'pop') popOut();
+    if (a === 'hide'){ petCfg.min = !petCfg.min; petMenuOpen = false; savePet(); renderPet(); }
+  });
+  addEventListener('resize', () => renderPet());
+  // settings fields
+  $('#petOn').checked = petCfg.on; $('#focusMin').value = petCfg.focusMin; $('#breakMin').value = petCfg.breakMin;
+  $('#petOn').addEventListener('change', e => { petCfg.on = e.target.checked; savePet(); renderPet(); });
+  $('#focusMin').addEventListener('change', e => { const v = parseInt(e.target.value); if (v >= 5 && v <= 180){ petCfg.focusMin = v; savePet(); } });
+  $('#breakMin').addEventListener('change', e => { const v = parseInt(e.target.value); if (v >= 1 && v <= 60){ petCfg.breakMin = v; savePet(); } });
+
   // ---------- theme ----------
   const THEMES = ['auto', 'light', 'dark'], TLABEL = {auto:'◐ Auto', light:'☀ Light', dark:'☾ Dark'};
   let theme = 'auto'; try { theme = localStorage.getItem('nextup.theme') || 'auto'; } catch(e){}
@@ -1109,6 +1328,7 @@ input[type=number]{width:80px}
     const fail = () => { store = 'local'; loadLocal(); render(); };
     db.collection('projects').onSnapshot(snap => { projects = snap.docs.map(d => clone(d.data())); softRender(); }, fail);
     db.collection('notes').onSnapshot(snap => { notes = snap.docs.map(d => clone(d.data())); softRender(); }, () => {});
+    db.doc('stats/focus').onSnapshot(sn => { if (sn.exists && Array.isArray(sn.data().sessions) && sn.data().sessions.length >= sessions.length){ sessions = clone(sn.data().sessions); } }, () => {});
     db.collection('dates').onSnapshot(snap => { dates = snap.docs.map(d => clone(d.data())); softRender(); }, () => {});
     db.doc('timetable/main').onSnapshot(s => { if (s.exists){ classes = clone(s.data().classes || []); softRender(); } }, () => {});
     let firstSettings = true;
