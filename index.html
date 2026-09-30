@@ -235,6 +235,8 @@ input[type=number]{width:80px}
 .stepper button{background:none;border:0;width:34px;height:38px;font-size:18px;color:var(--ink2)}
 .stepper input{width:52px;border:0!important;border-radius:0!important;text-align:center;font-family:var(--mono);padding:8px 0!important;background:transparent!important}
 .modal-card{max-height:calc(100vh - 32px);overflow:auto}
+.modal-card>.field,.modal-card .stack>.field{flex:none}
+.stack{display:flex;flex-direction:column;gap:12px}
 .modal-card .more{display:flex;flex-direction:column;gap:14px;border-top:1px solid var(--line);padding-top:14px}
 .modal.first .more{display:none}
 .modal-card h4{margin:0;font:700 16px var(--display)}
@@ -447,8 +449,9 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   <form class="modal-card" id="addForm" autocomplete="off">
     <h3 id="addTitle">Add a project</h3>
     <div class="field"><label class="small" for="newName">Project name</label><input type="text" id="newName" placeholder="e.g. Studio final review"></div>
-    <div class="row">
-      <div class="field"><label class="small" for="newSubj">Subject</label><select id="newSubj"></select></div>
+    <div class="stack">
+      <div class="field"><label class="small" for="newSubj">Subject</label><select id="newSubj"></select>
+        <input type="text" id="newSubjName" placeholder="Type the subject name, e.g. Studio" hidden style="margin-top:6px"></div>
       <div class="field"><label class="small" for="newDue">Deadline</label><input type="datetime-local" id="newDue"></div>
     </div>
     <div class="field"><span class="small">What you have to hand in, in the order you'd do it, with rough hours</span>
@@ -506,7 +509,12 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   const fmtDate = s => new Date(s + 'T12:00').toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'});
 
   // subject colours, stable per subject name
-  function subjects(){ const s = [...new Set(classes.map(c => (c.subject || '').trim()).filter(Boolean))]; s.sort((a, b) => isStudio(b) - isStudio(a)); return s; }
+  const DEFAULT_SUBJECTS = ['Studio', 'Arch Management', 'Real Estate', 'Proposal Writing'];
+  function subjects(){
+    const all = [...classes.map(c => c.subject), ...projects.map(p => p.subject), ...dates.map(k => k.subject), ...notes.map(n => n.subject), ...DEFAULT_SUBJECTS];
+    const s = [...new Set(all.map(x => (x || '').trim()).filter(x => x && x !== 'Other'))];
+    s.sort((a, b) => isStudio(b) - isStudio(a)); return s;
+  }
   function colorIdx(name){ const list = [...new Set(classes.map(c => (c.subject || '').trim()))]; const i = list.indexOf((name || '').trim()); if (i >= 0) return i % 6; let h = 0; for (const ch of name || '') h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h % 6; }
   const subjStyle = name => { const i = colorIdx(name); return `background:var(--c${i});color:var(--c${i}i)`; };
   const tint = name => { if (!name) return '--t:var(--surface);--ti:var(--accent)'; const i = colorIdx(name); return `--t:var(--c${i});--ti:var(--c${i}i)`; };
@@ -684,7 +692,8 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
         <span class="kd k-${k.kind}">${KIND[k.kind] || ''}</span>
         <button class="x" aria-label="Remove ${esc(k.title)}" data-act="rmkd" data-k="${k.id}">×</button></div>`}`).join('') || '<p class="small">No upcoming dates.</p>';
     const opts = [...subjects(), 'Other'].map(s => `<option>${esc(s)}</option>`).join('');
-    for (const id of ['#kdSubj', '#newSubj']){ const sel = $(id), cur = sel.value; sel.innerHTML = (id === '#newSubj' ? '<option value="">None</option>' : '') + opts; if (cur !== undefined) sel.value = cur; if (sel.selectedIndex < 0) sel.selectedIndex = 0; }
+    { const sel = $('#kdSubj'), cur = sel.value; sel.innerHTML = opts; if (cur) sel.value = cur; if (sel.selectedIndex < 0) sel.selectedIndex = 0; }
+    { const sel = $('#newSubj'), cur = sel.value; sel.innerHTML = '<option value="">No subject</option>' + subjects().map(x => `<option>${esc(x)}</option>`).join('') + '<option value="__new">+ New subject…</option>'; sel.value = cur; if (sel.selectedIndex < 0) sel.selectedIndex = 0; $('#newSubjName').hidden = sel.value !== '__new'; }
   }
 
   function renderProjects(){
@@ -1026,7 +1035,9 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     if (!name || !due){ $('#addErr').textContent = 'Give it a name and a deadline.'; return; }
     if (!items.length){ $('#addErr').textContent = 'Add at least one deliverable so it can work out the %.'; return; }
     $('#addErr').textContent = '';
-    const p = {id: uid(), name, subject: $('#newSubj').value === 'Other' ? '' : $('#newSubj').value, deadline: new Date(due).toISOString(), items, example: false, createdAt: Date.now()};
+    const sv = $('#newSubj').value, subj = sv === '__new' ? $('#newSubjName').value.trim() : sv;
+    if (sv === '__new' && !subj){ $('#addErr').textContent = 'Type a subject name, or pick one from the list.'; return; }
+    const p = {id: uid(), name, subject: subj, deadline: new Date(due).toISOString(), items, example: false, createdAt: Date.now()};
     projects.push(p); saveDoc('projects', p); closeAdd(); skip = 0; freshProj = p.id; render(); setTimeout(() => document.querySelector(`.proj-card[data-id="${p.id}"]`)?.scrollIntoView({block: 'center'}), 60); toast('Project added', () => { projects = projects.filter(x => x.id !== p.id); delDoc('projects', p.id); });
   });
 
@@ -1114,12 +1125,13 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   }
   function openAdd(){
     $('#addForm').reset(); $('#addErr').textContent = ''; $('#newRows').innerHTML = ''; addRow(); addRow(); addRow();
-    renderKeyDates(); $('#newSubj').value = projFilter !== 'all' ? projFilter : '';
+    renderKeyDates(); $('#newSubj').value = projFilter !== 'all' ? projFilter : ''; $('#newSubjName').value = ''; $('#newSubjName').hidden = true;
     $('#addModal').hidden = false; setTimeout(() => $('#newName').focus(), 50);
   }
   const closeAdd = () => { $('#addModal').hidden = true; };
   $('#addRow').addEventListener('click', () => addRow().querySelector('.nr-name').focus());
   $('#addCancel').addEventListener('click', closeAdd);
+  $('#newSubj').addEventListener('change', e => { const on = e.target.value === '__new'; $('#newSubjName').hidden = !on; if (on) $('#newSubjName').focus(); });
 
   // ---------- settings popup ----------
   function openSetup(first){ $('#hpd').value = hpd; $('#hcd').value = hcd; $('#setup').classList.toggle('first', first === true); $('#setupTitle').textContent = first === true ? 'How much can you really work?' : 'Settings'; $('#setupIntro').textContent = first === true ? "Next Up uses this to work out if you're on track. Go with a normal day, not your best day. You can change it anytime in Settings." : 'Hours you can work on a normal day. Next Up uses these to work out if you\'re on track.'; $('#setup').hidden = false; setTimeout(() => $('#hpd').focus(), 50); }
