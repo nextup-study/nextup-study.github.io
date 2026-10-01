@@ -293,6 +293,20 @@ input[type=number]{width:80px}
 .wd-tile .lk{position:absolute;top:18px;left:50%;transform:translateX(-50%);font-size:22px}
 .wd-tile .pg{font:500 10.5px var(--mono);color:var(--ink3)}
 .wd-tile.new::after{content:"NEW";position:absolute;top:4px;right:4px;background:var(--cta);color:var(--cta-ink);font:700 9px var(--mono);padding:1px 4px;border-radius:4px}
+.wd-card{position:relative}
+.wd-pop{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:16px;background:rgba(10,16,14,.35)}
+.wd-pop-card{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:18px;padding:18px 18px 16px;width:min(320px,100%);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.wd-pop-art{width:120px;height:120px;position:relative}
+.wd-pop-art svg{width:100%;height:100%;filter:grayscale(1) opacity(.4)}
+.wd-pop-art .lk{position:absolute;inset:0;display:grid;place-items:center;font-size:34px}
+.wd-pop-card .label{color:var(--accent)}
+.wd-pop-goal{font:700 19px/1.25 var(--display);margin:0}
+.wd-pop-bar{width:100%;height:10px;background:var(--sunk);border-radius:99px;overflow:hidden}
+.wd-pop-bar i{display:block;height:100%;background:var(--cta);border-radius:99px}
+.wd-pop-num{font:500 13px var(--mono);color:var(--ink2)}
+.wd-pop-tip{font-size:13.5px;color:var(--ink2);margin:0}
+.wd-pop-card .btn{align-self:stretch;margin-top:4px}
+@media (prefers-reduced-motion:no-preference){.wd-pop-card{animation:pop .22s cubic-bezier(.2,.8,.3,1)}}
 .wd-hint{min-height:22px;font-size:13.5px;color:var(--ink2)}
 .wd-hint b{color:var(--ink)}
 .wd-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:9px}
@@ -528,6 +542,17 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
       <div class="row" style="justify-content:space-between"><span class="label">Random buddies · tap one to wear it</span><button class="btn" id="wdReroll" type="button">Shuffle</button></div>
       <div class="wd-gallery" id="wdGallery"></div>
     </section>
+  </div>
+  <div class="wd-pop" id="wdPop" hidden role="dialog" aria-modal="true" aria-labelledby="wdPopGoal">
+    <div class="wd-pop-card">
+      <div class="wd-pop-art" id="wdPopArt"></div>
+      <span class="label">🔒 Locked item · how to get it</span>
+      <p class="wd-pop-goal" id="wdPopGoal"></p>
+      <div class="wd-pop-bar" id="wdPopBarWrap"><i id="wdPopBar"></i></div>
+      <span class="wd-pop-num" id="wdPopNum"></span>
+      <p class="wd-pop-tip" id="wdPopTip"></p>
+      <button class="btn pri" type="button" id="wdPopOk">Got it</button>
+    </div>
   </div>
 </div>
 <div class="pet" id="pet" hidden>
@@ -1215,7 +1240,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   }
   $('#settingsBtn').addEventListener('click', () => openSetup(false));
   $('#setupSave').addEventListener('click', () => { closeSetup(); toast('Saved'); });
-  document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (!$('#ward').hidden) closeWard(); else if (!$('#addModal').hidden) closeAdd(); else if (!$('#setup').hidden) closeSetup(); });
+  document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (!$('#wdPop').hidden) closeLockPop(); else if (!$('#ward').hidden) closeWard(); else if (!$('#addModal').hidden) closeAdd(); else if (!$('#setup').hidden) closeSetup(); });
 
   // ---------- buddy wardrobe: item library (all drawn on the same canvas) ----------
   const WARD = (() => {
@@ -1730,14 +1755,41 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   function markSeen(){ const c = WARD.CATS.find(x => x.k === wdCat); c.list.forEach(i => { if (i.lock && ward.got.includes(i.id) && !ward.seen.includes(i.id)) ward.seen.push(i.id); }); }
   function openWard(){ wdOpen = true; checkUnlocks(); $('#wdName').value = ward.name || ''; $('#wdSchool').value = ward.school || ''; $('#wdHint').textContent = 'Tap an item to put it on.'; renderWard(); renderGalleryW(); $('#ward').hidden = false; }
   function closeWard(){ wdOpen = false; markSeen(); saveWard(); $('#ward').hidden = true; checkUnlocks(); renderPet(); }
+  // tap a locked item: a popup says exactly what to do to get it
+  function goalTip(g){
+    if (/Studio/.test(g)) return 'Tick off tasks in a project with the subject Studio.';
+    if (/focus session|hours in total/.test(g)) return 'Tap the buddy → ▶ Start working. Every focus block counts.';
+    if (/streak/.test(g)) return 'Tick off a task or do a focus block every day. Miss a day and it restarts.';
+    if (/early|on time/.test(g)) return 'Finish every item in a project before its deadline.';
+    if (/project/.test(g)) return 'Tick off every item in a project.';
+    if (/after 10pm|after 1am|midnight/.test(g)) return 'A night-owl item. Only counts late at night 🦉';
+    if (/December|Halloween/.test(g)) return 'A secret seasonal item. Just open Next Up on that day 👀';
+    if (/deadline/.test(g)) return 'Finish a project, then make it past its deadline day.';
+    if (/review/.test(g)) return 'Add your review in Key dates. It counts once the day has passed.';
+    return 'Tick off tasks on the Next tab. Each one counts.';
+  }
+  function openLockPop(it){
+    const [h, n] = goalProg(it.lock, wardStats());
+    $('#wdPopArt').innerHTML = buddySVG({...ward.look, [wdCat]: it.id}, 'happy') + '<span class="lk">🔒</span>';
+    $('#wdPopGoal').textContent = it.lock;
+    $('#wdPopBarWrap').hidden = $('#wdPopNum').hidden = n <= 1;
+    $('#wdPopBar').style.width = `${Math.round(h / n * 100)}%`;
+    $('#wdPopNum').textContent = `${h} of ${n} · ${n - h} to go`;
+    $('#wdPopTip').textContent = goalTip(it.lock);
+    $('#wdPop').hidden = false; $('#wdPopOk').focus();
+  }
+  const closeLockPop = () => { $('#wdPop').hidden = true; };
+  $('#wdPopOk').addEventListener('click', closeLockPop);
+  $('#wdPop').addEventListener('click', e => { if (e.target.id === 'wdPop') closeLockPop(); });
   $('#wardBtn').addEventListener('click', openWard);
   $('#wardClose').addEventListener('click', closeWard);
   $('#ward').addEventListener('click', e => { if (e.target.id === 'ward') closeWard(); });
+  // (the lock popup sits inside #ward, so clicks on its backdrop don't close the wardrobe)
   $('#wdTabs').addEventListener('click', e => { const b = e.target.closest('[data-wcat]'); if (!b) return; markSeen(); wdCat = b.dataset.wcat; $('#wdHint').textContent = 'Tap an item to put it on.'; renderWard(); });
   $('#wdGrid').addEventListener('click', e => {
     const b = e.target.closest('[data-wid]'); if (!b) return;
     const it = wget(wdCat, b.dataset.wid);
-    if (!owned(it)){ const [h, n] = goalProg(it.lock, wardStats()); $('#wdHint').innerHTML = `🔒 <b>Locked.</b> Unlock it: ${it.lock}${n > 1 ? ` (${h}/${n})` : ''}.`; return; }
+    if (!owned(it)) return openLockPop(it);
     ward.look[wdCat] = it.id; saveWard(); renderWard(); renderPet();
     $('#wdHint').innerHTML = `Wearing <b>${cleanName(it.name)}</b>.${it.lock ? ` Earned by: ${it.lock}.` : ''}`;
   });
