@@ -411,6 +411,10 @@ body.rescue-on{overflow:hidden} body.rescue-on .pet{display:none!important}
 .rebuild .rb-row{display:flex;flex-direction:column;gap:6px;padding-top:8px;border-top:1px dashed color-mix(in srgb,var(--warn) 35%,transparent)}
 .rebuild .rb-row:first-of-type{border-top:0;padding-top:0}
 .rebuild .rb-row b{font-weight:600}
+#noteForm>.field,#noteForm .nt-box .field{flex:none}
+.nt-box{background:var(--sunk);border-radius:10px;padding:10px 12px;gap:8px}
+.note-proj{font-size:13px;color:var(--ink2);margin:0}
+.note-proj b{color:var(--ink)}
 .pet-menu{display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--line);padding-top:8px}
 .pet-menu button{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px;text-align:left;color:var(--ink);font-size:13px}
 .pet-menu button:hover{border-color:var(--cta)}
@@ -555,7 +559,16 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
       <div class="field">
         <label class="small" for="nSteps">Next steps, one per line</label>
         <textarea id="nSteps" class="mono" placeholder="Redraw long section with water levels&#10;Test 2 more massing options"></textarea>
-        <span class="hint">You can send these to a project later, so they show up in "Do this next".</span>
+        <span class="hint">Each line becomes a task you can tick off in Projects and Do this next.</span>
+      </div>
+      <div class="field nt-box" id="nTaskBox" hidden>
+        <label class="small" for="nTo">Turn these steps into tasks</label>
+        <select id="nTo"></select>
+        <div class="row" style="align-items:flex-end">
+          <div class="field" id="nDueWrap"><label class="small" for="nDue">Deadline</label><input type="datetime-local" id="nDue"></div>
+          <div class="field" style="max-width:120px"><label class="small" for="nHrs">Hours each</label><input type="number" id="nHrs" min="0.25" max="40" step="0.25" value="1"></div>
+        </div>
+        <span class="hint" id="nTaskHint"></span>
       </div>
       <div class="row"><button class="btn pri" type="submit" id="noteSubmit">Save note</button><button class="btn" type="button" id="noteCancel" hidden>Cancel edit</button><span class="err" id="noteErr"></span></div>
     </form>
@@ -1042,7 +1055,9 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
           <div class="note-head"><span class="subj" style="${subjStyle(n.subject)}">${esc(n.subject)}</span><span class="date">${fmtDate(n.date)}</span>${n.example ? '<span class="ex">example</span>' : ''}
             <span class="sp"><button class="btn" data-act="editnote" data-n="${n.id}">Edit</button><button class="btn danger" data-act="delnote" data-n="${n.id}">Delete</button></span></div>
           <p class="text">${esc(n.text)}</p>
-          ${(n.steps || []).length ? `<ul class="steps">${n.steps.map(x => `<li class="${x.done ? 'done' : ''}"><input type="checkbox" id="st-${x.id}" data-act="step" data-n="${n.id}" data-x="${x.id}" ${x.done ? 'checked' : ''}><label for="st-${x.id}">${esc(x.text)} ${x.sent ? `<span class="sent">→ in ${esc(x.sent)}</span>` : ''}</label></li>`).join('')}</ul>` : ''}
+          ${(n.steps || []).length ? `<ul class="steps">${n.steps.map(x => `<li class="${x.done ? 'done' : ''}"><input type="checkbox" id="st-${x.id}" data-act="step" data-n="${n.id}" data-x="${x.id}" ${x.done ? 'checked' : ''}><label for="st-${x.id}">${esc(x.text)} ${x.sent && !x.pid ? `<span class="sent">→ in ${esc(x.sent)}</span>` : ''}</label></li>`).join('')}</ul>` : ''}
+          ${[...new Set((n.steps || []).map(x => x.pid).filter(Boolean))].map(pid => { const lp = projects.find(p => p.id === pid); if (!lp) return ''; const mine = n.steps.filter(x => x.pid === pid), dn = mine.filter(x => x.done).length;
+            return `<p class="note-proj">📌 In Projects: <b>${esc(lp.name)}</b> · due ${fmtDue(lp.deadline)} · ${dn}/${mine.length} done</p>`; }).join('')}
           ${unsent.length && projects.length ? `<div class="row small"><span>Send ${unsent.length} step${unsent.length > 1 ? 's' : ''} to</span><select id="sp-${n.id}" aria-label="Project">${projOpts}</select><button class="btn" data-act="sendsteps" data-n="${n.id}">Add as tasks</button></div>` : ''}
         </article>`;
       }).join('')}</div>`).join('');
@@ -1062,6 +1077,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     lastTick = {p: p.id, i: it.id, done};
     const before = stats(p).remaining;
     it.done = done; if (done) it.doneAt = Date.now(); else delete it.doneAt;
+    try { syncStepsFromItem(it, done); } catch(e){}
     const after = stats(p).remaining;
     if (after <= 0 && before > 0){ p.finishedAt = Date.now(); celebrate(p); try { flashPet('celebrating', `${p.name}: DONE! 🎉 You did it.`, 6000); } catch(e){} }
     else if (done){ try { flashPet('celebrating', ['Nice, one down!', 'Ticked! Keep the streak going.', 'Good work. What\'s next?'][Math.floor(Math.random() * 3)], 3500); } catch(e){} }
@@ -1174,12 +1190,12 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     if (act === 'newnote'){ setTab('notes'); $('#nSubj').value = b.dataset.s; $('#nText').focus(); }
     if (act === 'editnote'){ const n = notes.find(x => x.id === b.dataset.n); if (!n) return; editingNote = n.id;
       renderNoteForm(); $('#nSubj').value = n.subject; $('#nDate').value = n.date; $('#nText').value = n.text; $('#nSteps').value = (n.steps || []).map(x => x.text).join('\n');
-      $('#noteFormTitle').textContent = 'Edit note'; $('#noteSubmit').textContent = 'Save changes'; $('#noteCancel').hidden = false; window.scrollTo({top:0, behavior:'smooth'}); }
+      $('#noteFormTitle').textContent = 'Edit note'; $('#noteSubmit').textContent = 'Save changes'; $('#noteCancel').hidden = false; renderTaskBox(true); window.scrollTo({top:0, behavior:'smooth'}); }
     if (act === 'delnote'){ const n = notes.find(x => x.id === b.dataset.n); notes = notes.filter(x => x.id !== b.dataset.n); delDoc('notes', b.dataset.n); render();
       toast('Note deleted', () => { notes.push(n); saveDoc('notes', n); }); }
     if (act === 'sendsteps'){ const n = notes.find(x => x.id === b.dataset.n), p = projects.find(x => x.id === $('#sp-' + b.dataset.n).value); if (!n || !p) return;
       const unsent = n.steps.filter(x => !x.sent && !x.done);
-      unsent.forEach(x => { p.items.push({id: uid(), name: x.text, hours: 1, done: false}); x.sent = p.name; });
+      unsent.forEach(x => { const it = {id: uid(), name: x.text, hours: 1, done: false}; p.items.push(it); x.sent = p.name; x.pid = p.id; x.iid = it.id; });
       saveDoc('projects', p); saveDoc('notes', n); toast(`Added ${unsent.length} task${unsent.length > 1 ? 's' : ''} to ${p.name} (1 h each, edit if needed)`); render(); }
   });
   document.addEventListener('change', e => {
@@ -1188,7 +1204,9 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
       if (t.checked && was > 0 && stats(p).remaining <= 0) toast(`🎉 ${p.name}: finished!`, () => setDone(p, it, false)); render(); }
     if (t.dataset.act === 'pname' && t.value.trim()){ const [p] = find(t.dataset.p); p.name = t.value.trim(); saveDoc('projects', p); render(); }
     if (t.dataset.act === 'psubj'){ const [p] = find(t.dataset.p); p.subject = t.value; saveDoc('projects', p); render(); }
-    if (t.dataset.act === 'step'){ const n = notes.find(x => x.id === t.dataset.n), x = n && n.steps.find(s => s.id === t.dataset.x); if (!x) return; x.done = t.checked; saveDoc('notes', n); renderUpNext(); renderNotes(); }
+    if (t.dataset.act === 'step'){ const n = notes.find(x => x.id === t.dataset.n), x = n && n.steps.find(s => s.id === t.dataset.x); if (!x) return; x.done = t.checked; saveDoc('notes', n);
+      const lp = x.pid && projects.find(p => p.id === x.pid), li = lp && lp.items.find(i => i.id === x.iid); if (li && !!li.done !== t.checked){ setDone(lp, li, t.checked); return render(); }
+      renderUpNext(); renderNotes(); }
     if (t.dataset.act === 'deadline' && t.value){ const [p] = find(t.dataset.p); p.deadline = new Date(t.value).toISOString(); saveDoc('projects', p); render(); }
   });
   document.addEventListener('input', e => {
@@ -1272,7 +1290,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     projects.push(p); saveDoc('projects', p); closeAdd(); skip = 0; freshProj = p.id; render(); setTimeout(() => document.querySelector(`.proj-card[data-id="${p.id}"]`)?.scrollIntoView({block: 'center'}), 60); toast('Project added', () => { projects = projects.filter(x => x.id !== p.id); delDoc('projects', p.id); });
   });
 
-  function resetNoteForm(){ editingNote = null; $('#noteForm').reset(); $('#nDate').value = ymd(new Date()); $('#noteFormTitle').textContent = 'New crit note'; $('#noteSubmit').textContent = 'Save note'; $('#noteCancel').hidden = true; renderNoteForm(); }
+  function resetNoteForm(){ editingNote = null; $('#noteForm').reset(); $('#nDate').value = ymd(new Date()); $('#noteFormTitle').textContent = 'New crit note'; $('#noteSubmit').textContent = 'Save note'; $('#noteCancel').hidden = true; renderNoteForm(); $('#nDue').value = ''; renderTaskBox(true); }
   $('#noteCancel').addEventListener('click', resetNoteForm);
   $('#noteForm').addEventListener('submit', e => {
     e.preventDefault();
@@ -1289,7 +1307,25 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
       n = {id: uid(), subject, date, text, steps: lines.map(l => ({id: uid(), text: l, done: false})), example: false, createdAt: Date.now()};
       notes.push(n);
     }
-    saveDoc('notes', n); toast(editingNote ? 'Note updated' : 'Note saved'); noteFilter = 'all'; resetNoteForm(); render();
+    let msg = editingNote ? 'Note updated' : 'Note saved';
+    const to = $('#nTaskBox').hidden ? 'none' : $('#nTo').value, hrs = Math.max(0.25, +$('#nHrs').value || 1);
+    const pending = (n.steps || []).filter(x => !x.sent && !x.done);
+    if (pending.length && to !== 'none'){
+      let p;
+      if (to === 'new'){
+        const due = $('#nDue').value;
+        if (!due){ $('#noteErr').textContent = 'Pick a deadline for the tasks (or choose "just save the note").'; return; }
+        const sj = subject === 'Other' ? '' : subject;
+        p = {id: uid(), name: `Crit ${new Date(date + 'T12:00').toLocaleDateString('en-GB', {day: 'numeric', month: 'short'})}: next steps`, subject: sj, deadline: new Date(due).toISOString(), items: [], example: false, createdAt: Date.now()};
+        projects.push(p);
+      } else p = projects.find(x => x.id === to);
+      if (p){
+        pending.forEach(x => { const it = {id: uid(), name: x.text, hours: hrs, done: false}; p.items.push(it); x.sent = p.name; x.pid = p.id; x.iid = it.id; });
+        saveDoc('projects', p); freshProj = p.id;
+        msg += `. ${pending.length} task${pending.length === 1 ? '' : 's'} added to ${p.name}`;
+      }
+    }
+    saveDoc('notes', n); toast(msg); noteFilter = 'all'; resetNoteForm(); render();
   });
 
   setInterval(() => { if (!editing()) render(); }, 60e3);
@@ -2205,6 +2241,45 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   $('#rescueBtn').addEventListener('click', openRescue);
   const rescueNeeded = () => projects.some(p => { const s = stats(p); return s.remaining > 0 && s.msLeft > 0 && s.msLeft <= 7 * DAY && s.status !== 'ok'; });
   $('#pace').addEventListener('click', e => { const b = e.target.closest('[data-mode]'); if (!b) return; if (b.dataset.mode === 'calm') openCalm(); else openRescue(); });
+
+  // ---------- crit notes -> tasks: next steps become a project you can tick off ----------
+  // next class of this subject (a natural deadline for "fix it before next crit"), else a week from now
+  function nextClassOf(subject){
+    const now = new Date();
+    for (let k = 1; k <= 14; k++){
+      const d = new Date(dayStart(now).getTime() + k * DAY + 2 * HOUR);
+      const c = classes.find(c => c.subject && subject && c.subject.trim() === subject.trim() && c.day === dow(d) && c.start);
+      if (c && !dates.some(x => x.date === ymd(d) && x.kind === 'noclass' && (x.subject || '').trim() === subject.trim())) return `${ymd(d)}T${c.start}`;
+    }
+    return `${ymd(new Date(now.getTime() + 7 * DAY))}T23:59`;
+  }
+  const noteLines = () => $('#nSteps').value.split('\n').map(l => l.trim()).filter(Boolean);
+  function renderTaskBox(resetDue){
+    const subj = $('#nSubj').value, n = editingNote && notes.find(x => x.id === editingNote);
+    const lines = noteLines(), already = new Set(((n && n.steps) || []).filter(x => x.sent).map(x => x.text));
+    const pending = lines.filter(l => !already.has(l));
+    $('#nTaskBox').hidden = !pending.length;
+    if (!pending.length) return;
+    const cur = $('#nTo').value;
+    const same = projects.filter(p => stats(p).remaining > 0 && (p.subject || '') === (subj === 'Other' ? '' : subj));
+    const rest = projects.filter(p => stats(p).remaining > 0 && !same.includes(p));
+    $('#nTo').innerHTML = `<option value="new">New project: ${esc(subj === 'Other' ? '' : subj + ' ')}crit next steps</option>`
+      + same.concat(rest).map(p => `<option value="${p.id}">Add to: ${esc(p.name)}</option>`).join('')
+      + `<option value="none">Don't make tasks, just save the note</option>`;
+    if ([...$('#nTo').options].some(o => o.value === cur)) $('#nTo').value = cur;
+    if (resetDue || !$('#nDue').value) $('#nDue').value = nextClassOf(subj === 'Other' ? '' : subj);
+    const to = $('#nTo').value;
+    $('#nDueWrap').hidden = to !== 'new';
+    $('#nTaskHint').textContent = to === 'none' ? 'You can still add them as tasks later from the note.'
+      : `${pending.length} task${pending.length === 1 ? '' : 's'}, ${fmtH(pending.length * (+$('#nHrs').value || 1))} in total. ${to === 'new' ? 'Due ' + (($('#nDue').value && fmtDue(new Date($('#nDue').value).toISOString())) || '?') + '.' : ''} Change the hours on each task later in Projects.`;
+  }
+  ['#nSteps', '#nHrs', '#nDue'].forEach(id => $(id).addEventListener('input', () => renderTaskBox(false)));
+  $('#nTo').addEventListener('change', () => renderTaskBox(false));
+  $('#nSubj').addEventListener('change', () => renderTaskBox(true));
+  // keep a note's step and its task in sync, whichever one you tick
+  function syncStepsFromItem(it, done){
+    notes.forEach(n => (n.steps || []).forEach(x => { if (x.iid === it.id && !!x.done !== !!done){ x.done = done; saveDoc('notes', n); } }));
+  }
 
   // ---------- theme ----------
   const THEMES = ['auto', 'light', 'dark'], TLABEL = {auto:'◐ Auto', light:'☀ Light', dark:'☾ Dark'};
