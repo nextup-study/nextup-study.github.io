@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Next Up: tells you which project to work on next, from your deadlines, deliverables and class timetable.">
-<meta name="theme-color" content="#16201D">
+<meta name="theme-color" content="#F3F5F2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111715" media="(prefers-color-scheme: dark)">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif;background:#F3F5F2}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Next Up Beta</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -84,7 +85,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .countdown b{font:600 30px/1 var(--mono);color:var(--bg);font-variant-numeric:tabular-nums;white-space:nowrap}
 .countdown .when{font:12px var(--mono);color:color-mix(in srgb,var(--bg) 72%,transparent)}
 .countdown.hot{background:var(--cta)} .countdown.hot b,.countdown.hot .when,.countdown.hot .label{color:var(--cta-ink)!important}
-.countdown.over{background:var(--bad)} .countdown.over b,.countdown.over .when,.countdown.over .label{color:#fff!important}
+.countdown.over{background:var(--warn)} .countdown.over b,.countdown.over .when,.countdown.over .label{color:#fff!important}
 .hero-coming{border-top:1px solid color-mix(in srgb,var(--bg) 18%,transparent);padding-top:12px;margin-top:2px;display:flex;flex-direction:column;gap:7px}
 .hc-row{display:grid;grid-template-columns:10px 1fr auto;gap:10px;align-items:center;font-size:14px;color:color-mix(in srgb,var(--bg) 90%,transparent)}
 .hc-row .dot{width:10px;height:10px;border-radius:50%}
@@ -314,6 +315,102 @@ input[type=number]{width:80px}
 .wd-gallery svg{width:100%;height:auto;display:block}
 .themebtn .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--cta);margin-left:5px;vertical-align:middle}
 @media (prefers-reduced-motion:no-preference){.wd-portrait svg{animation:bob 3.2s ease-in-out infinite}}
+/* calm mode ("I'm overwhelmed"): one soft screen, one small step */
+.calm-link{align-self:center;background:none;border:0;color:var(--ink3);font-size:13.5px;padding:6px 10px;border-radius:8px}
+.calm-link b{color:var(--ink2);font-weight:600;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line)}
+.calm-link:hover b{color:var(--ink)}
+.calm{--c-bg1:#FBF3EA;--c-bg2:#F4E3D3;--c-card:#FFFBF6;--c-ink:#3B2F28;--c-soft:#8C766A;--c-line:#EAD8C7;--c-acc:#E9A57A;--c-acc-ink:#3A1A03;--c-ring:#F1D2BC;
+  position:fixed;inset:0;z-index:28;overflow:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px 16px calc(24px + env(safe-area-inset-bottom,0px));
+  background:radial-gradient(120% 90% at 50% 0%,var(--c-bg1),var(--c-bg2));color:var(--c-ink)}
+:root[data-theme="dark"] .calm{--c-bg1:#2A221C;--c-bg2:#1B1613;--c-card:#2F2721;--c-ink:#F0E6DB;--c-soft:#B09C8E;--c-line:#3E342C;--c-acc:#E9A57A;--c-acc-ink:#2A1405;--c-ring:#4A3A2E}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .calm{--c-bg1:#2A221C;--c-bg2:#1B1613;--c-card:#2F2721;--c-ink:#F0E6DB;--c-soft:#B09C8E;--c-line:#3E342C;--c-acc:#E9A57A;--c-acc-ink:#2A1405;--c-ring:#4A3A2E}}
+body.calm-on{overflow:hidden}
+body.calm-on .pet{display:none!important}
+.calm-exit{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:16px;background:none;border:1px solid var(--c-line);color:var(--c-soft);border-radius:99px;padding:6px 13px;font-size:13px}
+.calm-exit:hover{color:var(--c-ink)}
+.calm-buddy{width:118px;height:126px}
+.calm-buddy svg{width:100%;height:100%}
+.calm-card{background:var(--c-card);border:1px solid var(--c-line);border-radius:22px;padding:26px 24px 22px;width:min(440px,100%);display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;box-shadow:0 18px 40px rgba(90,50,20,.08)}
+.calm-kicker{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--c-soft)}
+.calm-lead{font:500 16px/1.45 var(--body);color:var(--c-soft);margin:0;max-width:32ch}
+.calm-task{font:700 clamp(24px,6vw,30px)/1.15 var(--display);margin:2px 0 0;overflow-wrap:anywhere}
+.calm-sub{font-size:13.5px;color:var(--c-soft);margin:0}
+.calm-mins{display:flex;gap:8px;margin-top:4px}
+.calm-mins button{border:1px solid var(--c-line);background:transparent;color:var(--c-soft);border-radius:99px;padding:6px 13px;font:500 13.5px var(--mono)}
+.calm-mins button[aria-pressed="true"]{background:var(--c-ring);color:var(--c-ink);border-color:var(--c-ring)}
+.calm-go{background:var(--c-acc);color:var(--c-acc-ink);border:0;border-radius:14px;padding:13px 22px;font:600 16px var(--body);width:100%;margin-top:6px}
+.calm-go:hover{filter:brightness(1.04)}
+.calm-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%}
+.calm-ghost{background:transparent;border:1px solid var(--c-line);color:var(--c-ink);border-radius:12px;padding:10px 14px;font-size:14px;flex:1 1 140px}
+.calm-skip{background:none;border:0;color:var(--c-soft);font-size:13px;text-decoration:underline;text-underline-offset:3px;padding:4px}
+.calm-ring{width:190px;height:190px;position:relative;margin:4px 0}
+.calm-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.calm-ring .t{position:absolute;inset:0;display:grid;place-items:center;font:600 40px var(--mono);letter-spacing:-.02em}
+.calm-foot{font-size:12.5px;color:var(--c-soft);text-align:center;max-width:36ch}
+.calm button:focus-visible{outline:2px solid var(--c-acc);outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+  .calm{animation:fade .35s ease-out}
+  .calm-buddy svg{animation:breathe 5.5s ease-in-out infinite;transform-origin:50% 80%}
+  @keyframes breathe{50%{transform:scale(1.045)}}
+}
+/* no-guilt rebuild, today's pace, save-my-week */
+.rebuild{background:var(--warn-soft);border:1px solid color-mix(in srgb,var(--warn) 30%,transparent);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:9px}
+.rebuild h3{margin:0;font:700 17px/1.25 var(--display)}
+.rebuild p{margin:0;font-size:14px;color:var(--ink2)}
+.rebuild .row{flex-wrap:wrap;gap:6px}.rebuild .btn{padding:5px 10px;font-size:13px}
+.rebuild input[type=datetime-local]{max-width:220px}
+.pace{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:9px}
+.pace.done{background:var(--ok-soft);border-color:color-mix(in srgb,var(--ok) 30%,transparent)}
+.pace h3{margin:0;font:700 17px/1.25 var(--display)}
+.pace p{margin:0;font-size:14px;color:var(--ink2)}
+.pace-bar{height:9px;background:var(--sunk);border-radius:99px;overflow:hidden}
+.pace-bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .4s}
+.pace.done .pace-bar i{background:var(--ok)}
+.pace .future{border-top:1px dashed var(--line);padding-top:9px}
+.pace .future b{color:var(--ink)}
+.mode-links{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
+.rescue{position:fixed;inset:0;z-index:28;overflow:auto;background:var(--bg);color:var(--ink);padding:22px 16px calc(28px + env(safe-area-inset-bottom,0px))}
+.rescue-in{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.rescue-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.rescue h2{margin:4px 0 0;font:700 clamp(26px,6vw,34px)/1.1 var(--display)}
+.rescue .sum{font-size:15px;color:var(--ink2);margin:0;max-width:62ch}
+.rescue .sum b{color:var(--ink)}
+.rb{border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);background:var(--surface)}
+.rb h3{margin:0;font:700 16px var(--display);display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.rb h3 small{font:500 12px var(--mono);color:var(--ink3)}
+.rb .hint{margin:0;font-size:13px;color:var(--ink2)}
+.rb.must{border-left:5px solid var(--ok)} .rb.good{border-left:5px solid var(--warn)} .rb.wait{border-left:5px solid var(--ink3)}
+.rrow{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg);border-radius:10px}
+.rrow .t{flex:1;min-width:0}
+.rrow .t b{display:block;font-weight:600;font-size:14.5px;overflow-wrap:anywhere}
+.rrow .t span{font-size:12.5px;color:var(--ink3)}
+.rrow .h{font:500 13px var(--mono);color:var(--ink2);white-space:nowrap}
+.rrow button{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:12px;color:var(--ink2);white-space:nowrap}
+.rescue .go{background:var(--cta);color:var(--cta-ink);border:0;border-radius:12px;padding:13px 20px;font:600 16px var(--body)}
+.rescue .go:hover{background:var(--cta-hover)}
+body.rescue-on{overflow:hidden} body.rescue-on .pet{display:none!important}
+@media (prefers-reduced-motion:no-preference){.rescue{animation:fade .25s ease-out}}
+/* simple face: hero extras */
+.next .why-more{background:none;border:0;padding:0;color:color-mix(in srgb,var(--bg) 70%,transparent);font-size:13px;text-decoration:underline;text-underline-offset:3px;align-self:flex-start}
+.next .why-nums{font-size:13px;line-height:1.5;color:color-mix(in srgb,var(--bg) 72%,transparent);margin:0;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--bg) 8%,transparent);max-width:60ch}
+.gap{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13px;color:color-mix(in srgb,var(--bg) 70%,transparent)}
+.gap button{background:transparent;border:1px solid color-mix(in srgb,var(--bg) 28%,transparent);color:var(--bg);border-radius:99px;padding:4px 11px;font:500 12.5px var(--mono)}
+.gap button[aria-pressed="true"]{background:var(--bg);color:var(--ink);border-color:var(--bg)}
+.next .linkish{background:none;border:0;color:color-mix(in srgb,var(--bg) 75%,transparent);font-size:14px;padding:10px 6px;text-decoration:underline;text-underline-offset:3px}
+.after{border-top:1px solid color-mix(in srgb,var(--bg) 18%,transparent);padding-top:12px;margin-top:2px;display:flex;flex-direction:column;gap:8px}
+.after-row{display:grid;grid-template-columns:78px 1fr auto;gap:10px;align-items:baseline;font-size:14px;color:color-mix(in srgb,var(--bg) 90%,transparent)}
+.after-row .k{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--bg) 55%,transparent)}
+.after-row .n{min-width:0;overflow-wrap:anywhere}
+.after-row .n small{display:block;font-size:12px;color:color-mix(in srgb,var(--bg) 60%,transparent)}
+.after-row .h{font:500 13px var(--mono);white-space:nowrap}
+.chipd.st-warn{background:color-mix(in srgb,var(--cta) 30%,transparent)} .chipd.st-bad{background:color-mix(in srgb,var(--cta) 45%,transparent)}
+.pace .modes{display:flex;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:9px}
+.pace .modes button{background:none;border:0;padding:0;color:var(--ink2);font-size:13.5px}
+.pace .modes button b{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line);font-weight:600}
+.pace .modes button:hover b{color:var(--ink)}
+.rebuild .rb-row{display:flex;flex-direction:column;gap:6px;padding-top:8px;border-top:1px dashed color-mix(in srgb,var(--warn) 35%,transparent)}
+.rebuild .rb-row:first-of-type{border-top:0;padding-top:0}
+.rebuild .rb-row b{font-weight:600}
 .pet-menu{display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--line);padding-top:8px}
 .pet-menu button{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px;text-align:left;color:var(--ink);font-size:13px}
 .pet-menu button:hover{border-color:var(--cta)}
@@ -387,9 +484,12 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   <!-- NEXT -->
   <section class="panel" id="p-next">
     <section class="next" id="next" aria-live="polite"></section>
+    <section class="pace" id="pace" hidden></section>
+    <section id="rebuildWrap" style="display:flex;flex-direction:column;gap:10px"></section>
+    <span id="calmBtn" hidden></span><span id="rescueBtn" hidden></span>
     <section id="upnext"></section>
     <section class="list" id="soonWrap">
-      <h2 class="sec-title">Deadlines &amp; events in the next 2 weeks</h2>
+      <h2 class="sec-title">Coming up</h2>
       <div class="soon" id="soon"></div>
       <button class="btn showall" type="button" id="soonMore" hidden></button>
     </section>
@@ -491,7 +591,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
       <p><b>Work time</b> is counted day by day until the deadline, using your timetable: days with class get your class-day hours, free days get your free-day hours.</p>
       <p><b>Slack</b> = that work time minus the hours still left. Lowest slack goes first.</p>
       <p><b>Close-it-out rule:</b> if a project is 80%+ done with 2 h or less left, and finishing it won't put your most urgent project behind, it jumps to the top.</p>
-      <p>Status: <span class="status s-ok">On track</span> using under 70% of your time, <span class="status s-warn">Tight</span> 70–100%, <span class="status s-bad">Behind</span> more work than time.</p>
+      <p>Status: <span class="status s-ok">On track</span> using under 70% of your time, <span class="status s-warn">Needs attention</span> 70–100%, <span class="status s-bad">Let's replan</span> more work than time.</p>
     </details>
     </div>
     <div class="row" style="justify-content:space-between"><button class="btn pri" type="button" id="setupSave">Save</button><span id="saveState" class="small"></span></div>
@@ -555,6 +655,8 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     </div>
   </div>
 </div>
+<div class="rescue" id="rescue" hidden role="dialog" aria-modal="true" aria-label="Save my week"></div>
+<div class="calm" id="calm" hidden role="dialog" aria-modal="true" aria-label="One thing at a time"></div>
 <div class="pet" id="pet" hidden>
   <div class="pet-bubble"><div id="petText"></div>
     <div class="pet-menu" id="petMenu" hidden>
@@ -562,6 +664,8 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
       <button type="button" data-pet="stop" hidden>Stop timer</button>
       <button type="button" data-pet="next">What's next?</button>
       <button type="button" data-pet="how">How am I doing?</button>
+      <button type="button" data-pet="calm">😮‍💨 I'm overwhelmed</button>
+      <button type="button" data-pet="rescue">🚨 Save my week</button>
       <button type="button" data-pet="ward">🎒 Dress me up</button>
       <button type="button" data-pet="pop">⧉ Pop out (stays on top)</button>
       <button type="button" data-pet="hide">Quiet mode</button>
@@ -644,7 +748,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     else if (load > 0.7) status = 'warn';
     return {total, doneH, remaining, pct, msLeft, available, slack, load, status};
   }
-  const statusText = {ok:'On track', warn:'Tight', bad:'Behind', done:'Done'};
+  const statusText = {ok:'On track', warn:'Needs attention', bad:"Let's replan", done:'Done'};
   function rank(){
     const active = projects.map(p => ({p, s: stats(p)})).filter(x => x.s.remaining > 0);
     active.sort((a, b) => a.s.slack - b.s.slack);
@@ -679,7 +783,8 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
       const p = projects.find(p => p.id === pinned.pid), it = p && p.items.find(i => i.id === pinned.iid && !i.done);
       if (it){ pick = {p, s: stats(p), reason:'pinned'}; item = it; } else pinned = null;
     }
-    if (!pick && r.length){ pick = r[skip % r.length]; item = pick.p.items.find(i => !i.done); }
+    const rLive = r.filter(x => x.s.msLeft > 0), rr = rLive.length ? rLive : r;
+    if (!pick && rr.length){ pick = rr[skip % rr.length]; item = pick.p.items.find(i => !i.done); if (pick.reason === 'next' && skip % rr.length === 0) pick = {...pick, reason: 'urgent'}; }
     if (!pick){
       el.className = 'next empty';
       el.innerHTML = projects.length
@@ -687,29 +792,54 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
         : `<span class="label">Do this next</span><h2>Add a project to get your first pick.</h2><p class="why">List what you have to hand in with rough hours, and this will tell you where to start.</p><div class="actions"><button class="btn-main" data-act="openadd">+ Add project</button></div>`;
       return;
     }
+    // "I have 30 min": pick the best thing that fits the gap
+    let gapNote = '';
+    if (gapMin && !pinned){
+      const cands = rr.map(x => ({x, it: x.p.items.find(i => !i.done)})).filter(c => c.it);
+      const fit = cands.find(c => (+c.it.hours || 0) * 60 <= gapMin + 1);
+      if (fit){ pick = {...fit.x, reason: 'gap'}; item = fit.it; gapNote = `You've got ${gapLabel(gapMin)}. This fits, so you can actually finish it.`; }
+      else { gapNote = `Nothing fits in ${gapLabel(gapMin)}, so do a ${gapLabel(gapMin)} chunk of this. Every bit counts.`; pick = {...pick, reason: 'gap'}; }
+    }
     const {p, s} = pick; let why;
-    if (pick.reason === 'close') why = `${esc(p.name)} is ${s.pct}% done with only ${fmtH(s.remaining)} left. Finish it now and it's off your mind. ${esc(pick.vs.p.name)} still has ${fmtH(Math.max(0, pick.vs.s.slack - s.remaining))} of slack after this.`;
-    else if (pick.reason === 'urgent') why = s.status === 'bad'
-      ? `This is behind: ${fmtH(s.remaining)} of work left, about ${fmtH(s.available)} of work time before ${fmtDue(p.deadline)} once classes are counted. Start now, or cut scope.`
-      : `Lowest slack of everything you've got: ${fmtH(s.remaining)} of work left, about ${fmtH(s.available)} of work time before ${fmtDue(p.deadline)} once classes are counted.`;
-    else if (pick.reason === 'pinned') why = `You picked this one. ${fmtH(s.remaining)} left on ${esc(p.name)}.`;
-    else why = `Option ${(skip % r.length) + 1} of ${r.length}. ${fmtH(s.slack)} of slack before ${fmtDue(p.deadline)}.`;
+    const ih = fmtH(+item.hours || 0);
+    // the friendly line first; the numbers sit behind "Why this?"
+    if (pick.reason === 'gap') why = gapNote;
+    else if (pick.reason === 'close') why = `${esc(p.name)} is almost done (${s.pct}%). Finish it now and it's off your mind.`;
+    else if (pick.reason === 'urgent') why = s.msLeft <= 0 ? `This one is past its deadline. Do it now, or rebuild the plan below.`
+      : s.status === 'bad' ? `The plan for this doesn't fit before the deadline. Starting now gives you the best shot, or try Save my week.`
+      : s.status === 'warn' ? `This is tighter than your other projects. ${ih} now keeps you on track.`
+      : `Nothing's urgent. This one has the least spare time, so it's the smart place to start.`;
+    else if (pick.reason === 'pinned') why = `You picked this one.`;
+    else why = `Another option. It has ${fmtH(Math.max(0, s.slack))} spare before it's due.`;
+    let nums;
+    if (pick.reason === 'close') nums = `${s.pct}% done with only ${fmtH(s.remaining)} left. ${esc(pick.vs.p.name)} still has ${fmtH(Math.max(0, pick.vs.s.slack - s.remaining))} spare after this.`;
+    else nums = `${fmtH(s.remaining)} of work left on ${esc(p.name)}, ${s.pct}% done. About ${fmtH(s.available)} of work time before ${fmtDue(p.deadline)} once classes are counted. ${s.slack >= 0 ? `That leaves ${fmtH(s.slack)} spare` : `That's ${fmtH(-s.slack)} short`}, ${pick.reason === 'urgent' ? 'the tightest of all your projects' : 'one of your tighter projects'}.`;
     const pickKey = p.id + '/' + item.id; el.className = 'next' + (lastPick && lastPick !== pickKey ? ' swap' : ''); lastPick = pickKey;
     const heat = s.msLeft <= 0 ? 'over' : s.msLeft < DAY ? 'hot' : '';
+    // after that / later: the next two steps, so you never have to read the whole list
+    const others = r.filter(x => x.p.id !== p.id && x.s.msLeft > 0).map(x => ({p: x.p, it: x.p.items.find(i => !i.done)})).filter(x => x.it);
+    const nextSame = p.items.filter(i => !i.done && i.id !== item.id)[0];
+    const after = [nextSame && s.status !== 'ok' ? {p, it: nextSame} : others[0], nextSame && s.status !== 'ok' ? others[0] : (others[1] || (nextSame ? {p, it: nextSame} : null))].filter(Boolean);
     el.innerHTML = `
-      <span class="label">Do this next</span>
+      <span class="label">${pick.reason === 'gap' ? `Got ${gapLabel(gapMin)}? Do this` : 'Do this next'}</span>
       <div class="hero-main">
         <div><h2>${esc(item.name)}</h2><div class="proj">${p.subject ? esc(p.subject) + ' · ' : ''}${esc(p.name)}</div></div>
-        <div class="countdown ${heat}"><span class="label">${s.msLeft <= 0 ? 'Overdue' : 'Due in'}</span><b>${countdown(s.msLeft)}</b><span class="when">${fmtDue(p.deadline)}</span></div>
+        <div class="countdown ${heat}"><span class="label">${s.msLeft <= 0 ? 'Was due' : 'Due in'}</span><b>${countdown(s.msLeft)}${s.msLeft <= 0 ? ' ago' : ''}</b><span class="when">${fmtDue(p.deadline)}</span></div>
       </div>
-      <div class="meta"><span class="chipd">≈ ${fmtH(+item.hours || 0)} for this</span><span class="chipd">${s.pct}% done</span><span class="chipd">${fmtH(s.remaining)} left on project</span></div>
+      <div class="meta"><span class="chipd">≈ ${ih}</span>${s.status !== 'ok' ? `<span class="chipd st-${s.status}">${statusText[s.status]}</span>` : ''}</div>
       <p class="why">${why}</p>
+      ${whyOpen ? `<p class="why-nums">${nums}</p>` : ''}
+      <button class="why-more" type="button" data-act="whythis">${whyOpen ? 'Hide the numbers' : 'Why this?'}</button>
+      <div class="gap" role="group" aria-label="How much time do you have"><span>I have</span>${[15, 30, 60, 120].map(m => `<button type="button" data-act="gap" data-m="${m}" aria-pressed="${gapMin === m}">${gapLabel(m)}</button>`).join('')}</div>
       <div class="actions">
-        <button class="btn-main" data-act="done" data-p="${p.id}" data-i="${item.id}">Mark done</button>
-        ${r.length > 1 || pinned ? `<button class="btn-ghost" data-act="skip">Not now, show another</button>` : ''}
+        <button class="btn-main" data-act="tunnel" data-p="${p.id}" data-i="${item.id}">▶ Start${gapMin ? ` ${gapLabel(gapMin)}` : ''}</button>
+        <button class="btn-ghost" data-act="done" data-p="${p.id}" data-i="${item.id}">✓ Done</button>
+        ${r.length > 1 || pinned ? `<button class="linkish" data-act="skip">Not now</button>` : ''}
       </div>
-      ${heroComing(p.id)}`;
+      ${after.length ? `<div class="after">${after.map((x, k) => `<div class="after-row"><span class="k">${k ? 'Later' : 'After that'}</span><span class="n">${esc(x.it.name)}<small>${x.p.subject ? esc(x.p.subject) + ' · ' : ''}${esc(x.p.name)}</small></span><span class="h">${fmtH(+x.it.hours || 0)}</span></div>`).join('')}</div>` : ''}`;
   }
+  const gapLabel = m => m >= 120 ? '2 h+' : m >= 60 ? '1 h' : `${m} min`;
+  let gapMin = 0, whyOpen = false;
 
   // next class occurrence (or current one)
   function upcomingClass(now = new Date()){
@@ -760,9 +890,9 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     projects.forEach(p => { const d = new Date(p.deadline); const ds = ymd(d); if (ds >= today && ds <= limit && stats(p).remaining > 0) rows.push({date: ds, time: d.toTimeString().slice(0,5), title: p.name, subject: p.subject, kind: 'due'}); });
     rows.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
     $('#soonWrap').hidden = !rows.length;
-    const more = $('#soonMore'); more.hidden = rows.length <= 5; more.dataset.act = 'soonmore';
+    const more = $('#soonMore'); more.hidden = rows.length <= 3; more.dataset.act = 'soonmore';
     more.textContent = showAllSoon ? 'Show fewer' : `Show all ${rows.length}`;
-    $('#soon').innerHTML = (showAllSoon ? rows : rows.slice(0, 5)).map((r, idx) => {
+    $('#soon').innerHTML = (showAllSoon ? rows : rows.slice(0, 3)).map((r, idx) => {
       const dd = Math.round((new Date(r.date + 'T12:00') - dayStart(now)) / DAY - 0.5);
       const rel = r.date === today ? 'Today' : dd === 1 ? 'Tomorrow' : new Date(r.date + 'T12:00').toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'});
       return `<div class="soon-row ${r.subject ? 'tinted' : ''} ${idx >= freshSoon ? 'fresh' : ''}" data-i="${idx}" style="${tint(r.subject)}"><span class="dt"><b>${rel}</b>${r.time && r.time !== '00:00' ? r.time : ''}</span>
@@ -806,7 +936,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
           ${segBar(s.pct, lastTick && lastTick.p === p.id && lastTick.done)}
           <div class="pmeta"><span class="status s-${s.status}">${statusText[s.status]}</span>
             <span>${fmtH(s.remaining)} of work left</span><span>${fmtLeft(s.msLeft)}</span>
-            ${s.remaining > 0 && s.msLeft > 0 ? `<span>slack ${fmtH(s.slack)}</span>` : ''}</div>
+            ${s.remaining > 0 && s.msLeft > 0 ? `<span>${s.slack >= 0 ? `${fmtH(s.slack)} spare` : `${fmtH(-s.slack)} short`}</span>` : ''}</div>
         </summary>
         <div class="body">
           <ul class="items">${p.items.map(i => `
@@ -965,6 +1095,8 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     renderWeek(); renderClassList(); renderKeyDates();
     renderNoteForm(); renderNotes();
     if (typeof checkUnlocks === 'function') try { checkUnlocks(); } catch(e){}
+    if (typeof renderCalmBtn === 'function') try { renderCalmBtn(); } catch(e){}
+    try { renderRebuild(); renderPace(); $('#rescueBtn').hidden = !projects.some(p => { const s = stats(p); return s.remaining > 0 && s.msLeft > 0 && s.msLeft <= 7 * DAY && s.status !== 'ok'; }); } catch(e){}
     $('#saveState').textContent = store === 'db' ? 'Saved to your account' : 'Saved on this device only';
   }
   const editing = () => { const a = document.activeElement; return a && a.matches('input:not([type=checkbox]),textarea,select'); };
@@ -1002,7 +1134,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     const b = e.target.closest('[data-act]'); if (!b) return;
     const act = b.dataset.act, pid = b.dataset.p, iid = b.dataset.i;
     if (act === 'tick' || act === 'step') return;
-    if (act === 'done'){ const [p, it] = find(pid, iid); if (!it) return; pinned = null; skip = 0; setDone(p, it, true);
+    if (act === 'done'){ const [p, it] = find(pid, iid); if (!it) return; pinned = null; skip = 0; gapMin = 0; setDone(p, it, true);
       toast(stats(p).remaining > 0 ? "Done. Here's the next one." : `🎉 ${p.name}: finished!`, () => setDone(p, it, false)); render(); }
     if (act === 'openadd') openAdd();
     if (act === 'nrrm'){ b.closest('.nrow').remove(); if (!$('#newRows').children.length) addRow(); }
@@ -1020,6 +1152,9 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     if (act === 'bkyes' && pendingRestore) restoreBackup(pendingRestore);
     if (act === 'bkno'){ pendingRestore = null; $('#bkConfirm').hidden = true; }
     if (act === 'skip'){ pinned = null; skip++; renderNext(); }
+    if (act === 'whythis'){ whyOpen = !whyOpen; renderNext(); }
+    if (act === 'gap'){ const m = +b.dataset.m; gapMin = gapMin === m ? 0 : m; pinned = null; skip = 0; renderNext(); }
+    if (act === 'tunnel'){ const [p, it] = find(pid, iid); if (it) startTunnel(p, it, gapMin ? Math.min(gapMin, 90) : petCfg.focusMin); }
     if (act === 'pin'){ e.preventDefault(); pinned = {pid, iid}; skip = 0; render(); window.scrollTo({top:0, behavior:'smooth'}); }
     if (act === 'rm'){ e.preventDefault(); const [p] = find(pid); const idx = p.items.findIndex(i => i.id === iid); const it = p.items[idx];
       p.items.splice(idx, 1); saveDoc('projects', p); render(); toast(`Removed "${it.name}"`, () => { p.items.splice(idx, 0, it); saveDoc('projects', p); }); }
@@ -1240,7 +1375,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   }
   $('#settingsBtn').addEventListener('click', () => openSetup(false));
   $('#setupSave').addEventListener('click', () => { closeSetup(); toast('Saved'); });
-  document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (!$('#wdPop').hidden) closeLockPop(); else if (!$('#ward').hidden) closeWard(); else if (!$('#addModal').hidden) closeAdd(); else if (!$('#setup').hidden) closeSetup(); });
+  document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (!$('#rescue').hidden) closeRescue(); else if (calm.on && calm.phase !== 'run') closeCalm(); else if (!$('#wdPop').hidden) closeLockPop(); else if (!$('#ward').hidden) closeWard(); else if (!$('#addModal').hidden) closeAdd(); else if (!$('#setup').hidden) closeSetup(); });
 
   // ---------- buddy wardrobe: item library (all drawn on the same canvas) ----------
   const WARD = (() => {
@@ -1529,7 +1664,9 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
       if (top.s.msLeft > 14 * HOUR) lines.push(`It's late. Nothing's due until ${fmtDue(top.p.deadline)}. Sleep is part of the work, go rest.`);
       else lines.push(`Late, but ${top.p.name} ${dueTxt}. One focused block, then sleep?`);
     }
-    if (top.s.status === 'bad') lines.push(top.s.msLeft <= 0 ? `${top.p.name} is overdue (${cd}). Finish it or move the deadline?` : `${top.p.name} is behind: ${fmtH(top.s.remaining)} left, due in ${cd}. Want to start a ${petCfg.focusMin}-min block?`);
+    if (projects.filter(p => stats(p).status === 'bad').length >= 2) lines.unshift("A lot is behind at once. That's okay. Tap me → Save my week, and I'll make an honest plan.");
+    try { const tp = todayPace(); if (!tp.behind && tp.need > 0 && tp.did >= tp.need) lines.unshift("You're done for today. Tomorrow is under control. Go rest 😌"); } catch(e){}
+    if (top.s.status === 'bad') lines.push(top.s.msLeft <= 0 ? `${top.p.name} didn't happen on time. No guilt. Let's rebuild it on the Next tab.` : `${top.p.name} is behind: ${fmtH(top.s.remaining)} left, due in ${cd}. Want to start a ${petCfg.focusMin}-min block?`);
     lines.push(`Next up: ${item ? item.name : 'finish ' + top.p.name} (~${fmtH(item ? +item.hours || 0 : top.s.remaining)}).`);
     lines.push(`${top.p.name} ${dueTxt}.`);
     const best = projects.map(p => ({p, s: stats(p)})).filter(x => x.s.remaining > 0 && x.s.pct > 0).sort((a, b) => b.s.pct - a.s.pct)[0];
@@ -1566,13 +1703,38 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     if (min >= 1){ sessions.push({at: timer.start, min, pid: timer.pid, iid: timer.iid}); saveSessions(); try { checkUnlocks(); } catch(e){} }
     return min;
   }
-  function notify(title, body){
-    try { if ('Notification' in window && Notification.permission === 'granted' && (document.hidden || petWin)) new Notification(title, {body}); } catch(e){}
+  // timer alerts: a soft chime + a system notification every time (focus done, break over, calm timer done)
+  let audioCtx = null;
+  function chime(){
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const t = audioCtx.currentTime;
+      [[660, 0], [880, 0.18]].forEach(([f, d]) => {
+        const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = 'sine'; o.frequency.value = f; o.connect(g); g.connect(audioCtx.destination);
+        g.gain.setValueAtTime(0.0001, t + d); g.gain.exponentialRampToValueAtTime(0.18, t + d + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + d + 0.6);
+        o.start(t + d); o.stop(t + d + 0.65);
+      });
+    } catch(e){}
   }
+  const unlockAudio = () => { try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); } catch(e){} };
+  async function notify(title, body){
+    chime();
+    try { if (navigator.vibrate) navigator.vibrate([120, 80, 120]); } catch(e){}
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const opts = {body, tag: 'nextup-timer', renotify: true, icon: document.querySelector('link[rel=apple-touch-icon]')?.href};
+    try {   // phones and the home-screen app need the offline helper to show it; computers can show it directly
+      const reg = 'serviceWorker' in navigator ? await navigator.serviceWorker.getRegistration() : null;
+      if (reg && reg.showNotification){ await reg.showNotification(title, opts); return; }
+    } catch(e){}
+    try { new Notification(title, opts); } catch(e){}
+  }
+  // browsers slow timers down in background tabs, so check the moment you come back too
+  document.addEventListener('visibilitychange', () => { if (!document.hidden){ try { tickTimer(); } catch(e){} } });
   function startFocus(){
     const r = rank(), top = r[0], item = top && top.p.items.find(i => !i.done);
     timer = {mode: 'focus', start: Date.now(), end: Date.now() + petCfg.focusMin * 60000, pid: top ? top.p.id : null, iid: item ? item.id : null, label: item ? item.name : ''};
-    savePet(); petMenuOpen = false;
+    savePet(); petMenuOpen = false; unlockAudio();
     try { if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); } catch(e){}
     flashPet('focused', `Let's go! ${petCfg.focusMin} minutes${item ? ` on ${item.name}` : ''}. I'll tell you when to rest.`, 3500);
   }
@@ -1634,6 +1796,8 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     if (a === 'stop') stopTimer();
     if (a === 'how'){ petMenuOpen = false; flashPet(petMood(), petHow(), 9000); }
     if (a === 'pop') popOut();
+    if (a === 'calm') openCalm();
+    if (a === 'rescue') openRescue();
     if (a === 'ward'){ petMenuOpen = false; renderPet(); openWard(); }
     if (a === 'hide'){ petCfg.min = !petCfg.min; petMenuOpen = false; savePet(); renderPet(); }
   });
@@ -1801,6 +1965,246 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   $('#wdReroll').addEventListener('click', renderGalleryW);
   $('#wdGallery').addEventListener('click', e => { const b = e.target.closest('[data-wlook]'); if (!b) return; ward.look = JSON.parse(b.dataset.wlook); saveWard(); renderWard(); renderPet(); $('#wdHint').textContent = 'Wearing a random buddy.'; });
   WARD.CATS.forEach(c => { const it = c.list.find(i => i.id === ward.look[c.k]); if (!it || !owned(it)) ward.look[c.k] = WDEF[c.k]; });
+
+  // ---------- calm mode ("I'm overwhelmed"): hide the mountain, show one small step ----------
+  const CALMKEY = 'nextup.calm';
+  let calm = {on: false, mins: 15, skip: 0, phase: 'pick', start: 0, end: 0, pid: null, iid: null, total: 0};
+  try { Object.assign(calm, JSON.parse(localStorage.getItem(CALMKEY) || '{}')); } catch(e){}
+  const saveCalm = () => { try { localStorage.setItem(CALMKEY, JSON.stringify(calm)); } catch(e){} };
+  const calmEl = $('#calm');
+  // the queue: the next unfinished item of each project, most urgent first
+  function calmQueue(){
+    if (calm.rescue && typeof rescuePlan === 'function'){ const pl = rescuePlan().rows.filter(x => x.b !== 'wait' && !x.it.done); const o = [...pl.filter(x => x.b === 'must'), ...pl.filter(x => x.b === 'good')]; if (o.length) return o.map(x => ({p: x.p, it: x.it})); }
+    return rank().map(x => ({p: x.p, it: x.p.items.find(i => !i.done)})).filter(x => x.it);
+  }
+  function calmPick(){
+    if (calm.phase !== 'pick' && calm.pid){ const p = projects.find(p => p.id === calm.pid), it = p && p.items.find(i => i.id === calm.iid); if (p && it && !it.done) return {p, it}; }
+    const qq = calmQueue(); if (!qq.length) return null;
+    return qq[calm.skip % qq.length];
+  }
+  const LEADS = ["You don't need to finish everything tonight.", "Don't look at the whole mountain. Just this one step.", "One small thing. That's the whole plan.", "Forget the list for now. Just start this."];
+  function renderCalm(){
+    document.body.classList.toggle('calm-on', calm.on);
+    calmEl.hidden = !calm.on; if (!calm.on) return;
+    const pick = calmPick(), mood = calm.phase === 'run' ? 'focused' : calm.phase === 'done' ? 'celebrating' : 'happy';
+    const buddy = `<div class="calm-buddy">${buddySVG(ward.look, mood)}</div>`;
+    const exit = `<button class="calm-exit" type="button" data-calm="exit">Back to everything</button>`;
+    if (!pick){
+      calmEl.innerHTML = exit + buddy + `<div class="calm-card"><span class="calm-kicker">One thing at a time</span><p class="calm-task">Nothing left to do.</p><p class="calm-lead">Seriously, everything is ticked off. Rest. You earned it.</p><button class="calm-go" type="button" data-calm="exit">Back to everything</button></div>`;
+      return;
+    }
+    const where = `${esc(pick.p.subject ? pick.p.subject + ' · ' : '')}${esc(pick.p.name)}`;
+    if (calm.phase === 'run'){
+      const left = Math.max(0, calm.end - Date.now()), frac = 1 - left / (calm.mins * 60000), C = 2 * Math.PI * 86;
+      calmEl.innerHTML = exit + `<div class="calm-card"><span class="calm-kicker">Just this. Nothing else.</span>
+        <div class="calm-ring"><svg viewBox="0 0 190 190" aria-hidden="true"><circle cx="95" cy="95" r="86" fill="none" stroke="var(--c-ring)" stroke-width="9"/><circle cx="95" cy="95" r="86" fill="none" stroke="var(--c-acc)" stroke-width="9" stroke-linecap="round" id="calmArc" stroke-dasharray="${C}" stroke-dashoffset="${(C * (1 - frac)).toFixed(1)}"/></svg><span class="t" id="calmT">${mmss(left)}</span></div>
+        <p class="calm-task" style="font-size:22px">${esc(pick.it.name)}</p><p class="calm-sub">${where}</p>
+        <div class="calm-row"><button class="calm-ghost" type="button" data-calm="finish">✓ I finished this task</button><button class="calm-ghost" type="button" data-calm="stop">Stop here</button></div></div>
+        <p class="calm-foot">It's fine if it isn't perfect. Starting is the hard part, and you already did it.</p>`;
+      return;
+    }
+    if (calm.phase === 'done'){
+      calmEl.innerHTML = exit + buddy + `<div class="calm-card"><span class="calm-kicker">${calm.mins} minutes done</span>
+        <p class="calm-task" style="font-size:24px">Nice. That moved it forward. 🌱</p>
+        <p class="calm-lead">${esc(pick.it.name)} is closer than it was ${calm.mins} minutes ago.${calm.total > calm.mins ? ` That's ${calm.total} minutes tonight.` : ''}</p>
+        <button class="calm-go" type="button" data-calm="again">One more ${calm.mins} min</button>
+        <div class="calm-row"><button class="calm-ghost" type="button" data-calm="finish">✓ I finished this task</button><button class="calm-ghost" type="button" data-calm="night">Done for tonight</button></div></div>`;
+      return;
+    }
+    if (calm.phase === 'night'){
+      calmEl.innerHTML = `<div class="calm-buddy">${buddySVG(ward.look, 'sleepy')}</div><div class="calm-card"><span class="calm-kicker">That's enough for today</span>
+        <p class="calm-task" style="font-size:24px">You showed up. That counts.</p><p class="calm-lead">${calm.total ? `${calm.total} minutes of real work. ` : ''}The rest will still be here tomorrow, and it'll feel smaller.</p>
+        <button class="calm-go" type="button" data-calm="exit">Close</button></div>`;
+      return;
+    }
+    calmEl.innerHTML = exit + buddy + `<div class="calm-card"><span class="calm-kicker">${calm.rescue ? 'Saving your week · one step at a time' : 'One thing at a time'}</span>
+      <p class="calm-lead">${calm.rescue && calmPick() && rescuePlan().rows.find(x => x.it.id === calmPick().it.id && x.b === 'good') ? 'Quick version only. Good enough is the goal here.' : LEADS[calm.skip % LEADS.length]}</p>
+      <span class="calm-kicker" style="margin-top:6px">Next step</span>
+      <p class="calm-task">${esc(pick.it.name)}</p><p class="calm-sub">${where}</p>
+      <div class="calm-mins" role="group" aria-label="How long">${[5, 15, 25].map(m => `<button type="button" data-calm="mins" data-m="${m}" aria-pressed="${calm.mins === m}">${m} min</button>`).join('')}</div>
+      <button class="calm-go" type="button" data-calm="start">Start ${calm.mins} min</button>
+      <button class="calm-skip" type="button" data-calm="skip">Not this one, show me something else</button></div>
+      <p class="calm-foot">You don't have to finish it. Just work on it for ${calm.mins} minutes, then decide.</p>`;
+  }
+  function calmLog(){
+    const min = Math.round((Math.min(Date.now(), calm.end) - calm.start) / 60000);
+    if (min >= 1){ sessions.push({at: calm.start, min, pid: calm.pid, iid: calm.iid}); saveSessions(); calm.total += min; try { checkUnlocks(); } catch(e){} }
+    return min;
+  }
+  function calmStart(){
+    const pick = calmPick(); if (!pick) return;
+    calm = {...calm, phase: 'run', start: Date.now(), end: Date.now() + calm.mins * 60000, pid: pick.p.id, iid: pick.it.id};
+    try { if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); } catch(e){}
+    unlockAudio(); saveCalm(); renderCalm();
+  }
+  function startTunnel(p, it, min){
+    calm = {...calm, on: true, rescue: false, mins: min, phase: 'chosen', skip: 0, pid: p.id, iid: it.id, total: 0};
+    petMenuOpen = false; renderPet(); calmStart();
+  }
+  function openCalm(fromRescue){ if (fromRescue !== true) calm.rescue = false; calm = {...calm, on: true, phase: 'pick', skip: 0, pid: null, iid: null, total: 0}; petMenuOpen = false; saveCalm(); renderCalm(); renderPet(); setTimeout(() => { const b = calmEl.querySelector('.calm-go'); if (b) b.focus(); }, 60); }
+  function closeCalm(){ if (calm.phase === 'run') calmLog(); calm = {...calm, on: false, phase: 'pick', pid: null, iid: null}; saveCalm(); renderCalm(); render(); }
+  calmEl.addEventListener('click', e => {
+    const b = e.target.closest('[data-calm]'); if (!b) return;
+    const a = b.dataset.calm;
+    if (a === 'exit') closeCalm();
+    if (a === 'mins'){ calm.mins = +b.dataset.m; saveCalm(); renderCalm(); }
+    if (a === 'skip'){ calm.skip++; saveCalm(); renderCalm(); }
+    if (a === 'start' || a === 'again') calmStart();
+    if (a === 'stop'){ calmLog(); calm.phase = 'done'; saveCalm(); renderCalm(); }
+    if (a === 'night'){ calm.phase = 'night'; saveCalm(); renderCalm(); }
+    if (a === 'finish'){
+      if (calm.phase === 'run') calmLog();
+      const p = projects.find(p => p.id === calm.pid), it = p && p.items.find(i => i.id === calm.iid);
+      if (p && it && !it.done) setDone(p, it, true);
+      calm = {...calm, phase: 'pick', skip: 0, pid: null, iid: null}; saveCalm(); renderCalm();
+      const k = calmEl.querySelector('.calm-lead'); if (k) k.textContent = 'Done! Look at you. Here’s the next small step, only if you want it.';
+    }
+  });
+  // the countdown, and the moment it ends
+  setInterval(() => {
+    if (!calm.on || calm.phase !== 'run') return;
+    if (Date.now() >= calm.end){ calmLog(); calm.phase = 'done'; saveCalm(); notify('Time’s up 🌱', 'Nice work. Keep going or stop here, both are fine.'); renderCalm(); return; }
+    const t = $('#calmT'), arc = $('#calmArc'); if (!t || !arc) return renderCalm();
+    const left = Math.max(0, calm.end - Date.now()), C = 2 * Math.PI * 86;
+    t.textContent = mmss(left); arc.setAttribute('stroke-dashoffset', (C * left / (calm.mins * 60000)).toFixed(1));
+  }, 1000);
+  $('#calmBtn').addEventListener('click', () => openCalm());
+  function renderCalmBtn(){ $('#calmBtn').hidden = calmQueue().length < 2; }
+  if (calm.on) setTimeout(renderCalm, 0);
+
+  // ---------- no-guilt rebuild: a missed deadline gets a calm way forward, not a red box ----------
+  let rebuildOpen = null;
+  function renderRebuild(){
+    const missed = projects.filter(p => { const s = stats(p); return s.remaining > 0 && s.msLeft <= 0; });
+    if (!missed.length){ $('#rebuildWrap').innerHTML = ''; return; }
+    const one = p => `<div class="rb-row"><p><b>${esc(p.name)}</b> was due ${fmtDue(p.deadline)}.</p>
+      ${rebuildOpen === p.id
+        ? `<div class="row"><label class="small" for="rbd-${p.id}">New deadline</label><input type="datetime-local" id="rbd-${p.id}" value="${ymd(new Date(Date.now() + 2 * DAY))}T23:59"><button class="btn pri" type="button" data-rb="save" data-p="${p.id}">Save</button><button class="btn" type="button" data-rb="cancel">Cancel</button></div>`
+        : `<div class="row"><button class="btn" type="button" data-rb="done" data-p="${p.id}">✓ Handed it in</button><button class="btn" type="button" data-rb="move" data-p="${p.id}">📅 New deadline</button><button class="btn" type="button" data-rb="drop" data-p="${p.id}">Let it go</button></div>`}</div>`;
+    $('#rebuildWrap').innerHTML = `<div class="rebuild"><h3>${missed.length === 1 ? "This didn't happen. That's okay." : `${missed.length} things didn't happen. That's okay.`}</h3>
+      <p>Let's rebuild the plan instead of staring at ${missed.length === 1 ? 'it' : 'them'}.</p>${missed.map(one).join('')}</div>`;
+  }
+  $('#rebuildWrap').addEventListener('click', e => {
+    const b = e.target.closest('[data-rb]'); if (!b) return;
+    const a = b.dataset.rb, p = projects.find(x => x.id === b.dataset.p);
+    if (a === 'cancel'){ rebuildOpen = null; return renderRebuild(); }
+    if (!p) return;
+    if (a === 'move'){ rebuildOpen = p.id; renderRebuild(); const i = $('#rbd-' + p.id); if (i) i.focus(); return; }
+    if (a === 'save'){ const v = $('#rbd-' + p.id).value; if (!v || new Date(v) <= new Date()) return toast('Pick a time in the future'); p.deadline = new Date(v).toISOString(); rebuildOpen = null; saveDoc('projects', p); render(); toast('New plan. Fresh start.'); return; }
+    if (a === 'done'){ const now = Date.now(); p.items.forEach(i => { if (!i.done){ i.done = true; i.doneAt = now; } }); p.finishedAt = now; saveDoc('projects', p); render(); try { flashPet('celebrating', `${p.name}: handed in. That counts! 🎉`, 5000); } catch(e){} return; }
+    if (a === 'drop'){ projects = projects.filter(x => x.id !== p.id); delDoc('projects', p.id); render(); toast('Let go. No guilt.', () => { projects.push(p); saveDoc('projects', p); }); }
+  });
+
+  // ---------- today's pace: "you're done for today" + "future you" ----------
+  function todayPace(){
+    const t0 = dayStart(new Date()).getTime(), t1 = t0 + DAY, now = Date.now();
+    let need = 0, did = 0, behind = 0;
+    const doneItems = new Set();
+    projects.forEach(p => {
+      const s = stats(p), dl = new Date(p.deadline).getTime();
+      const doneToday = p.items.filter(i => i.done && i.doneAt >= t0).reduce((a, i) => (doneItems.add(i.id), a + (+i.hours || 0)), 0);
+      did += doneToday;
+      if (s.status === 'bad' && s.remaining > 0) behind++;
+      if (dl <= now) return;                                   // missed ones are handled by the rebuild card
+      const remStart = s.remaining + doneToday;
+      if (remStart <= 0) return;
+      const all = workHours(t0, dl), today = workHours(t0, Math.min(t1, dl));
+      need += all > 0 ? remStart * today / all : remStart;
+    });
+    sessions.forEach(x => { if (x.at >= t0 && !(x.iid && doneItems.has(x.iid))){ const p = projects.find(p => p.id === x.pid), it = p && p.items.find(i => i.id === x.iid); if (!it || !it.done) did += x.min / 60; } });
+    return {need: Math.round(need * 4) / 4, did: Math.round(did * 4) / 4, behind};
+  }
+  function renderPace(){
+    const el = $('#pace'), r = rank();
+    if (!r.length){ el.hidden = true; return; }
+    const {need, did, behind} = todayPace(), h = new Date().getHours(), when = h >= 17 ? 'tonight' : 'today';
+    const pct = need > 0 ? Math.min(100, Math.round(did / need * 100)) : 100;
+    el.hidden = false;
+    // future you: the next two steps, and what's left for tomorrow-you after them
+    const q = r.filter(x => x.s.msLeft > 0).map(x => ({p: x.p, it: x.p.items.find(i => !i.done)})).filter(x => x.it).slice(0, 2);   // missed ones live in the rebuild cards
+    const qh = q.reduce((a, x) => a + (+x.it.hours || 0), 0);
+    const tEnd = dayStart(new Date()).getTime() + 2 * DAY, now = Date.now();
+    const soon = projects.filter(p => { const dl = new Date(p.deadline).getTime(); return dl > now && dl <= tEnd && stats(p).remaining > 0; });
+    let future = '';
+    if (q.length && soon.length){
+      const soonH = soon.reduce((a, p) => a + stats(p).remaining, 0), cut = q.filter(x => soon.includes(x.p)).reduce((a, x) => a + (+x.it.hours || 0), 0);
+      const nextDl = soon.map(p => p.deadline).sort()[0];
+      future = `If you do <b>${q.map(x => esc(x.it.name)).join('</b> and <b>')}</b> ${when} (~${fmtH(qh)}), tomorrow-you only has <b>${fmtH(Math.max(0, soonH - cut))}</b> left before ${fmtDue(nextDl)}.`;
+    } else if (q.length && need > did){
+      future = `Do <b>${q.map(x => esc(x.it.name)).join('</b> and <b>')}</b> (~${fmtH(qh)}) and ${qh >= need - did ? `${when} is covered. Tomorrow-you starts on track.` : `you're most of the way there.`}`;
+    }
+    if (!behind && need > 0 && did >= need){
+      el.className = 'pace done';
+      el.innerHTML = `<span class="label">Today</span><h3>You're done for today. Tomorrow is under control. 😌</h3>
+        <p>You did ${fmtH(did)} and needed about ${fmtH(need)} to stay on track. Anything more is a bonus, so you're allowed to stop.</p>
+        <div class="pace-bar"><i style="width:100%"></i></div><div class="modes"><button type="button" data-mode="calm">😮‍💨 <b>Simplify</b></button>${rescueNeeded() ? `<button type="button" data-mode="rescue">🚨 <b>Save my week</b></button>` : ''}</div>`;
+      return;
+    }
+    if (!behind && need < 0.25){
+      el.className = 'pace done';
+      el.innerHTML = `<span class="label">Today</span><h3>Nothing needed today to stay on track.</h3><p>Everything fits. Anything you do now is a head start${did ? `, and you've already done ${fmtH(did)}` : ''}.</p><div class="modes"><button type="button" data-mode="calm">😮‍💨 <b>Simplify</b></button>${rescueNeeded() ? `<button type="button" data-mode="rescue">🚨 <b>Save my week</b></button>` : ''}</div>`;
+      return;
+    }
+    el.className = 'pace';
+    el.innerHTML = `<span class="label">Today</span>
+      <h3>${behind ? (did ? `${fmtH(did)} done today` : 'Nothing ticked off yet today') : `${fmtH(did)} of ~${fmtH(need)} to stay on track`}</h3>
+      ${behind ? `<p>${behind === 1 ? "One project's plan doesn't" : `${behind} projects' plans don't`} fit before the deadline, so there's no "done for today" yet. If it feels like too much, try <b>Save my week</b> below.</p>` : `<div class="pace-bar"><i style="width:${pct}%"></i></div><p>${fmtH(Math.max(0, need - did))} more and you can stop for today, guilt-free.</p>`}
+      ${future ? `<p class="future">${future}</p>` : ''}<div class="modes"><button type="button" data-mode="calm">😮‍💨 <b>Simplify</b></button>${rescueNeeded() ? `<button type="button" data-mode="rescue">🚨 <b>Save my week</b></button>` : ''}</div>`;
+  }
+
+  // ---------- save my week: the honest plan when there's more work than time ----------
+  const RESCUEKEY = 'nextup.rescue';
+  let rescueOv = {}; try { rescueOv = JSON.parse(localStorage.getItem(RESCUEKEY) || '{}'); } catch(e){}
+  const rescueEl = $('#rescue');
+  function rescuePlan(){
+    const now = Date.now(), horizon = now + 7 * DAY, rows = [];
+    const inWeek = projects.filter(p => { const dl = new Date(p.deadline).getTime(); return dl > now && dl <= horizon && stats(p).remaining > 0; })
+      .sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+    let cum = 0, work = 0;
+    inWeek.forEach(p => {
+      const cap = workHours(now, new Date(p.deadline).getTime());
+      p.items.filter(i => !i.done).forEach(it => {
+        const h = +it.hours || 0; work += h;
+        let b, hh = h;
+        if (cum + h <= cap + 0.01){ b = 'must'; cum += h; }
+        else if (cum + h / 2 <= cap + 0.01){ b = 'good'; hh = h / 2; cum += hh; }
+        else b = 'wait';
+        if (rescueOv[it.id]) b = rescueOv[it.id];
+        rows.push({p, it, b, h, hh: b === 'good' ? h / 2 : h});
+      });
+    });
+    const later = projects.filter(p => new Date(p.deadline).getTime() > horizon && stats(p).remaining > 0);
+    const missed = projects.filter(p => { const s = stats(p); return s.remaining > 0 && s.msLeft <= 0; });
+    const time = inWeek.length ? workHours(now, new Date(inWeek[inWeek.length - 1].deadline).getTime()) : 0;
+    return {rows, later, missed, work, time};
+  }
+  function renderRescue(){
+    const on = !rescueEl.hidden; document.body.classList.toggle('rescue-on', on); if (!on) return;
+    const pl = rescuePlan(), over = pl.rows.filter(x => x.b === 'wait').reduce((a, x) => a + x.h, 0) + pl.rows.filter(x => x.b === 'good').reduce((a, x) => a + x.h / 2, 0);
+    const row = x => `<div class="rrow"><div class="t"><b>${esc(x.it.name)}</b><span>${x.p.subject ? esc(x.p.subject) + ' · ' : ''}${esc(x.p.name)} · due ${fmtDue(x.p.deadline)}</span></div><span class="h">${x.b === 'good' ? `~${fmtH(x.hh)} quick` : fmtH(x.h)}</span><button type="button" data-rs="move" data-i="${x.it.id}" aria-label="Move to another group">Move</button></div>`;
+    const grp = (k, title, hint) => { const rs = pl.rows.filter(x => x.b === k); const hrs = rs.reduce((a, x) => a + x.hh, 0);
+      return `<section class="rb ${k}"><h3>${title}<small>${rs.length} · ${fmtH(hrs)}</small></h3><p class="hint">${hint}</p>${rs.length ? rs.map(row).join('') : '<p class="hint">Nothing here.</p>'}</section>`; };
+    rescueEl.innerHTML = `<div class="rescue-in">
+      <div class="rescue-top"><div><span class="label">🚨 Save my week</span><h2>Okay. Here's the honest plan.</h2></div><button class="btn" type="button" data-rs="close">Back</button></div>
+      ${pl.rows.length ? `<p class="sum">Next 7 days: <b>${fmtH(pl.work)}</b> of work and about <b>${fmtH(pl.time)}</b> of work time, once classes are counted. ${over > 0.25 ? `About <b>${fmtH(over)} won't fit before its deadline</b>, so not everything gets done perfectly. That's fine. This is the plan that saves the week.` : `It fits, but only just. Here's the order.`}</p>` : `<p class="sum">Nothing is due in the next 7 days. Your week doesn't need saving 🙌</p>`}
+      ${pl.rows.length ? grp('must', 'Must finish', 'These fit in the time you have. Do them properly, in this order.') + grp('good', 'Good enough', 'Do a quick version (about half the hours). Clear and done beats perfect and late.') + grp('wait', 'Can wait', "These don't fit this week. Ask your tutor for more time, hand in what you have, or let them go.") : ''}
+      ${pl.later.length ? `<p class="hint" style="margin:0">Due after this week, and fine to leave for now: ${pl.later.map(p => esc(p.name)).join(', ')}.</p>` : ''}
+      ${pl.missed.length ? `<p class="hint" style="margin:0">${pl.missed.length === 1 ? '1 missed deadline is' : `${pl.missed.length} missed deadlines are`} waiting on the Next tab, so you can rebuild ${pl.missed.length === 1 ? 'it' : 'them'} with no guilt.</p>` : ''}
+      ${pl.rows.some(x => x.b !== 'wait') ? `<button class="go" type="button" data-rs="start">Start the rescue: one step at a time →</button><p class="hint" style="margin:0;text-align:center">Opens calm mode with only Must finish, then Good enough.</p>` : ''}
+    </div>`;
+  }
+  function openRescue(){ petMenuOpen = false; rescueEl.hidden = false; renderRescue(); renderPet(); rescueEl.scrollTop = 0; }
+  function closeRescue(){ rescueEl.hidden = true; renderRescue(); render(); }
+  rescueEl.addEventListener('click', e => {
+    const b = e.target.closest('[data-rs]'); if (!b) return;
+    const a = b.dataset.rs;
+    if (a === 'close') closeRescue();
+    if (a === 'move'){ const x = rescuePlan().rows.find(r => r.it.id === b.dataset.i); if (!x) return; rescueOv[x.it.id] = {must: 'good', good: 'wait', wait: 'must'}[x.b]; try { localStorage.setItem(RESCUEKEY, JSON.stringify(rescueOv)); } catch(e){} renderRescue(); }
+    if (a === 'start'){ rescueEl.hidden = true; renderRescue(); calm.rescue = true; openCalm(true); }
+  });
+  $('#rescueBtn').addEventListener('click', openRescue);
+  const rescueNeeded = () => projects.some(p => { const s = stats(p); return s.remaining > 0 && s.msLeft > 0 && s.msLeft <= 7 * DAY && s.status !== 'ok'; });
+  $('#pace').addEventListener('click', e => { const b = e.target.closest('[data-mode]'); if (!b) return; if (b.dataset.mode === 'calm') openCalm(); else openRescue(); });
 
   // ---------- theme ----------
   const THEMES = ['auto', 'light', 'dark'], TLABEL = {auto:'◐ Auto', light:'☀ Light', dark:'☾ Dark'};
