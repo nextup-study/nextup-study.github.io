@@ -454,6 +454,31 @@ body.rescue-on{overflow:hidden} body.rescue-on .pet{display:none!important}
 .gbtn{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:8px 14px;font-weight:600;font-size:14px}
 .gbtn svg{width:18px;height:18px}
 .acct-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.studio{display:flex;flex-direction:column;gap:14px}
+.st-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.st-card h3{margin:0;font:700 19px/1.2 var(--display)}
+.st-card p{margin:0;font-size:14px;color:var(--ink2)}
+.st-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:640px){.st-two{grid-template-columns:1fr}}
+.st-rooms{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.st-code{font:600 15px var(--mono);letter-spacing:.12em;background:var(--sunk);border-radius:8px;padding:4px 10px}
+.st-view{background:linear-gradient(180deg,#EAF3F6,#F6F4EF);border-radius:14px;overflow:hidden}
+:root[data-theme="dark"] .st-view{background:linear-gradient(180deg,#16222A,#141A17)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .st-view{background:linear-gradient(180deg,#16222A,#141A17)}}
+.st-view>svg{display:block;width:100%;height:auto}
+.st-stats{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--ink2)}
+.st-stats b{font:700 17px var(--display);color:var(--ink);margin-right:3px}
+.st-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.st-m{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:10px;padding:6px 10px 6px 6px;font-size:13.5px}
+.st-m.away{opacity:.55}
+.st-m .av{width:34px;height:36px;flex:none}
+.st-m .av svg{width:100%;height:100%}
+.st-m b{display:block;font-weight:600;color:var(--ink)}
+.st-m span{color:var(--ink3);font-size:12.5px}
+.st-m .focus{color:var(--ok);font-weight:600}
+.st-m .brk{color:var(--warn);font-weight:600}
+.st-input{display:flex;gap:8px;flex-wrap:wrap}
+.st-input input{flex:1;min-width:140px}
 .pet-menu{display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--line);padding-top:8px}
 .pet-menu button{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px;text-align:left;color:var(--ink);font-size:13px}
 .pet-menu button:hover{border-color:var(--cta)}
@@ -512,6 +537,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     <button role="tab" id="tab-next" data-tab="next" aria-selected="true">Next</button>
     <button role="tab" id="tab-week" data-tab="week" aria-selected="false">Week</button>
     <button role="tab" id="tab-notes" data-tab="notes" aria-selected="false">Crit notes</button>
+    <button role="tab" id="tab-studio" data-tab="studio" aria-selected="false">Studio</button>
   </nav>
 
   <div class="banner" id="welcome" hidden>
@@ -588,6 +614,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   </section>
 
   <!-- NOTES -->
+  <section class="panel" id="p-studio" hidden><div id="studio" class="studio"></div></section>
   <section class="panel" id="p-notes" hidden>
     <form class="add" id="noteForm" autocomplete="off">
       <h3 id="noteFormTitle">New crit note</h3>
@@ -1167,7 +1194,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     $('#today').textContent = new Date().toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long'});
     $('#hpd').value = hpd; $('#hcd').value = hcd;
     setTimeout(() => { lastTick = null; freshProj = null; }, 0);
-    ['next','week','notes'].forEach(t => { $('#p-' + t).hidden = t !== tab; $('#tab-' + t).setAttribute('aria-selected', t === tab); });
+    ['next','week','notes','studio'].forEach(t => { $('#p-' + t).hidden = t !== tab; $('#tab-' + t).setAttribute('aria-selected', t === tab); });
     $('#exBanner').hidden = !(projects.some(p => p.example) || notes.some(n => n.example) || classes.some(c => c.example) || dates.some(k => k.example));
     $('#welcome').hidden = !!(projects.length || classes.length || dates.length || notes.length);
     renderNext(); renderUpNext(); renderSoon(); renderWins(); renderProjects(); if (typeof renderPet === 'function') try { renderPet(); } catch(e){}
@@ -1175,6 +1202,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     renderNoteForm(); renderNotes();
     if (typeof checkUnlocks === 'function') try { checkUnlocks(); } catch(e){}
     if (typeof renderAccount === 'function') try { renderAccount(); } catch(e){}
+    if (tab === 'studio' && typeof renderStudio === 'function') try { renderStudio(); } catch(e){}
     if (typeof renderCalmBtn === 'function') try { renderCalmBtn(); } catch(e){}
     if (typeof maybeTour === 'function') try { maybeTour(); } catch(e){}
     try { renderRebuild(); renderPace(); $('#rescueBtn').hidden = !projects.some(p => { const s = stats(p); return s.remaining > 0 && s.msLeft > 0 && s.msLeft <= 7 * DAY && s.status !== 'ok'; }); } catch(e){}
@@ -2524,9 +2552,188 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   applyTheme();
 
   // ---------- boot ----------
-  try { const t = localStorage.getItem('nextup.tab'); if (['next','week','notes'].includes(t)) tab = t; } catch(e){}
-  if (location.hash && ['#next','#week','#notes'].includes(location.hash)) tab = location.hash.slice(1);
+  try { const t = localStorage.getItem('nextup.tab'); if (['next','week','notes','studio'].includes(t)) tab = t; } catch(e){}
+  if (location.hash && ['#next','#week','#notes','#studio'].includes(location.hash)) tab = location.hash.slice(1);
   loadLocal(); render();
+
+  // ---------- Studio room: study together with friends (room codes) ----------
+  const ROOMCH = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  let myRooms = []; try { myRooms = JSON.parse(localStorage.getItem('nextup.rooms') || '[]'); } catch(e){}
+  let curRoom = null, roomMembers = [], roomUnsub = null, roomMsg = '', lastSig = '', lastBeat = 0;
+  try { curRoom = localStorage.getItem('nextup.curRoom'); } catch(e){}
+  let pendingRoom = (new URLSearchParams(location.search).get('room') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6) || null;
+  function saveRooms(){
+    try { localStorage.setItem('nextup.rooms', JSON.stringify(myRooms)); localStorage.setItem('nextup.curRoom', curRoom || ''); } catch(e){}
+    if (store === 'db' && db) q('rooms', () => db.doc('settings/rooms').set({rooms: clone(myRooms)}));
+  }
+  async function loadRooms(){
+    try { const sn = await db.doc('settings/rooms').get(); if (sn.exists){ const cloud = sn.data().rooms || []; const have = new Set(cloud.map(r => r.code)); myRooms = [...cloud, ...myRooms.filter(r => !have.has(r.code))]; } } catch(e){}
+    if (!curRoom || !myRooms.some(r => r.code === curRoom)) curRoom = myRooms[0] ? myRooms[0].code : null;
+    saveRooms(); subscribeRoom(); presence(true);
+    if (pendingRoom){ const c = pendingRoom; pendingRoom = null; if (!myRooms.some(r => r.code === c)) joinRoom(c); else { curRoom = c; subscribeRoom(); } setTab('studio'); }
+    if (tab === 'studio') renderStudio();
+  }
+  const firstName = () => { const n = (fbUser && (fbUser.displayName || fbUser.email)) || (ward.name) || 'Someone'; return n.split(/[ @]/)[0].slice(0, 14); };
+  function myStatus(){
+    if (calm.on && calm.phase === 'run') return {s: 'focus', end: calm.end};
+    if (timer.mode === 'focus') return {s: 'focus', end: timer.end};
+    if (timer.mode === 'break') return {s: 'break', end: timer.end};
+    return {s: 'idle', end: 0};
+  }
+  function todayMins(){ const t0 = dayStart(new Date()).getTime(); let m = sessions.filter(x => x.at >= t0).reduce((a, x) => a + x.min, 0); const st = myStatus(); if (st.s === 'focus'){ const start = calm.on && calm.phase === 'run' ? calm.start : timer.start; m += Math.max(0, Math.round((Date.now() - start) / 60000)); } return m; }
+  // tell my rooms what I'm doing: on every change, and a heartbeat every 2 minutes while the page is open
+  function presence(force){
+    if (!fbUser || !fbStore || !myRooms.length) return;
+    const st = myStatus(), look = {...WDEF, ...ward.look}, sig = JSON.stringify([st.s, st.end, look, firstName()]);
+    if (!force && sig === lastSig && Date.now() - lastBeat < 120000) return;
+    if (document.hidden && !force && sig === lastSig) return;
+    lastSig = sig; lastBeat = Date.now();
+    const doc = {name: firstName(), look, s: st.s, end: st.end, today: todayMins(), updatedAt: Date.now()};
+    myRooms.forEach(r => { try { fbStore.doc(`rooms/${r.code}/members/${fbUser.uid}`).set(doc).catch(() => {}); } catch(e){} });
+  }
+  setInterval(() => presence(false), 5000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) presence(true); });
+  function subscribeRoom(){
+    if (roomUnsub){ try { roomUnsub(); } catch(e){} roomUnsub = null; }
+    roomMembers = [];
+    if (!curRoom || !fbStore || !fbUser) return;
+    roomUnsub = fbStore.collection(`rooms/${curRoom}/members`).onSnapshot(snap => { roomMembers = snap.docs.map(d => ({uid: d.id, ...d.data()})); if (tab === 'studio') renderStudio(); }, () => { roomMsg = "Couldn't open this room. Check your internet."; if (tab === 'studio') renderStudio(); });
+  }
+  async function createRoom(name){
+    name = (name || '').trim().slice(0, 32) || `${firstName()}'s studio`;
+    for (let k = 0; k < 6; k++){
+      const code = Array.from({length: 6}, () => ROOMCH[Math.floor(Math.random() * ROOMCH.length)]).join('');
+      const ref = fbStore.doc(`rooms/${code}`);
+      try { if ((await ref.get()).exists) continue; await ref.set({name, createdBy: fbUser.uid, createdAt: Date.now()}); }
+      catch(e){ roomMsg = "Couldn't create the room. Ask Mixer to update the Firestore rules."; return renderStudio(); }
+      myRooms.push({code, name}); curRoom = code; roomMsg = ''; saveRooms(); subscribeRoom(); presence(true); renderStudio();
+      toast(`Room made! Share the code ${code} with your friends.`); return;
+    }
+  }
+  async function joinRoom(code){
+    code = (code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (code.length !== 6){ roomMsg = 'Room codes have 6 letters and numbers.'; return renderStudio(); }
+    if (myRooms.some(r => r.code === code)){ curRoom = code; saveRooms(); subscribeRoom(); return renderStudio(); }
+    try {
+      const sn = await fbStore.doc(`rooms/${code}`).get();
+      if (!sn.exists){ roomMsg = `No room with the code ${code}. Check it with your friend?`; return renderStudio(); }
+      myRooms.push({code, name: sn.data().name || code}); curRoom = code; roomMsg = ''; saveRooms(); subscribeRoom(); presence(true); renderStudio();
+      toast(`You joined ${sn.data().name || code} 🪑`);
+    } catch(e){ roomMsg = "Couldn't join. Check your internet, or ask Mixer to update the Firestore rules."; renderStudio(); }
+  }
+  async function leaveRoom(){
+    const r = myRooms.find(x => x.code === curRoom); if (!r) return;
+    try { await fbStore.doc(`rooms/${r.code}/members/${fbUser.uid}`).delete(); } catch(e){}
+    myRooms = myRooms.filter(x => x.code !== r.code); curRoom = myRooms[0] ? myRooms[0].code : null; saveRooms(); subscribeRoom(); renderStudio(); toast(`Left ${r.name}`);
+  }
+  const inviteLink = code => `${location.origin}${location.pathname}?room=${code}`;
+  async function shareRoom(){
+    const r = myRooms.find(x => x.code === curRoom); if (!r) return;
+    const text = `Study with me in Next Up 🪑 Room "${r.name}", code ${r.code}: ${inviteLink(r.code)}`;
+    try { if (navigator.share){ await navigator.share({title: 'Next Up Studio', text}); return; } } catch(e){ return; }
+    try { await navigator.clipboard.writeText(text); toast('Invite copied. Paste it in your group chat!'); } catch(e){ toast(`Share this code: ${r.code}`); }
+  }
+  // the room drawn as a little isometric architecture studio
+  function studioSVG(ms){
+    const TW = 64, TH = 32, cols = 3, n = Math.max(ms.length, 3), rows = Math.ceil(n / cols);
+    const W = cols * 2 + 1, D = rows * 2 + 1, iso = (x, y) => [(x - y) * TW / 2, (x + y) * TH / 2];
+    const P = pts => pts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark' || (document.documentElement.getAttribute('data-theme') !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+    const C = dark ? {floor: '#3A3129', floor2: '#352D26', wallL: '#2C3330', wallR: '#252B29', desk: '#C9B79C', desk2: '#A8957A', board: '#E9E4DA', ink: '#E6ECE9', glass: '#34505C'}
+                   : {floor: '#E8DAC4', floor2: '#E2D2BA', wallL: '#F4F1EA', wallR: '#E9E4DA', desk: '#F2E6D2', desk2: '#D8C7AC', board: '#FFFFFF', ink: '#16201D', glass: '#BFE0EC'};
+    let g = '';
+    for (let x = 0; x < W; x++) for (let y = 0; y < D; y++) g += `<polygon points="${P([iso(x, y), iso(x + 1, y), iso(x + 1, y + 1), iso(x, y + 1)])}" fill="${(x + y) % 2 ? C.floor : C.floor2}"/>`;
+    const H = 96;
+    g += `<polygon points="${P([iso(0, 0), iso(W, 0), [iso(W, 0)[0], iso(W, 0)[1] - H], [iso(0, 0)[0], iso(0, 0)[1] - H]])}" fill="${C.wallR}"/>`;
+    g += `<polygon points="${P([iso(0, 0), iso(0, D), [iso(0, D)[0], iso(0, D)[1] - H], [iso(0, 0)[0], iso(0, 0)[1] - H]])}" fill="${C.wallL}"/>`;
+    // window on the left wall, pin-up board on the right wall
+    const wy = (t, h) => { const [x, y] = iso(0, t); return [x, y - h]; };
+    g += `<polygon points="${P([wy(D * .25, 30), wy(D * .7, 30), wy(D * .7, 78), wy(D * .25, 78)])}" fill="${C.glass}" stroke="${C.wallR}" stroke-width="3"/>`;
+    g += `<line x1="${wy(D * .475, 30)[0]}" y1="${wy(D * .475, 30)[1]}" x2="${wy(D * .475, 78)[0]}" y2="${wy(D * .475, 78)[1]}" stroke="${C.wallR}" stroke-width="2.5"/>`;
+    const wr = (t, h) => { const [x, y] = iso(t, 0); return [x, y - h]; };
+    g += `<polygon points="${P([wr(W * .2, 32), wr(W * .8, 32), wr(W * .8, 76), wr(W * .2, 76)])}" fill="#C9A77A"/>`;
+    [[.26, 40, '#ffffff'], [.42, 46, '#FFE7A8'], [.58, 38, '#ffffff'], [.7, 50, '#D6EBE8']].forEach(([t, h, f]) => { g += `<polygon points="${P([wr(W * t, h), wr(W * t + .9, h), wr(W * t + .9, h + 20), wr(W * t, h + 20)])}" fill="${f}" opacity=".95"/>`; });
+    const items = [];
+    for (let i = 0; i < n; i++){
+      const x = 1 + (i % cols) * 2, y = 1 + Math.floor(i / cols) * 2, m = ms[i];
+      items.push({x, y, m});
+    }
+    items.sort((a, b) => (a.x + a.y) - (b.x + b.y));
+    const now = Date.now();
+    items.forEach(({x, y, m}) => {
+      const [cx, cy] = iso(x + .5, y + .5);
+      // drafting desk: legs, a tilted board, a lamp that glows while focusing
+      const away = m && now - (m.updatedAt || 0) > 5 * 60000;
+      const focusing = m && !away && m.s === 'focus' && m.end > now;
+      let d = `<line x1="${cx - 18}" y1="${cy + 4}" x2="${cx - 18}" y2="${cy - 16}" stroke="${C.desk2}" stroke-width="2.5"/><line x1="${cx + 18}" y1="${cy + 4}" x2="${cx + 18}" y2="${cy - 16}" stroke="${C.desk2}" stroke-width="2.5"/>`;
+      d += `<polygon points="${P([[cx - 24, cy - 16], [cx, cy - 28], [cx + 24, cy - 16], [cx, cy - 4]])}" fill="${C.desk}" stroke="${C.desk2}" stroke-width="1"/>`;
+      d += `<polygon points="${P([[cx - 14, cy - 19], [cx + 2, cy - 27], [cx + 14, cy - 21], [cx - 2, cy - 13]])}" fill="${C.board}"/>`;
+      d += `<line x1="${cx + 16}" y1="${cy - 22}" x2="${cx + 22}" y2="${cy - 44}" stroke="${C.ink}" stroke-width="1.5" opacity=".7"/><path d="M${cx + 16} ${cy - 46}l10 -2 2 6z" fill="${C.ink}" opacity=".75"/>`;
+      if (focusing) d += `<ellipse cx="${cx + 6}" cy="${cy - 22}" rx="22" ry="10" fill="#FFD27A" opacity=".45"/>`;
+      if (m){
+        const mood = away ? 'sleepy' : focusing ? 'focused' : m.s === 'break' && m.end > now ? 'stretching' : 'happy';
+        const inner = buddySVG(m.look || WDEF, mood).replace(/^\s*<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+        d += `<svg x="${cx - 44}" y="${cy - 52}" width="44" height="47" viewBox="-8 -22 120 128" opacity="${away ? .55 : 1}">${inner}</svg>`;
+        const label = `${m.name || 'Friend'}${focusing ? ' · ' + mmss(m.end - now) : m.s === 'break' && m.end > now ? ' · break' : away ? ' · away' : ''}`;
+        const w = label.length * 6.3 + 14;
+        d += `<g transform="translate(${(cx - 22).toFixed(1)} ${(cy - 64).toFixed(1)})"><rect x="${-w / 2}" y="-12" width="${w}" height="17" rx="8.5" fill="${focusing ? '#2F7D46' : dark ? '#2A332F' : '#ffffff'}" stroke="${dark ? '#3A4440' : '#D5DBD4'}" stroke-width="${focusing ? 0 : 1}"/><text x="0" y="0.5" text-anchor="middle" font-size="10.5" font-family="IBM Plex Sans, system-ui, sans-serif" font-weight="600" fill="${focusing ? '#fff' : C.ink}" class="${focusing ? 'st-rt' : ''}" data-end="${focusing ? m.end : ''}" data-name="${esc(m.name || 'Friend')}">${esc(label)}</text></g>`;
+      } else {
+        d += `<text x="${cx - 4}" y="${cy + 18}" text-anchor="middle" font-size="9.5" font-family="IBM Plex Mono, monospace" fill="${dark ? '#7C8984' : '#9AA39F'}">free desk</text>`;
+      }
+      g += d;
+    });
+    const minX = iso(0, D)[0] - 20, maxX = iso(W, 0)[0] + 20, minY = iso(0, 0)[1] - H - 10, maxY = iso(W, D)[1] + 16;
+    return `<svg viewBox="${minX.toFixed(0)} ${minY.toFixed(0)} ${(maxX - minX).toFixed(0)} ${(maxY - minY).toFixed(0)}" role="img" aria-label="Studio room with ${ms.length} people">${g}</svg>`;
+  }
+  function renderStudio(){
+    const el = $('#studio'); if (!el) return;
+    if (!fbAuth){ el.innerHTML = `<div class="st-card"><h3>🪑 Studio</h3><p>Study together with friends. This needs an internet connection, so try again when you're online.</p></div>`; return; }
+    if (!fbUser){ el.innerHTML = `<div class="st-card"><h3>🪑 Study together</h3><p>Sit in a virtual studio with your friends. Everyone's buddy sits at a desk, and you can see who's focusing and for how long. It's easier to start when everyone else is working too.</p><p>Friends only see your buddy, first name and timer, never your projects.</p><div class="acct-row"><button class="gbtn" type="button" data-st="signin">${GSVG} Sign in with Google to join</button></div></div>`; return; }
+    const msg = roomMsg ? `<p style="color:var(--bad)">${esc(roomMsg)}</p>` : '';
+    const joinCards = `<div class="st-two">
+      <div class="st-card"><h3>Make a room</h3><p>For your studio group or study buddies. You'll get a code to share.</p><div class="st-input"><input id="stName" maxlength="32" placeholder="e.g. INDA Y4 studio"><button class="btn pri" type="button" data-st="create">Make room</button></div></div>
+      <div class="st-card"><h3>Join with a code</h3><p>Got a code from a friend? Type it here.</p><div class="st-input"><input id="stCode" maxlength="6" placeholder="ABC123" style="text-transform:uppercase;font-family:var(--mono);letter-spacing:.1em"><button class="btn pri" type="button" data-st="join">Join</button></div></div></div>`;
+    if (!curRoom){ el.innerHTML = `<div class="st-card"><h3>🪑 Study together</h3><p>Join a room with friends. Your buddy sits at a desk, and everyone can see who's focusing. Friends only see your buddy, first name and timer.</p>${msg}</div>${joinCards}`; return; }
+    const room = myRooms.find(r => r.code === curRoom) || {code: curRoom, name: curRoom}, now = Date.now();
+    const ms = roomMembers.filter(m => now - (m.updatedAt || 0) < 7 * DAY).sort((a, b) => (a.uid === fbUser.uid ? -1 : b.uid === fbUser.uid ? 1 : (b.updatedAt || 0) - (a.updatedAt || 0)));
+    const here = ms.filter(m => now - (m.updatedAt || 0) < 5 * 60000), foc = here.filter(m => m.s === 'focus' && m.end > now);
+    const mins = ms.filter(m => now - (m.updatedAt || 0) < DAY && new Date(m.updatedAt).toDateString() === new Date().toDateString()).reduce((a, m) => a + (m.today || 0), 0);
+    const me = myStatus();
+    el.innerHTML = `
+      <div class="st-rooms">${myRooms.map(r => `<button class="chip" type="button" data-st="room" data-c="${r.code}" aria-pressed="${r.code === curRoom}">${esc(r.name)}</button>`).join('')}<button class="chip" type="button" data-st="new">+ Join or make a room</button></div>
+      <div class="st-card">
+        <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:8px"><div><h3>🪑 ${esc(room.name)}</h3><p style="margin-top:3px">Code <span class="st-code">${room.code}</span></p></div>
+          <span class="row"><button class="btn pri" type="button" data-st="share">Invite friends</button><button class="btn" type="button" data-st="leave">Leave</button></span></div>
+        ${msg}
+        <div class="st-stats"><span><b>${here.length}</b>here now</span><span><b>${foc.length}</b>focusing</span><span><b>${Math.floor(mins / 60)}h ${mins % 60}m</b>focused together today</span></div>
+        <div class="st-view">${studioSVG(ms)}</div>
+        ${me.s === 'focus' ? `<p>You're focusing. Your friends can see your timer 💪</p>` : `<div class="row"><button class="btn-main" type="button" data-st="focus">▶ Start focusing</button><span class="small">${foc.length ? `${foc.length} ${foc.length === 1 ? 'friend is' : 'friends are'} working right now. Join them?` : 'Be the first one working today.'}</span></div>`}
+        <div class="st-list">${ms.map(m => { const away = now - (m.updatedAt || 0) > 5 * 60000, f = !away && m.s === 'focus' && m.end > now, br = !away && m.s === 'break' && m.end > now;
+          return `<div class="st-m ${away ? 'away' : ''}"><span class="av">${buddySVG(m.look || WDEF, away ? 'sleepy' : f ? 'focused' : 'happy')}</span><span><b>${esc(m.name || 'Friend')}${m.uid === fbUser.uid ? ' (you)' : ''}</b>${f ? `<span class="focus st-rt2" data-end="${m.end}">focusing · ${mmss(m.end - now)}</span>` : br ? '<span class="brk">on a break</span>' : away ? '<span>away</span>' : '<span>here</span>'}</span></div>`; }).join('') || '<p class="small">Nobody here yet. Share the code!</p>'}</div>
+      </div>
+      <div class="st-card" id="stJoinBox" hidden>${joinCards}</div>`;
+  }
+  // live timers in the room, once a second
+  setInterval(() => {
+    if (tab !== 'studio') return;
+    const now = Date.now();
+    document.querySelectorAll('#studio .st-rt').forEach(t => { const e = +t.dataset.end; t.textContent = e > now ? `${t.dataset.name} · ${mmss(e - now)}` : t.dataset.name; });
+    document.querySelectorAll('#studio .st-rt2').forEach(t => { const e = +t.dataset.end; t.textContent = e > now ? `focusing · ${mmss(e - now)}` : 'here'; });
+  }, 1000);
+  $('#studio').addEventListener('click', e => {
+    const b = e.target.closest('[data-st]'); if (!b) return;
+    const a = b.dataset.st;
+    if (a === 'signin') signIn();
+    if (a === 'create') createRoom($('#stName') && $('#stName').value);
+    if (a === 'join') joinRoom(($('#stCode') && $('#stCode').value) || '');
+    if (a === 'room'){ curRoom = b.dataset.c; roomMsg = ''; saveRooms(); subscribeRoom(); renderStudio(); }
+    if (a === 'new'){ const bx = $('#stJoinBox'); if (bx){ bx.hidden = !bx.hidden; bx.scrollIntoView({block: 'nearest'}); } }
+    if (a === 'share') shareRoom();
+    if (a === 'leave') leaveRoom();
+    if (a === 'focus'){ const r = rank().filter(x => x.s.msLeft > 0), top = r[0] || rank()[0], it = top && top.p.items.find(i => !i.done); if (it) startTunnel(top.p, it, petCfg.focusMin); else toast('Add a project first, then start focusing.'); setTimeout(() => presence(true), 300); }
+  });
+  $('#studio').addEventListener('keydown', e => { if (e.key !== 'Enter') return; if (e.target.id === 'stCode') joinRoom(e.target.value); if (e.target.id === 'stName') createRoom(e.target.value); });
+
   // ---------- account: Google sign-in, data saved per person in Firestore ----------
   const FB_CONFIG = {apiKey: 'AIzaSyAhoU0BYkjv5wvri2_D4pkU13PHhVho-eQ', authDomain: 'next-up-f1f1c.firebaseapp.com', projectId: 'next-up-f1f1c', storageBucket: 'next-up-f1f1c.firebasestorage.app', messagingSenderId: '485862714503', appId: '1:485862714503:web:9d6f9687472480e3699c22'};
   let fbAuth = null, fbStore = null, fbUser = null, authKnown = false, unsubs = [];
@@ -2573,11 +2780,11 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     db = {collection: n => fbStore.collection(`users/${user.uid}/${n}`), doc: p => fbStore.doc(`users/${user.uid}/${p}`)};
     let moved = 0;
     try { moved = await moveDeviceDataIn(); } catch(e){ toast("Signed in, but couldn't move this device's data yet. It's still here."); }
-    store = 'db'; listen(); render();
+    store = 'db'; listen(); render(); try { loadRooms(); } catch(e){}
     let welcomed = false; try { welcomed = localStorage.getItem('nextup.acct.' + user.uid) === '1'; localStorage.setItem('nextup.acct.' + user.uid, '1'); } catch(e){}
     if (!welcomed) toast(moved ? `Signed in ✓ Moved ${moved} thing${moved === 1 ? '' : 's'} from this device into your account.` : 'Signed in ✓ Everything now saves to your account.');
   }
-  function useDevice(){ stopListening(); db = null; store = 'local'; loadLocal(); render(); }
+  function useDevice(){ stopListening(); if (roomUnsub){ try { roomUnsub(); } catch(e){} roomUnsub = null; } roomMembers = []; db = null; store = 'local'; loadLocal(); render(); }
   const inAppBrowser = () => /FBAN|FBAV|Instagram|Line\/|MicroMessenger|TikTok|; wv\)/i.test(navigator.userAgent);
   function signIn(){
     if (!fbAuth) return toast("Can't reach Google right now. Check your internet and refresh.");
@@ -2625,6 +2832,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
       fbAuth.onAuthStateChanged(u => {
         const was = fbUser; fbUser = u; authKnown = true; renderAccount();
         if (u && (!was || was.uid !== u.uid)) useAccount(u);
+        if (!u && tab === 'studio') renderStudio();
         else if (!u){ if (store === 'db') useDevice(); else if (!asked) openSetup(true); }
       });
     }
