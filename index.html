@@ -448,6 +448,12 @@ body.rescue-on{overflow:hidden} body.rescue-on .pet{display:none!important}
 @media (max-width:600px){.tour-card:not(.center){left:16px!important;right:16px;width:auto;top:auto!important;bottom:calc(16px + env(safe-area-inset-bottom,0px))}}
 @media (prefers-reduced-motion:no-preference){.tour-card{animation:pop .25s cubic-bezier(.2,.8,.3,1)}}
 .toast{z-index:60}
+.acct-btn{display:inline-flex;align-items:center;gap:6px}
+.acct-av{width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:inline-grid;place-items:center;font:700 11px var(--body);overflow:hidden}
+.acct-av img{width:100%;height:100%;object-fit:cover}
+.gbtn{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:8px 14px;font-weight:600;font-size:14px}
+.gbtn svg{width:18px;height:18px}
+.acct-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .pet-menu{display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--line);padding-top:8px}
 .pet-menu button{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px;text-align:left;color:var(--ink);font-size:13px}
 .pet-menu button:hover{border-color:var(--cta)}
@@ -499,7 +505,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
 <div class="wrap">
   <header>
     <h1>Next Up <span class="ex" style="vertical-align:middle">beta</span></h1>
-    <span class="row"><span class="today" id="today"></span><button class="themebtn" id="themeBtn" type="button" aria-label="Switch theme"></button><button class="themebtn" id="wardBtn" type="button">🎒 Buddy</button><button class="themebtn" id="settingsBtn" type="button">⚙ Settings</button></span>
+    <span class="row"><span class="today" id="today"></span><button class="themebtn" id="themeBtn" type="button" aria-label="Switch theme"></button><button class="themebtn acct-btn" id="acctBtn" type="button" hidden>☁ Sign in</button><button class="themebtn" id="wardBtn" type="button">🎒 Buddy</button><button class="themebtn" id="settingsBtn" type="button">⚙ Settings</button></span>
   </header>
 
   <nav class="tabs" role="tablist">
@@ -513,6 +519,10 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     <span class="row"><button id="loadTerm" class="btn pri">Load Term 1 schedule</button><button id="loadEx">Just show me an example</button></span>
   </div>
 
+  <div class="banner" id="acctBanner" hidden>
+    <span>☁ Your stuff only lives on this device. Sign in with Google to keep it safe and use it on your phone and laptop.</span>
+    <span class="row"><button id="acctBannerGo" class="gbtn" style="padding:5px 10px;font-size:13px"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg> Sign in</button><button id="acctBannerNo" aria-label="Not now">✕</button></span>
+  </div>
   <div class="banner" id="exBanner" hidden>
     <span>Items marked "example" are there so you can see how it works. Clear them and add your own.</span>
     <button id="clearEx">Clear examples</button>
@@ -616,6 +626,11 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     <label class="qrow" for="hpd"><span>On a free day<small>No classes</small></span><span class="row"><input type="number" id="hpd" min="0" max="16" step="0.5" value="6"> h</span></label>
     <label class="qrow" for="hcd"><span>On a class day<small>After class, evenings</small></span><span class="row"><input type="number" id="hcd" min="0" max="16" step="0.5" value="3"> h</span></label>
     <div class="more">
+    <section style="display:flex;flex-direction:column;gap:8px" id="acctSec">
+      <h4>Your account</h4>
+      <p class="small" style="margin:0" id="acctText"></p>
+      <div class="acct-row" id="acctActions"></div>
+    </section>
     <section style="display:flex;flex-direction:column;gap:8px">
       <h4>Study buddy</h4>
       <button class="btn" type="button" id="tourReplay" style="align-self:flex-start">👋 Replay the tour</button>
@@ -734,6 +749,9 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
 <canvas id="confetti" hidden></canvas>
 <div class="toast" id="toast" role="status"></div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 (() => {
   const $ = s => document.querySelector(s);
@@ -1156,6 +1174,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     renderWeek(); renderClassList(); renderKeyDates();
     renderNoteForm(); renderNotes();
     if (typeof checkUnlocks === 'function') try { checkUnlocks(); } catch(e){}
+    if (typeof renderAccount === 'function') try { renderAccount(); } catch(e){}
     if (typeof renderCalmBtn === 'function') try { renderCalmBtn(); } catch(e){}
     if (typeof maybeTour === 'function') try { maybeTour(); } catch(e){}
     try { renderRebuild(); renderPace(); $('#rescueBtn').hidden = !projects.some(p => { const s = stats(p); return s.remaining > 0 && s.msLeft > 0 && s.msLeft <= 7 * DAY && s.status !== 'ok'; }); } catch(e){}
@@ -1269,14 +1288,15 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   $('#hcd').addEventListener('input', e => { const v = parseFloat(e.target.value); if (v >= 0 && v <= 24){ hcd = v; renderNext(); renderProjects(); saveSettings(); } });
   $('#clearEx').addEventListener('click', () => {
     projects.filter(p => p.example).forEach(p => delDoc('projects', p.id)); notes.filter(n => n.example).forEach(n => delDoc('notes', n.id));
+    if (store === 'db'){ projects.filter(p => p.example).forEach(p => delDoc('projects', p.id)); notes.filter(n => n.example).forEach(n => delDoc('notes', n.id)); dates.filter(k => k.example).forEach(k => delDoc('dates', k.id)); }
     projects = projects.filter(p => !p.example); notes = notes.filter(n => !n.example);
-    classes = classes.filter(c => !c.example); dates = dates.filter(k => !k.example); saveLocal(); pinned = null; render(); toast('Examples cleared');
+    classes = classes.filter(c => !c.example); dates = dates.filter(k => !k.example); saveEverything(); pinned = null; render(); toast('Examples cleared');
   });
   const TERM = {"classes": [{"id": "cl-studio", "subject": "Studio", "day": 0, "start": "10:00", "end": "18:00"}, {"id": "cl-mgmt", "subject": "Arch Management", "day": 1, "start": "09:00", "end": "12:00"}, {"id": "cl-re", "subject": "Real Estate", "day": 1, "start": "13:00", "end": "16:00"}, {"id": "cl-eng", "subject": "Proposal Writing", "day": 2, "start": "13:00", "end": "16:00"}], "projects": [{"id": "re-mid", "name": "Midterm presentation (15%, group)", "subject": "Real Estate", "deadline": "2026-09-29T06:00:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "re-mid-0", "name": "Pro-forma / financials (my part)", "hours": 3, "done": false}, {"id": "re-mid-1", "name": "Presentation deck (my slides)", "hours": 3, "done": false}, {"id": "re-mid-2", "name": "Group run-through + verbal prep", "hours": 1.5, "done": false}]}, {"id": "pw-hw", "name": "Unit 6 + Unit 7 homework", "subject": "Proposal Writing", "deadline": "2026-09-30T06:00:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "pw-hw-0", "name": "Unit 6 video + assignment", "hours": 1.5, "done": false}, {"id": "pw-hw-1", "name": "Unit 7 assignment", "hours": 1.5, "done": false}]}, {"id": "am-mid", "name": "Midterm assignment (35%)", "subject": "Arch Management", "deadline": "2026-10-05T16:59:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "am-mid-0", "name": "Re-read brief + C7 finance notes", "hours": 1.5, "done": false}, {"id": "am-mid-1", "name": "Outline", "hours": 1.5, "done": false}, {"id": "am-mid-2", "name": "Write draft", "hours": 5, "done": false}, {"id": "am-mid-3", "name": "Edit + submit", "hours": 1.5, "done": false}]}, {"id": "re-peer1", "name": "Midterm peer assessment form", "subject": "Real Estate", "deadline": "2026-10-06T16:59:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "re-peer1-0", "name": "Fill in the Google Form", "hours": 0.5, "done": false}]}, {"id": "studio-p3", "name": "Phase 3 review (15%), upload by 23:59", "subject": "Studio", "deadline": "2026-10-18T16:59:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "studio-p3-0", "name": "Final solution + selected strategies", "hours": 4, "done": false}, {"id": "studio-p3-1", "name": "Research summary book", "hours": 6, "done": false}, {"id": "studio-p3-2", "name": "Tectonic + experimentation drawings", "hours": 8, "done": false}, {"id": "studio-p3-3", "name": "Site model + study models", "hours": 10, "done": false}, {"id": "studio-p3-4", "name": "Ground floor plan (A1)", "hours": 5, "done": false}, {"id": "studio-p3-5", "name": "Non-typical plans", "hours": 5, "done": false}, {"id": "studio-p3-6", "name": "Elevation + section", "hours": 6, "done": false}, {"id": "studio-p3-7", "name": "Draft perspectives", "hours": 8, "done": false}, {"id": "studio-p3-8", "name": "Aerial views showing massing", "hours": 3, "done": false}, {"id": "studio-p3-9", "name": "Exploded isometric", "hours": 5, "done": false}]}, {"id": "re-ex2", "name": "Exercise 02: Back Door Analysis (5%)", "subject": "Real Estate", "deadline": "2026-10-20T06:00:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "re-ex2-0", "name": "Back door analysis for desk crit", "hours": 3, "done": false}]}, {"id": "pw-quiz", "name": "End-of-term quiz (20%)", "subject": "Proposal Writing", "deadline": "2026-10-28T06:00:00.000Z", "example": false, "createdAt": 0, "items": [{"id": "pw-quiz-0", "name": "Review Units 1–11", "hours": 4, "done": false}]}], "dates": [{"id": "s01", "date": "2026-09-28", "time": "10:00", "subject": "Studio", "kind": "crit", "title": "Desk crit"}, {"id": "s02", "date": "2026-10-05", "time": "10:00", "subject": "Studio", "kind": "review", "title": "Collective pinup"}, {"id": "s03", "date": "2026-10-09", "time": "", "subject": "Studio", "kind": "trip", "title": "Field trip 9–11 Oct (TBC)"}, {"id": "s04", "date": "2026-10-12", "time": "10:00", "subject": "Studio", "kind": "crit", "title": "Desk crit"}, {"id": "s05", "date": "2026-10-19", "time": "10:00", "subject": "Studio", "kind": "review", "title": "Phase 3 review (15%)"}, {"id": "s06", "date": "2026-10-26", "time": "10:00", "subject": "Studio", "kind": "crit", "title": "Desk crit"}, {"id": "s07", "date": "2026-11-01", "time": "23:59", "subject": "Studio", "kind": "due", "title": "Phase 4 online submission"}, {"id": "s08", "date": "2026-11-02", "time": "10:00", "subject": "Studio", "kind": "review", "title": "Phase 4 cross crits (15%)"}, {"id": "s09", "date": "2026-11-09", "time": "10:00", "subject": "Studio", "kind": "crit", "title": "Desk crit"}, {"id": "s10", "date": "2026-11-16", "time": "10:00", "subject": "Studio", "kind": "crit", "title": "Desk crit"}, {"id": "s11", "date": "2026-11-22", "time": "23:59", "subject": "Studio", "kind": "due", "title": "Final submission"}, {"id": "s12", "date": "2026-11-23", "time": "", "subject": "Studio", "kind": "review", "title": "Final reviews 23–25 Nov (30%)"}, {"id": "s13", "date": "2026-12-04", "time": "", "subject": "Studio", "kind": "due", "title": "Research book (5%)"}, {"id": "a01", "date": "2026-10-06", "time": "09:00", "subject": "Arch Management", "kind": "trip", "title": "Field trip: A49 Architects (tbc)"}, {"id": "a02", "date": "2026-10-13", "time": "09:00", "subject": "Arch Management", "kind": "online", "title": "Zoom class"}, {"id": "a03", "date": "2026-10-20", "time": "09:00", "subject": "Arch Management", "kind": "review", "title": "Innovation Lab interim reviews"}, {"id": "a04", "date": "2026-11-10", "time": "09:00", "subject": "Arch Management", "kind": "review", "title": "Innovation Lab final presentations (25%, Zoom)"}, {"id": "a05", "date": "2026-12-01", "time": "09:00", "subject": "Arch Management", "kind": "other", "title": "Final assignment tutorials"}, {"id": "a06", "date": "2026-12-04", "time": "", "subject": "Arch Management", "kind": "due", "title": "Final assignment (35%)"}, {"id": "r01", "date": "2026-10-13", "time": "13:00", "subject": "Real Estate", "kind": "noclass", "title": "No class (King Bhumibol Memorial Day)"}, {"id": "r02", "date": "2026-10-16", "time": "13:00", "subject": "Real Estate", "kind": "online", "title": "Online make-up class"}, {"id": "r03", "date": "2026-11-10", "time": "13:00", "subject": "Real Estate", "kind": "review", "title": "Final presentation: deck + financial model + verbal (35%)"}, {"id": "r04", "date": "2026-11-17", "time": "23:59", "subject": "Real Estate", "kind": "due", "title": "Final peer assessment form"}, {"id": "r05", "date": "2026-12-01", "time": "", "subject": "Real Estate", "kind": "due", "title": "Final reflection paper (15%)"}, {"id": "p01", "date": "2026-09-30", "time": "13:00", "subject": "Proposal Writing", "kind": "online", "title": "Online class, Unit 8"}, {"id": "p02", "date": "2026-10-07", "time": "13:00", "subject": "Proposal Writing", "kind": "other", "title": "Unit 9 video + assignment set"}, {"id": "p03", "date": "2026-10-21", "time": "", "subject": "Proposal Writing", "kind": "other", "title": "Last day to withdraw"}, {"id": "p04", "date": "2026-11-04", "time": "13:00", "subject": "Proposal Writing", "kind": "other", "title": "Group project research day"}, {"id": "p05", "date": "2026-11-11", "time": "", "subject": "Proposal Writing", "kind": "other", "title": "Group project consultations (by appointment)"}, {"id": "p06", "date": "2026-11-18", "time": "13:00", "subject": "Proposal Writing", "kind": "review", "title": "Group presentations + written proposal (20%)"}]};
   $('#loadTerm').addEventListener('click', () => {
     const t = JSON.parse(JSON.stringify(TERM));
     classes = t.classes; dates = t.dates; projects = t.projects.filter(p => new Date(p.deadline) > new Date()).map(p => ({...p, createdAt: Date.now()}));
-    saveLocal(); render(); toast('Term 1 loaded. Tick off anything you have already done.');
+    saveEverything(); render(); toast('Term 1 loaded. Tick off anything you have already done.');
   });
   $('#loadEx').addEventListener('click', () => {
     const now = new Date(), day = n => new Date(dayStart(now).getTime() + n * DAY + 2 * HOUR);
@@ -1305,7 +1325,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     notes = [{id: uid(), subject: 'Design Studio', date: ymd(day(s - 7)), example: true, createdAt: Date.now(),
       text: 'Tutor liked the concept but said the section does not show how people move through the site. Too many massing options: pick one and push it.',
       steps: [{id: uid(), text: 'Redraw section with circulation', done: false}, {id: uid(), text: 'Choose one massing option', done: true}]}];
-    saveLocal(); render(); toast('Example week loaded');
+    saveEverything(); render(); toast('Example week loaded');
   });
   $('#kdPast').addEventListener('click', () => { showPast = !showPast; renderKeyDates(); });
   $('#kdForm').addEventListener('submit', e => {
@@ -2507,21 +2527,109 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   try { const t = localStorage.getItem('nextup.tab'); if (['next','week','notes'].includes(t)) tab = t; } catch(e){}
   if (location.hash && ['#next','#week','#notes'].includes(location.hash)) tab = location.hash.slice(1);
   loadLocal(); render();
-  (async () => {
-    try { db = await window.claude?.use?.('db'); } catch(e){ db = null; }
-    if (!db){ if (!asked) openSetup(true); return; }
-    store = 'db';
-    const fail = () => { store = 'local'; loadLocal(); render(); };
-    db.collection('projects').onSnapshot(snap => { projects = snap.docs.map(d => clone(d.data())); softRender(); }, fail);
-    db.collection('notes').onSnapshot(snap => { notes = snap.docs.map(d => clone(d.data())); softRender(); }, () => {});
-    db.doc('stats/focus').onSnapshot(sn => { if (sn.exists && Array.isArray(sn.data().sessions) && sn.data().sessions.length >= sessions.length){ sessions = clone(sn.data().sessions); } }, () => {});
-    db.doc('settings/wardrobe').onSnapshot(sn => { if (!sn.exists) { if (ward.seeded) saveWard(); return; } const d = sn.data(); const got = [...new Set([...(d.got || []), ...ward.got])], seen = [...new Set([...(d.seen || []), ...ward.seen])];
-      ward = {...ward, ...clone(d), got, seen}; try { localStorage.setItem(WARDKEY, JSON.stringify(ward)); } catch(e){} renderPet(); if (wdOpen) renderWard(); }, () => {});
-    db.collection('dates').onSnapshot(snap => { dates = snap.docs.map(d => clone(d.data())); softRender(); }, () => {});
-    db.doc('timetable/main').onSnapshot(s => { if (s.exists){ classes = clone(s.data().classes || []); softRender(); } }, () => {});
-    let firstSettings = true;
-    db.doc('settings/main').onSnapshot(s => { const d = s.exists ? s.data() : {}; if (d.hoursPerDay != null) hpd = d.hoursPerDay; if (d.classDayHours != null) hcd = d.classDayHours; asked = !!d.asked; if (firstSettings){ firstSettings = false; if (!asked) openSetup(true); } softRender(); }, () => {});
-  })();
+  // ---------- account: Google sign-in, data saved per person in Firestore ----------
+  const FB_CONFIG = {apiKey: 'AIzaSyAhoU0BYkjv5wvri2_D4pkU13PHhVho-eQ', authDomain: 'next-up-f1f1c.firebaseapp.com', projectId: 'next-up-f1f1c', storageBucket: 'next-up-f1f1c.firebasestorage.app', messagingSenderId: '485862714503', appId: '1:485862714503:web:9d6f9687472480e3699c22'};
+  let fbAuth = null, fbStore = null, fbUser = null, authKnown = false, unsubs = [];
+  const GSVG = '<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
+  function saveEverything(){
+    if (store !== 'db') return saveLocal();
+    projects.forEach(p => saveDoc('projects', p)); notes.forEach(n => saveDoc('notes', n)); dates.forEach(k => saveDoc('dates', k));
+    saveTimetable(); saveSettings();
+  }
+  function stopListening(){ unsubs.forEach(u => { try { u(); } catch(e){} }); unsubs = []; }
+  function listen(){
+    stopListening();
+    const L = (ref, ok, bad = () => {}) => unsubs.push(ref.onSnapshot(ok, bad));
+    L(db.collection('projects'), snap => { projects = snap.docs.map(d => clone(d.data())); softRender(); }, e => { toast("Couldn't load your account data. Check your connection."); });
+    L(db.collection('notes'), snap => { notes = snap.docs.map(d => clone(d.data())); softRender(); });
+    L(db.collection('dates'), snap => { dates = snap.docs.map(d => clone(d.data())); softRender(); });
+    L(db.doc('stats/focus'), sn => { if (sn.exists && Array.isArray(sn.data().sessions) && sn.data().sessions.length >= sessions.length){ sessions = clone(sn.data().sessions); try { localStorage.setItem(SESSKEY, JSON.stringify(sessions)); } catch(e){} } });
+    L(db.doc('settings/wardrobe'), sn => { if (!sn.exists){ if (ward.seeded) saveWard(); return; } const d = sn.data(); const got = [...new Set([...(d.got || []), ...ward.got])], seen = [...new Set([...(d.seen || []), ...ward.seen])];
+      ward = {...ward, ...clone(d), got, seen}; try { localStorage.setItem(WARDKEY, JSON.stringify(ward)); } catch(e){} renderPet(); if (wdOpen) renderWard(); });
+    L(db.doc('timetable/main'), sn => { if (sn.exists){ classes = clone(sn.data().classes || []); softRender(); } });
+    let first = true;
+    L(db.doc('settings/main'), sn => { const d = sn.exists ? sn.data() : {}; if (d.hoursPerDay != null) hpd = d.hoursPerDay; if (d.classDayHours != null) hcd = d.classDayHours; asked = !!d.asked; if (first){ first = false; if (!asked) openSetup(true); } softRender(); });
+  }
+  // first sign-in on a device: move what's here into the account (nothing is overwritten or lost)
+  async function moveDeviceDataIn(){
+    let moved = 0;
+    for (const [coll, list] of [['projects', projects], ['notes', notes], ['dates', dates]]){
+      if (!list.length) continue;
+      const snap = await db.collection(coll).get(), have = new Set(snap.docs.map(d => d.id));
+      for (const x of list) if (!have.has(x.id)){ await db.doc(coll + '/' + x.id).set(clone(x)); moved++; }
+    }
+    const tt = await db.doc('timetable/main').get();
+    if (!tt.exists && classes.length){ await db.doc('timetable/main').set({classes: clone(classes)}); moved += classes.length; }
+    const st = await db.doc('settings/main').get();
+    if (!st.exists) await db.doc('settings/main').set({hoursPerDay: hpd, classDayHours: hcd, asked: asked || projects.length > 0});
+    if (sessions.length){
+      const fs = await db.doc('stats/focus').get(), cloud = fs.exists && Array.isArray(fs.data().sessions) ? fs.data().sessions : [];
+      const seen = new Set(cloud.map(x => x.at)), merged = [...cloud, ...sessions.filter(x => !seen.has(x.at))].sort((a, b) => a.at - b.at).slice(-300);
+      if (merged.length > cloud.length){ await db.doc('stats/focus').set({sessions: clone(merged)}); sessions = merged; }
+    }
+    return moved;
+  }
+  async function useAccount(user){
+    db = {collection: n => fbStore.collection(`users/${user.uid}/${n}`), doc: p => fbStore.doc(`users/${user.uid}/${p}`)};
+    let moved = 0;
+    try { moved = await moveDeviceDataIn(); } catch(e){ toast("Signed in, but couldn't move this device's data yet. It's still here."); }
+    store = 'db'; listen(); render();
+    let welcomed = false; try { welcomed = localStorage.getItem('nextup.acct.' + user.uid) === '1'; localStorage.setItem('nextup.acct.' + user.uid, '1'); } catch(e){}
+    if (!welcomed) toast(moved ? `Signed in ✓ Moved ${moved} thing${moved === 1 ? '' : 's'} from this device into your account.` : 'Signed in ✓ Everything now saves to your account.');
+  }
+  function useDevice(){ stopListening(); db = null; store = 'local'; loadLocal(); render(); }
+  const inAppBrowser = () => /FBAN|FBAV|Instagram|Line\/|MicroMessenger|TikTok|; wv\)/i.test(navigator.userAgent);
+  function signIn(){
+    if (!fbAuth) return toast("Can't reach Google right now. Check your internet and refresh.");
+    if (inAppBrowser()) return toast('Google sign-in is blocked inside LINE / Instagram. Open this page in Safari or Chrome.');
+    const provider = new firebase.auth.GoogleAuthProvider(); provider.setCustomParameters({prompt: 'select_account'});
+    fbAuth.signInWithPopup(provider).catch(e => {
+      if (e && (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment')) return fbAuth.signInWithRedirect(provider);
+      if (e && (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request')) return;
+      toast(e && e.code === 'auth/unauthorized-domain' ? "Sign-in isn't switched on for this site yet." : "Sign-in didn't work. Try again?");
+    });
+  }
+  function signOut(){
+    if (!fbAuth) return;
+    saveLocal();   // keep a copy on this device so it still works signed out
+    fbAuth.signOut().then(() => toast('Signed out. A copy stays on this device.'));
+  }
+  function renderAccount(){
+    const btn = $('#acctBtn');
+    btn.hidden = !fbAuth || !authKnown;
+    if (fbUser){
+      const nm = fbUser.displayName || fbUser.email || 'You';
+      btn.innerHTML = `<span class="acct-av">${fbUser.photoURL ? `<img src="${esc(fbUser.photoURL)}" alt="" referrerpolicy="no-referrer">` : esc(nm[0].toUpperCase())}</span>${esc(nm.split(' ')[0])}`;
+      btn.setAttribute('aria-label', 'Your account');
+      $('#acctText').innerHTML = `Signed in as <b>${esc(fbUser.email || nm)}</b>. Everything saves to your account, so it's the same on your phone and laptop.`;
+      $('#acctActions').innerHTML = `<button class="btn" type="button" id="acctOut">Sign out</button>`;
+      $('#backupHint').textContent = 'Your stuff is saved to your account. You can still save a backup file if you like.';
+    } else {
+      btn.innerHTML = '☁ Sign in'; btn.setAttribute('aria-label', 'Sign in with Google');
+      $('#acctText').textContent = fbAuth ? 'Sign in with Google to keep your projects, notes and buddy safe, and use them on any device. Optional: Next Up works without it too.' : "Can't reach Google right now, so your stuff is saved on this device for now.";
+      $('#acctActions').innerHTML = fbAuth ? `<button class="gbtn" type="button" id="acctIn">${GSVG} Sign in with Google</button>` : '';
+      $('#backupHint').textContent = "Your data only lives in this browser. Sign in above, or save a backup now and then, so clearing your browser or switching phones doesn't wipe it.";
+    }
+    let no = false; try { no = Date.now() < +(localStorage.getItem('nextup.acctBannerNo') || 0); } catch(e){}
+    $('#acctBanner').hidden = !fbAuth || !authKnown || !!fbUser || no || !(projects.length || classes.length);
+  }
+  $('#acctBtn').addEventListener('click', () => { if (fbUser){ openSetup(false); setTimeout(() => $('#acctSec').scrollIntoView({block: 'center'}), 60); } else signIn(); });
+  $('#acctActions').addEventListener('click', e => { if (e.target.closest('#acctIn')) signIn(); if (e.target.closest('#acctOut')) signOut(); });
+  $('#acctBannerGo').addEventListener('click', signIn);
+  $('#acctBannerNo').addEventListener('click', () => { try { localStorage.setItem('nextup.acctBannerNo', String(Date.now() + 7 * DAY)); } catch(e){} $('#acctBanner').hidden = true; });
+  try {
+    if (window.firebase && firebase.initializeApp){
+      firebase.initializeApp(FB_CONFIG);
+      fbAuth = firebase.auth(); fbStore = firebase.firestore();
+      try { fbStore.enablePersistence({synchronizeTabs: true}).catch(() => {}); } catch(e){}
+      fbAuth.onAuthStateChanged(u => {
+        const was = fbUser; fbUser = u; authKnown = true; renderAccount();
+        if (u && (!was || was.uid !== u.uid)) useAccount(u);
+        else if (!u){ if (store === 'db') useDevice(); else if (!asked) openSetup(true); }
+      });
+    }
+  } catch(e){ fbAuth = null; }
+  if (!fbAuth){ authKnown = true; renderAccount(); if (!asked) openSetup(true); }
 })();
 </script>
 
