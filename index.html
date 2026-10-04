@@ -415,6 +415,39 @@ body.rescue-on{overflow:hidden} body.rescue-on .pet{display:none!important}
 .nt-box{background:var(--sunk);border-radius:10px;padding:10px 12px;gap:8px}
 .note-proj{font-size:13px;color:var(--ink2);margin:0}
 .note-proj b{color:var(--ink)}
+/* the city: every focus session builds something */
+.modal-card.city-card{max-width:980px;gap:12px}
+.city-view{background:linear-gradient(180deg,#DCEFF6,#F3F7F2 70%);border-radius:14px;overflow:auto;max-height:62vh;display:flex;justify-content:center}
+:root[data-theme="dark"] .city-view{background:linear-gradient(180deg,#14222B,#111715 70%)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .city-view{background:linear-gradient(180deg,#14222B,#111715 70%)}}
+.city-view>svg{display:block;width:100%;height:auto;min-width:560px}
+.city-stats{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--ink2)}
+.city-stats b{color:var(--ink);font:700 18px var(--display);margin-right:4px}
+.city-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--ink3)}
+.city-bld{cursor:default}
+@media (prefers-reduced-motion:no-preference){.city-bld.new{animation:rise-b .7s cubic-bezier(.2,.9,.3,1.3) both}@keyframes rise-b{from{transform:translateY(-14px);opacity:0}}}
+/* first-time tour: the buddy points at the real buttons */
+.tour{position:fixed;inset:0;z-index:45}
+.tour-hole{position:fixed;border-radius:14px;box-shadow:0 0 0 9999px rgba(10,16,14,.62);transition:all .32s cubic-bezier(.2,.8,.3,1);pointer-events:none}
+.tour-hole.none{width:0!important;height:0!important;left:50%!important;top:40%!important}
+.tour-hole:not(.none)::after{content:"";position:absolute;inset:-4px;border-radius:17px;border:2px solid var(--cta)}
+.tour-card{position:fixed;width:min(360px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border-radius:16px;padding:14px 16px 12px;box-shadow:0 18px 44px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:8px;transition:top .32s cubic-bezier(.2,.8,.3,1),left .32s cubic-bezier(.2,.8,.3,1)}
+.tour-top{display:flex;gap:10px;align-items:flex-start}
+.tour-buddy{width:58px;height:62px;flex:none}
+.tour-buddy svg{width:100%;height:100%}
+.tour-card h4{margin:2px 0 3px;font:700 16px/1.25 var(--display)}
+.tour-card p{margin:0;font-size:14px;line-height:1.45;color:var(--ink2)}
+.tour-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:2px}
+.tour-dots{display:flex;gap:5px}
+.tour-dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.tour-dots i.on{background:var(--cta);width:18px;border-radius:99px}
+.tour-skip{background:none;border:0;color:var(--ink3);font-size:13px;text-decoration:underline;text-underline-offset:3px;padding:4px}
+.tour-card.center{left:50%!important;top:50%!important;transform:translate(-50%,-50%);width:min(380px,calc(100vw - 32px))}
+.tour-card.center .tour-top{flex-direction:column;align-items:center;text-align:center}
+.tour-card.center .tour-buddy{width:96px;height:102px}
+@media (max-width:600px){.tour-card:not(.center){left:16px!important;right:16px;width:auto;top:auto!important;bottom:calc(16px + env(safe-area-inset-bottom,0px))}}
+@media (prefers-reduced-motion:no-preference){.tour-card{animation:pop .25s cubic-bezier(.2,.8,.3,1)}}
+.toast{z-index:60}
 .pet-menu{display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--line);padding-top:8px}
 .pet-menu button{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px;text-align:left;color:var(--ink);font-size:13px}
 .pet-menu button:hover{border-color:var(--cta)}
@@ -585,6 +618,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     <div class="more">
     <section style="display:flex;flex-direction:column;gap:8px">
       <h4>Study buddy</h4>
+      <button class="btn" type="button" id="tourReplay" style="align-self:flex-start">👋 Replay the tour</button>
       <label class="row small" for="petOn"><input type="checkbox" id="petOn"> Show the buddy (on computers with a mouse or trackpad)</label>
       <div class="row small"><label for="focusMin">Work for</label><input type="number" id="focusMin" min="5" max="180" step="5" style="width:70px"> <span>min, then break for</span><input type="number" id="breakMin" min="1" max="60" style="width:62px"> <span>min</span></div>
     </section>
@@ -628,7 +662,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
 </div>
 <div class="modal" id="ward" hidden role="dialog" aria-modal="true" aria-labelledby="wardTitle">
   <div class="modal-card wd-card">
-    <div class="wd-head"><h3 id="wardTitle">Your buddy</h3><button class="btn" type="button" id="wardClose">Done</button></div>
+    <div class="wd-head"><h3 id="wardTitle">Your buddy</h3><span class="row"><button class="btn" type="button" id="wardCity">🏙 My city</button><button class="btn" type="button" id="wardClose">Done</button></span></div>
     <div class="wd-main">
       <section class="wd-id" aria-label="Student ID card">
         <div class="wd-idtop"><b>NEXT UP · STUDENT ID</b><span class="label" id="wdYear"></span></div>
@@ -668,6 +702,16 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     </div>
   </div>
 </div>
+<div class="tour" id="tour" hidden role="dialog" aria-modal="true" aria-labelledby="tourTitle"><div class="tour-hole" id="tourHole"></div><div class="tour-card" id="tourCard"></div></div>
+<div class="modal" id="city" hidden role="dialog" aria-modal="true" aria-labelledby="cityTitle">
+  <div class="modal-card city-card">
+    <div class="wd-head"><div><h3 id="cityTitle">Your city</h3><p class="small" id="citySub" style="margin:2px 0 0"></p></div><button class="btn" type="button" id="cityClose">Done</button></div>
+    <div class="city-stats" id="cityStats"></div>
+    <div class="city-view" id="cityView"></div>
+    <div class="city-legend"><span>🌳 under 20 min</span><span>🏠 20–35 min</span><span>🏢 36–60 min</span><span>🏙 over an hour</span><span>🏛 a finished project</span><span>Roof colour = subject · one block per week</span></div>
+    <div class="row" style="justify-content:space-between"><label class="row small" for="citySample"><input type="checkbox" id="citySample"> Show a sample full term (preview)</label><span class="small" id="cityHint"></span></div>
+  </div>
+</div>
 <div class="rescue" id="rescue" hidden role="dialog" aria-modal="true" aria-label="Save my week"></div>
 <div class="calm" id="calm" hidden role="dialog" aria-modal="true" aria-label="One thing at a time"></div>
 <div class="pet" id="pet" hidden>
@@ -680,6 +724,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
       <button type="button" data-pet="calm">😮‍💨 I'm overwhelmed</button>
       <button type="button" data-pet="rescue">🚨 Save my week</button>
       <button type="button" data-pet="ward">🎒 Dress me up</button>
+      <button type="button" data-pet="city">🏙 My city</button>
       <button type="button" data-pet="pop">⧉ Pop out (stays on top)</button>
       <button type="button" data-pet="hide">Quiet mode</button>
     </div>
@@ -1112,6 +1157,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     renderNoteForm(); renderNotes();
     if (typeof checkUnlocks === 'function') try { checkUnlocks(); } catch(e){}
     if (typeof renderCalmBtn === 'function') try { renderCalmBtn(); } catch(e){}
+    if (typeof maybeTour === 'function') try { maybeTour(); } catch(e){}
     try { renderRebuild(); renderPace(); $('#rescueBtn').hidden = !projects.some(p => { const s = stats(p); return s.remaining > 0 && s.msLeft > 0 && s.msLeft <= 7 * DAY && s.status !== 'ok'; }); } catch(e){}
     $('#saveState').textContent = store === 'db' ? 'Saved to your account' : 'Saved on this device only';
   }
@@ -1411,7 +1457,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   }
   $('#settingsBtn').addEventListener('click', () => openSetup(false));
   $('#setupSave').addEventListener('click', () => { closeSetup(); toast('Saved'); });
-  document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (!$('#rescue').hidden) closeRescue(); else if (calm.on && calm.phase !== 'run') closeCalm(); else if (!$('#wdPop').hidden) closeLockPop(); else if (!$('#ward').hidden) closeWard(); else if (!$('#addModal').hidden) closeAdd(); else if (!$('#setup').hidden) closeSetup(); });
+  document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (!$('#city').hidden) closeCity(); else if (!$('#rescue').hidden) closeRescue(); else if (calm.on && calm.phase !== 'run') closeCalm(); else if (!$('#wdPop').hidden) closeLockPop(); else if (!$('#ward').hidden) closeWard(); else if (!$('#addModal').hidden) closeAdd(); else if (!$('#setup').hidden) closeSetup(); });
 
   // ---------- buddy wardrobe: item library (all drawn on the same canvas) ----------
   const WARD = (() => {
@@ -1736,7 +1782,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   function flashPet(mood, text, ms = 5000){ petFlash = {mood, text, until: Date.now() + ms}; renderPet(); setTimeout(renderPet, ms + 50); }
   function logSession(){
     const min = Math.round((Math.min(Date.now(), timer.end) - timer.start) / 60000);
-    if (min >= 1){ sessions.push({at: timer.start, min, pid: timer.pid, iid: timer.iid}); saveSessions(); try { checkUnlocks(); } catch(e){} }
+    if (min >= 1){ sessions.push({at: timer.start, min, pid: timer.pid, iid: timer.iid}); saveSessions(); try { checkUnlocks(); cityToast(min); } catch(e){} }
     return min;
   }
   // timer alerts: a soft chime + a system notification every time (focus done, break over, calm timer done)
@@ -1833,6 +1879,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     if (a === 'how'){ petMenuOpen = false; flashPet(petMood(), petHow(), 9000); }
     if (a === 'pop') popOut();
     if (a === 'calm') openCalm();
+    if (a === 'city') openCity();
     if (a === 'rescue') openRescue();
     if (a === 'ward'){ petMenuOpen = false; renderPet(); openWard(); }
     if (a === 'hide'){ petCfg.min = !petCfg.min; petMenuOpen = false; savePet(); renderPet(); }
@@ -2064,7 +2111,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   }
   function calmLog(){
     const min = Math.round((Math.min(Date.now(), calm.end) - calm.start) / 60000);
-    if (min >= 1){ sessions.push({at: calm.start, min, pid: calm.pid, iid: calm.iid}); saveSessions(); calm.total += min; try { checkUnlocks(); } catch(e){} }
+    if (min >= 1){ sessions.push({at: calm.start, min, pid: calm.pid, iid: calm.iid}); saveSessions(); calm.total += min; try { checkUnlocks(); cityToast(min); } catch(e){} }
     return min;
   }
   function calmStart(){
@@ -2077,7 +2124,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     calm = {...calm, on: true, rescue: false, mins: min, phase: 'chosen', skip: 0, pid: p.id, iid: it.id, total: 0};
     petMenuOpen = false; renderPet(); calmStart();
   }
-  function openCalm(fromRescue){ if (fromRescue !== true) calm.rescue = false; calm = {...calm, on: true, phase: 'pick', skip: 0, pid: null, iid: null, total: 0}; petMenuOpen = false; saveCalm(); renderCalm(); renderPet(); setTimeout(() => { const b = calmEl.querySelector('.calm-go'); if (b) b.focus(); }, 60); }
+  function openCalm(fromRescue){ if (fromRescue !== true) calm.rescue = false; calm = {...calm, on: true, phase: 'pick', skip: 0, pid: null, iid: null, total: 0}; petMenuOpen = false; saveCalm(); renderCalm(); renderPet(); setTimeout(() => { const b = calmEl.querySelector('.calm-go'); if (b) b.focus(); }, 60); firstTip('calm', "Tip: you don't have to finish. Just start, then decide."); }
   function closeCalm(){ if (calm.phase === 'run') calmLog(); calm = {...calm, on: false, phase: 'pick', pid: null, iid: null}; saveCalm(); renderCalm(); render(); }
   calmEl.addEventListener('click', e => {
     const b = e.target.closest('[data-calm]'); if (!b) return;
@@ -2229,7 +2276,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
       ${pl.rows.some(x => x.b !== 'wait') ? `<button class="go" type="button" data-rs="start">Start the rescue: one step at a time →</button><p class="hint" style="margin:0;text-align:center">Opens calm mode with only Must finish, then Good enough.</p>` : ''}
     </div>`;
   }
-  function openRescue(){ petMenuOpen = false; rescueEl.hidden = false; renderRescue(); renderPet(); rescueEl.scrollTop = 0; }
+  function openRescue(){ petMenuOpen = false; rescueEl.hidden = false; renderRescue(); renderPet(); rescueEl.scrollTop = 0; firstTip('rescue', "Tip: disagree with a group? Tap Move on any task."); }
   function closeRescue(){ rescueEl.hidden = true; renderRescue(); render(); }
   rescueEl.addEventListener('click', e => {
     const b = e.target.closest('[data-rs]'); if (!b) return;
@@ -2280,6 +2327,174 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   function syncStepsFromItem(it, done){
     notes.forEach(n => (n.steps || []).forEach(x => { if (x.iid === it.id && !!x.done !== !!done){ x.done = done; saveDoc('notes', n); } }));
   }
+
+  // ---------- the city: every focus session builds something, every finished project adds a landmark ----------
+  const ROOFS = ['#3AA79C', '#9B7BD0', '#E58E3C', '#5E8FD6', '#8FB04A', '#D9667F'];
+  const shade = (hex, k) => { const n = parseInt(hex.slice(1), 16); const f = c => Math.max(0, Math.min(255, Math.round(c * k))); return '#' + [f(n >> 16), f((n >> 8) & 255), f(n & 255)].map(v => v.toString(16).padStart(2, '0')).join(''); };
+  const kindOf = m => m < 20 ? 'tree' : m <= 35 ? 'house' : m <= 60 ? 'flat' : 'tower';
+  const KIND_NAME = {tree: 'tree', house: 'house', flat: 'building', tower: 'tower', landmark: 'landmark'};
+  function cityItems(sample){
+    if (sample){
+      const subs = subjects().length ? subjects() : ['Studio', 'Theory', 'Tech'], out = [], t0 = weekStart() - 9 * 7 * DAY;
+      let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+      for (let w = 0; w < 10; w++){ const n = 3 + Math.floor(rnd() * 7); for (let k = 0; k < n; k++){ const m = [15, 25, 25, 50, 50, 50, 75, 90][Math.floor(rnd() * 8)]; out.push({at: t0 + w * 7 * DAY + k * DAY / 2, kind: kindOf(m), min: m, subject: subs[Math.floor(rnd() * subs.length)], label: `${m} min focus`}); }
+        if (w % 3 === 2) out.push({at: t0 + w * 7 * DAY + 6 * DAY, kind: 'landmark', subject: subs[w % subs.length], label: 'Finished project'}); }
+      return out;
+    }
+    const out = sessions.map(x => { const p = projects.find(p => p.id === x.pid), it = p && p.items.find(i => i.id === x.iid);
+      return {at: x.at, kind: kindOf(x.min), min: x.min, subject: p ? p.subject : '', label: `${x.min} min${it ? ' · ' + it.name : p ? ' · ' + p.name : ''}`}; });
+    projects.forEach(p => { if (p.items.length && p.items.every(i => i.done)){ const t = p.finishedAt || Math.max(...p.items.map(i => i.doneAt || 0)); if (t) out.push({at: t, kind: 'landmark', subject: p.subject, label: `${p.name} (finished)`}); } });
+    return out.sort((a, b) => a.at - b.at);
+  }
+  function citySVG(items){
+    const TW = 64, TH = 32, ORDER = [4, 1, 3, 5, 7, 0, 2, 6, 8], BPR = 4;
+    // one 3x3 block per week (a busy week spills into another block)
+    const blocks = [];
+    let lastWk = null;
+    items.forEach(it => { const wk = (() => { const d = new Date(it.at); return dayStart(d).getTime() - dow(d) * DAY; })();
+      let b = blocks[blocks.length - 1];
+      if (!b || wk !== lastWk || b.items.length >= 9) { b = {wk, items: []}; blocks.push(b); }
+      lastWk = wk; b.items.push(it); });
+    if (!blocks.length) blocks.push({wk: weekStart(), items: []});
+    const rowsB = Math.ceil(blocks.length / BPR), colsB = Math.min(BPR, blocks.length);
+    const W = colsB * 4 - 1, H = rowsB * 4 - 1;
+    const iso = (x, y) => [(x - y) * TW / 2, (x + y) * TH / 2];
+    const poly = (pts, fill, extra = '') => `<polygon points="${pts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ')}" fill="${fill}" ${extra}/>`;
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark' || (document.documentElement.getAttribute('data-theme') !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+    const GRASS = dark ? '#28402F' : '#CFE6BF', GRASS2 = dark ? '#22382A' : '#C3DDB2', ROAD = dark ? '#3A423F' : '#E4E1D8', WALL = dark ? ['#D9D0C2', '#BDB2A2', '#A2968A'] : ['#FBF6EE', '#ECE2D3', '#D9CBB8'];
+    let ground = '', blds = [];
+    const corners = (x, y, f) => { const [cx, cy] = iso(x + .5, y + .5), a = TW / 2 * f, b = TH / 2 * f; return {t: [cx, cy - b], r: [cx + a, cy], bt: [cx, cy + b], l: [cx - a, cy], cx, cy}; };
+    const up = (p, h) => [p[0], p[1] - h];
+    // the whole site as road, then grass plots per block
+    const S = corners(0, 0, 1), E = iso(W, 0), Sd = iso(W, H), Wd = iso(0, H);
+    ground += poly([iso(-.5, -.5), iso(W + .5, -.5), iso(W + .5, H + .5), iso(-.5, H + .5)], ROAD);
+    blocks.forEach((b, bi) => { const bx = (bi % BPR) * 4, by = Math.floor(bi / BPR) * 4;
+      for (let k = 0; k < 9; k++){ const x = bx + k % 3, y = by + Math.floor(k / 3); ground += poly([iso(x, y), iso(x + 1, y), iso(x + 1, y + 1), iso(x, y + 1)], (k + bi) % 2 ? GRASS : GRASS2, `stroke="${dark ? '#1E3024' : '#B9D6A6'}" stroke-width=".6"`); }
+      const [lx, ly] = iso(bx - .15, by + 3.15); ground += `<text x="${lx.toFixed(1)}" y="${(ly + 12).toFixed(1)}" font-size="9" font-family="IBM Plex Mono, monospace" fill="${dark ? '#8A9590' : '#7A8681'}" transform="rotate(26.6 ${lx.toFixed(1)} ${(ly + 12).toFixed(1)})">wk of ${new Date(b.wk).toLocaleDateString('en-GB', {day: 'numeric', month: 'short'})}</text>`;
+      b.items.forEach((it, k) => { const pos = ORDER[k], x = bx + pos % 3, y = by + Math.floor(pos / 3); blds.push({it, x, y}); }); });
+    for (let bi = blocks.length; bi < rowsB * colsB; bi++){ const bx = (bi % BPR) * 4, by = Math.floor(bi / BPR) * 4;
+      ground += poly([iso(bx, by), iso(bx + 3, by), iso(bx + 3, by + 3), iso(bx, by + 3)], dark ? '#25352C' : '#E2EDD8', `stroke="${dark ? '#3A4A40' : '#BFD3B0'}" stroke-width="1.2" stroke-dasharray="5 4"`);
+      if (bi === blocks.length){ const [tx, ty] = iso(bx + 1.5, by + 1.5); ground += `<text x="${tx.toFixed(1)}" y="${(ty + 4).toFixed(1)}" text-anchor="middle" font-size="10" font-family="IBM Plex Mono, monospace" fill="${dark ? '#7C8984' : '#7A8681'}">next week's plot</text>`; } }
+    const newest = items.length ? items[items.length - 1].at : 0;
+    blds.sort((a, b) => (a.x + a.y) - (b.x + b.y) || a.x - b.x);
+    const body = blds.map(({it, x, y}) => {
+      const roof = it.subject ? ROOFS[colorIdx(it.subject)] : '#9AA3A0', j = (Math.floor(it.at / 60000) % 7);
+      let g = '';
+      const box = (f, h, w = WALL) => { const c = corners(x, y, f);
+        return poly([c.l, c.bt, up(c.bt, h), up(c.l, h)], w[1]) + poly([c.bt, c.r, up(c.r, h), up(c.bt, h)], w[2]) + poly([up(c.t, h), up(c.r, h), up(c.bt, h), up(c.l, h)], w[0]); };
+      const c = corners(x, y, 1);
+      if (it.kind === 'tree'){
+        const [tx, ty] = [c.cx, c.cy];
+        g = `<rect x="${tx - 1.5}" y="${ty - 10}" width="3" height="10" fill="#8A6A4A"/><ellipse cx="${tx}" cy="${ty - 16}" rx="10" ry="12" fill="${dark ? '#4E8F5A' : '#6DB46F'}"/><ellipse cx="${tx - 3}" cy="${ty - 19}" rx="4.5" ry="5" fill="${dark ? '#64A870' : '#8ACB86'}"/>`;
+      } else if (it.kind === 'house'){
+        const h = 13 + j % 3, f = .62, cc = corners(x, y, f), ap = [cc.cx, cc.cy - h - 15];
+        g = box(f, h) + poly([up(cc.l, h), up(cc.bt, h), ap], shade(roof, .92)) + poly([up(cc.bt, h), up(cc.r, h), ap], shade(roof, .72))
+          + poly([[cc.cx - 4, cc.cy + TH / 2 * f - 1 - 2], [cc.cx - 4, cc.cy + TH / 2 * f - 9], [cc.cx - .5, cc.cy + TH / 2 * f - 10.5], [cc.cx - .5, cc.cy + TH / 2 * f - 2.5]], shade(roof, .55));
+      } else if (it.kind === 'flat' || it.kind === 'tower'){
+        const tower = it.kind === 'tower', f = tower ? .58 : .72, h = tower ? 58 + j * 3 : 30 + j * 2;
+        const glass = tower ? (dark ? ['#9FC3D8', '#6E95AD', '#557A91'] : ['#DDF0FA', '#A9CFE4', '#86B3CC']) : WALL;
+        g = box(f, h, glass);
+        const cc = corners(x, y, f);
+        for (let k = 8; k < h - 4; k += tower ? 7 : 8){ g += `<path d="M${cc.l[0].toFixed(1)} ${(cc.l[1] - k).toFixed(1)}L${cc.bt[0].toFixed(1)} ${(cc.bt[1] - k).toFixed(1)}L${cc.r[0].toFixed(1)} ${(cc.r[1] - k).toFixed(1)}" stroke="${tower ? '#ffffff' : shade(WALL[2], .85)}" stroke-width="${tower ? .8 : 1.6}" fill="none" opacity="${tower ? .7 : .9}" stroke-dasharray="${tower ? '' : '4 3'}"/>`; }
+        g += box(f * (tower ? .7 : 1.02), 0, [roof, roof, roof]).replace(/points="([^"]+)"/g, (m0, pts) => `points="${pts.split(' ').map(p => { const [a, b] = p.split(','); return a + ',' + (+b - h - 3).toFixed(1); }).join(' ')}"`);
+        if (tower) g += `<line x1="${cc.cx}" y1="${cc.cy - h - 3}" x2="${cc.cx}" y2="${cc.cy - h - 16}" stroke="${shade(roof, .7)}" stroke-width="1.5"/><circle cx="${cc.cx}" cy="${cc.cy - h - 17}" r="2" fill="#FF6F6F"/>`;
+      } else if (it.kind === 'landmark'){
+        const f = .9, h = 18, cc = corners(x, y, f);
+        g = box(f, h);
+        for (let k = -2; k <= 2; k++){ const px = cc.cx + k * 6, py = cc.cy + TH / 2 * f - Math.abs(k) * 3; g += `<rect x="${(px - 1.2).toFixed(1)}" y="${(py - h + 2).toFixed(1)}" width="2.4" height="${h - 4}" fill="${WALL[2]}"/>`; }
+        g += `<ellipse cx="${cc.cx}" cy="${cc.cy - h}" rx="${TW / 2 * f * .55}" ry="${TH / 2 * f * .55}" fill="${shade(roof, .9)}"/><path d="M${cc.cx - TW / 2 * f * .55} ${cc.cy - h}A${TW / 2 * f * .55} ${TW / 2 * f * .55} 0 0 1 ${cc.cx + TW / 2 * f * .55} ${cc.cy - h}" fill="#E9B949"/><line x1="${cc.cx}" y1="${cc.cy - h - TW / 2 * f * .55}" x2="${cc.cx}" y2="${cc.cy - h - TW / 2 * f * .55 - 12}" stroke="#7A5A2A" stroke-width="1.3"/><path d="M${cc.cx} ${cc.cy - h - TW / 2 * f * .55 - 12}l8 3-8 3z" fill="${roof}"/>`;
+      }
+      return `<g class="city-bld ${it.at === newest && Date.now() - it.at < 3 * HOUR ? 'new' : ''}"><title>${esc(it.label)} · ${new Date(it.at).toLocaleDateString('en-GB', {weekday: 'short', day: 'numeric', month: 'short'})}</title>${g}</g>`;
+    }).join('');
+    // the buddy hangs out at the front corner of the site
+    const [bx0, by0] = iso(-.9, H + .2);
+    const buddy = `<svg x="${(bx0 - 34).toFixed(1)}" y="${(by0 - 66).toFixed(1)}" width="68" height="73" viewBox="-8 -22 120 128">${buddySVG(ward.look, 'happy').replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '')}</svg>`;
+    const minX = iso(-.5, H + .5)[0] - 70, maxX = iso(W + .5, -.5)[0] + 30, minY = iso(-.5, -.5)[1] - 110, maxY = iso(W + .5, H + .5)[1] + 30;
+    return `<svg viewBox="${minX.toFixed(0)} ${minY.toFixed(0)} ${(maxX - minX).toFixed(0)} ${(maxY - minY).toFixed(0)}" role="img" aria-label="Your city: ${items.length} buildings">${ground}${body}${buddy}</svg>`;
+  }
+  function renderCity(){
+    const sample = $('#citySample').checked, items = cityItems(sample);
+    const mins = items.filter(i => i.min).reduce((a, i) => a + i.min, 0), lm = items.filter(i => i.kind === 'landmark').length, weeks = new Set(items.map(i => { const d = new Date(i.at); return dayStart(d).getTime() - dow(d) * DAY; })).size;
+    $('#citySub').textContent = sample ? 'A sample term, so you can see where this goes.' : items.length ? 'Every focus session builds something. Every finished project adds a landmark.' : '';
+    $('#cityStats').innerHTML = items.length ? `<span><b>${items.length - lm}</b>buildings</span><span><b>${Math.floor(mins / 60)}h ${mins % 60}m</b>focused</span><span><b>${lm}</b>landmark${lm === 1 ? '' : 's'}</span><span><b>${weeks}</b>week${weeks === 1 ? '' : 's'}</span>` : `<span>An empty site, ready to build. Start a focus session and your first house goes up.</span>`;
+    $('#cityView').innerHTML = citySVG(items);
+    $('#cityHint').textContent = sample ? '' : 'Hover a building to see which session built it.';
+  }
+  function openCity(){ petMenuOpen = false; renderPet(); $('#citySample').checked = false; renderCity(); $('#city').hidden = false; firstTip('city', 'Tip: every focus session adds a building. Tick "sample term" to see a full city.'); }
+  const closeCity = () => { $('#city').hidden = true; };
+  $('#cityClose').addEventListener('click', closeCity);
+  $('#city').addEventListener('click', e => { if (e.target.id === 'city') closeCity(); });
+  $('#citySample').addEventListener('change', renderCity);
+  $('#wardCity').addEventListener('click', () => { closeWard(); openCity(); });
+  // after a session: tell them what went up
+  function cityToast(min){ const k = kindOf(min); setTimeout(() => toast(`+1 ${KIND_NAME[k]} in your city ${({tree: '🌳', house: '🏠', flat: '🏢', tower: '🏙'})[k]}`), 1200); }
+
+  // ---------- first-time tour: 6 quick steps, the buddy points at the real buttons ----------
+  const TOURKEY = 'nextup.tourDone';
+  const TOUR = [
+    {title: "Hi! I'm your study buddy 👋", text: "Next Up looks at your deadlines, your hand-ins and your class timetable, then tells you the one thing to work on next. Here's a 30-second tour."},
+    {sel: '#next', title: 'Do this next', text: "This is the main thing. Tap ▶ Start to focus on it with a timer, or ✓ Done when it's finished. Not feeling it? Tap Not now."},
+    {sel: '#next .gap', title: 'Got a gap between classes?', text: 'Tap how much time you have, like 30 min, and I pick something that actually fits.'},
+    {sel: '#pace', title: 'Today', text: 'How much you need to do today to stay on track. When you hit it, I tell you to stop. Stressful day? 😮‍💨 Simplify shows just one small step, 🚨 Save my week makes an honest plan.'},
+    {sel: '#tab-notes', title: 'Crit notes', text: 'After a crit, write what Ajan said. Your next steps become tasks with a deadline, so they show up here to tick off.'},
+    {sel: '#wardBtn', title: 'Dress me up 🎒', text: 'Finishing work unlocks hats and outfits for me. Every focus session also builds something in your city 🏙'},
+    {title: "That's it. You're ready!", text: 'Tap me (bottom right) anytime for the focus timer. You can replay this tour in ⚙ Settings.'}];
+  let tourStep = 0, tourOn = false;
+  function tourPlace(){
+    if (!tourOn) return;
+    const st = TOUR[tourStep], el = st.sel && document.querySelector(st.sel), hole = $('#tourHole'), card = $('#tourCard');
+    const vis = el && el.offsetParent !== null;
+    if (!vis){ hole.className = 'tour-hole none'; card.classList.add('center'); card.style.left = card.style.top = ''; return; }
+    card.classList.remove('center');
+    const r = el.getBoundingClientRect(), pad = 8;
+    hole.className = 'tour-hole';
+    Object.assign(hole.style, {left: r.left - pad + 'px', top: r.top - pad + 'px', width: r.width + pad * 2 + 'px', height: r.height + pad * 2 + 'px'});
+    const cw = Math.min(360, innerWidth - 32), ch = card.offsetHeight || 190;
+    let top = r.bottom + 16; if (top + ch > innerHeight - 12) top = Math.max(12, r.top - ch - 16);
+    if (top + ch > innerHeight - 12) top = Math.max(12, innerHeight - ch - 12);   // tall target: sit on top of it
+    const left = Math.min(innerWidth - cw - 16, Math.max(16, r.left + r.width / 2 - cw / 2));
+    card.style.left = left + 'px'; card.style.top = top + 'px';
+  }
+  function tourRender(){
+    const st = {...TOUR[tourStep]}, last = tourStep === TOUR.length - 1;
+    if (last && (!petEl || petEl.hidden)) st.text = 'Tap 🎒 Buddy at the top anytime to dress me up or see your city. ▶ Start on the main card runs the focus timer. You can replay this tour in ⚙ Settings.';
+    const mood = tourStep === 0 ? 'happy' : last ? 'celebrating' : 'happy';
+    $('#tourCard').innerHTML = `<div class="tour-top"><div class="tour-buddy">${buddySVG(ward.look, mood)}</div><div><h4 id="tourTitle">${st.title}</h4><p>${st.text}</p></div></div>
+      <div class="tour-foot"><span class="tour-dots" aria-label="Step ${tourStep + 1} of ${TOUR.length}">${TOUR.map((_, i) => `<i class="${i === tourStep ? 'on' : ''}"></i>`).join('')}</span>
+        <span class="row">${last ? '' : '<button class="tour-skip" type="button" data-tour="skip">Skip</button>'}${tourStep ? '<button class="btn" type="button" data-tour="back">Back</button>' : ''}<button class="btn pri" type="button" data-tour="next">${last ? "Let's go" : tourStep === 0 ? 'Show me' : 'Next'}</button></span></div>`;
+    const el = st.sel && document.querySelector(st.sel);
+    if (el && el.offsetParent !== null){ el.scrollIntoView({block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'}); setTimeout(tourPlace, 380); }
+    tourPlace();
+    setTimeout(() => { const b = $('#tourCard [data-tour="next"]'); if (b) b.focus({preventScroll: true}); }, 60);
+  }
+  function startTour(){
+    if (tab !== 'next') setTab('next');
+    closeSetup && !$('#setup').hidden && closeSetup();
+    petMenuOpen = false; renderPet();
+    // skip steps whose button isn't on screen (e.g. no projects yet)
+    tourOn = true; tourStep = 0; $('#tour').hidden = false; tourRender();
+  }
+  function endTour(){ tourOn = false; $('#tour').hidden = true; try { localStorage.setItem(TOURKEY, '1'); } catch(e){} window.scrollTo({top: 0, behavior: 'smooth'}); }
+  function tourGo(d){
+    let i = tourStep + d;
+    while (i > 0 && i < TOUR.length - 1 && TOUR[i].sel && !(document.querySelector(TOUR[i].sel) && document.querySelector(TOUR[i].sel).offsetParent !== null)) i += d;
+    if (i >= TOUR.length) return endTour();
+    tourStep = Math.max(0, i); tourRender();
+  }
+  $('#tourCard').addEventListener('click', e => { const b = e.target.closest('[data-tour]'); if (!b) return;
+    const a = b.dataset.tour; if (a === 'skip') endTour(); if (a === 'back') tourGo(-1); if (a === 'next'){ if (tourStep === TOUR.length - 1) endTour(); else tourGo(1); } });
+  addEventListener('resize', tourPlace); addEventListener('scroll', () => { if (tourOn) requestAnimationFrame(tourPlace); }, {passive: true});
+  document.addEventListener('keydown', e => { if (!tourOn) return; if (e.key === 'Escape'){ e.stopImmediatePropagation(); endTour(); } if (e.key === 'ArrowRight') tourGo(1); if (e.key === 'ArrowLeft') tourGo(-1); }, true);
+  $('#tourReplay').addEventListener('click', () => { closeSetup(); setTimeout(startTour, 150); });
+  // start once, the first time there's something to point at and nothing else is open
+  function maybeTour(){
+    let done = false; try { done = !!localStorage.getItem(TOURKEY); } catch(e){}
+    if (done || tourOn || !projects.length) return;
+    if (!$('#setup').hidden || !$('#addModal').hidden || calm.on || !$('#rescue').hidden || !$('#ward').hidden || !$('#city').hidden) return;
+    setTimeout(() => { let d2 = false; try { d2 = !!localStorage.getItem(TOURKEY); } catch(e){} if (!d2 && !tourOn && $('#setup').hidden) startTour(); }, 900);
+  }
+  // one-time tips the first time you open a feature
+  function firstTip(key, text){ let seen = {}; try { seen = JSON.parse(localStorage.getItem('nextup.tips') || '{}'); } catch(e){} if (seen[key]) return; seen[key] = 1; try { localStorage.setItem('nextup.tips', JSON.stringify(seen)); } catch(e){} setTimeout(() => toast(text), 500); }
 
   // ---------- theme ----------
   const THEMES = ['auto', 'light', 'dark'], TLABEL = {auto:'◐ Auto', light:'☀ Light', dark:'☾ Dark'};
