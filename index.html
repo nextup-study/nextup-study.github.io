@@ -479,6 +479,20 @@ body.rescue-on{overflow:hidden} body.rescue-on .pet{display:none!important}
 .st-m .brk{color:var(--warn);font-weight:600}
 .st-input{display:flex;gap:8px;flex-wrap:wrap}
 .st-input input{flex:1;min-width:140px}
+.st3d{position:relative;width:100%;aspect-ratio:4/3;max-height:560px;border-radius:14px;overflow:hidden;background:#EAF3F6;touch-action:none;transition:background .6s}
+.st3d canvas{display:block;width:100%!important;height:100%!important}
+.st3d-ov{position:absolute;inset:0;pointer-events:none}
+.st3d-b{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:2px;will-change:transform}
+.st3d-b .bd{width:46px;height:49px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25))}
+.st3d-b .bd svg{width:100%;height:100%}
+.st3d-b .lb{font:600 11px var(--body);padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.92);color:#16201D;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.st3d-b.f .lb{background:#2F7D46;color:#fff}
+.st3d-b.away{opacity:.55}
+.st3d-glow{position:absolute;width:90px;height:60px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(255,210,120,.75),rgba(255,210,120,0));mix-blend-mode:screen}
+.st3d-tod{position:absolute;left:10px;top:10px;font:600 12px var(--body);background:rgba(255,255,255,.85);color:#16201D;border:0;border-radius:99px;padding:4px 10px;pointer-events:auto;cursor:pointer}
+.st3d-hint{position:absolute;right:10px;bottom:8px;font:11px var(--body);color:rgba(22,32,29,.6);background:rgba(255,255,255,.6);padding:2px 8px;border-radius:99px}
+.st3d-load{position:absolute;inset:0;display:grid;place-items:center;font:13px var(--body);color:#4A5752}
+@media (max-width:600px){.st3d{aspect-ratio:1/1.05}.st3d-b .bd{width:34px;height:36px}.st3d-b .lb{font-size:10px;padding:1px 6px}.st3d-hint{display:none}.st3d-glow{width:60px;height:40px}}
 .pet-menu{display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--line);padding-top:8px}
 .pet-menu button{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px;text-align:left;color:var(--ink);font-size:13px}
 .pet-menu button:hover{border-color:var(--cta)}
@@ -776,6 +790,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
 <canvas id="confetti" hidden></canvas>
 <div class="toast" id="toast" role="status"></div>
 
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -2706,12 +2721,14 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
           <span class="row"><button class="btn pri" type="button" data-st="share">Invite friends</button><button class="btn" type="button" data-st="leave">Leave</button></span></div>
         ${msg}
         <div class="st-stats"><span><b>${here.length}</b>here now</span><span><b>${foc.length}</b>focusing</span><span><b>${Math.floor(mins / 60)}h ${mins % 60}m</b>focused together today</span></div>
-        <div class="st-view">${studioSVG(ms)}</div>
+        ${ST3D.state === 'failed' ? `<div class="st-view">${studioSVG(ms)}</div>` : '<div id="st3dSlot"></div>'}
         ${me.s === 'focus' ? `<p>You're focusing. Your friends can see your timer 💪</p>` : `<div class="row"><button class="btn-main" type="button" data-st="focus">▶ Start focusing</button><span class="small">${foc.length ? `${foc.length} ${foc.length === 1 ? 'friend is' : 'friends are'} working right now. Join them?` : 'Be the first one working today.'}</span></div>`}
         <div class="st-list">${ms.map(m => { const away = now - (m.updatedAt || 0) > 5 * 60000, f = !away && m.s === 'focus' && m.end > now, br = !away && m.s === 'break' && m.end > now;
           return `<div class="st-m ${away ? 'away' : ''}"><span class="av">${buddySVG(m.look || WDEF, away ? 'sleepy' : f ? 'focused' : 'happy')}</span><span><b>${esc(m.name || 'Friend')}${m.uid === fbUser.uid ? ' (you)' : ''}</b>${f ? `<span class="focus st-rt2" data-end="${m.end}">focusing · ${mmss(m.end - now)}</span>` : br ? '<span class="brk">on a break</span>' : away ? '<span>away</span>' : '<span>here</span>'}</span></div>`; }).join('') || '<p class="small">Nobody here yet. Share the code!</p>'}</div>
       </div>
       <div class="st-card" id="stJoinBox" hidden>${joinCards}</div>`;
+    const slot = $('#st3dSlot');
+    if (slot){ st3dMembers = ms; if (ST3D.state === 'idle') initStudio3D(); if (ST3D.el){ slot.replaceWith(ST3D.el); paintSeats(); } }
   }
   // live timers in the room, once a second
   setInterval(() => {
@@ -2733,6 +2750,90 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     if (a === 'focus'){ const r = rank().filter(x => x.s.msLeft > 0), top = r[0] || rank()[0], it = top && top.p.items.find(i => !i.done); if (it) startTunnel(top.p, it, petCfg.focusMin); else toast('Add a project first, then start focusing.'); setTimeout(() => presence(true), 300); }
   });
   $('#studio').addEventListener('keydown', e => { if (e.key !== 'Enter') return; if (e.target.id === 'stCode') joinRoom(e.target.value); if (e.target.id === 'stName') createRoom(e.target.value); });
+
+
+  // ---------- Studio room in 3D ----------
+  // seats for the example model (desk-side spots, model units). A model with seat_1..seat_8 / lamp_1..lamp_8 objects overrides these.
+  const ST3D = {file: 'studio.glb', seats: [[-0.346, -0.231], [-0.086, -0.242], [0.179, -0.247], [-0.347, 0.048], [-0.086, 0.04], [0.179, 0.018], [-0.086, 0.299], [0.178, 0.283]].map(([x, z]) => ({x: x - 0.088, y: 0.03, z, lx: x + 0.03, ly: 0.15, lz: z})),
+    state: 'idle', el: null, three: null, todOverride: null};
+  const TOD = {
+    morning: {tint: 0xFFEEDD, label: '🌅 Morning in the studio', bg: 'linear-gradient(180deg,#FCE3C8,#EAF3F6)', hemi: [0xFFE8CC, 0x8a7a66, 2.3], sun: [0xFFD2A0, 1.4], exp: 1.0},
+    midday: {tint: 0xFFFFFF, label: '☀️ Midday in the studio', bg: 'linear-gradient(180deg,#DCEEF7,#F4F1EA)', hemi: [0xffffff, 0x8a8a8a, 2.6], sun: [0xffffff, 1.5], exp: 1.05},
+    evening: {tint: 0xFFCFA8, label: '🌇 Sunset in the studio', bg: 'linear-gradient(180deg,#F4B98A,#5B5F8A)', hemi: [0xFFC99A, 0x4a4060, 1.7], sun: [0xFF9E5E, 1.3], exp: 0.95},
+    night: {tint: 0x4A5478, label: '🌙 Night in the studio', bg: 'linear-gradient(180deg,#1B2438,#0F141C)', hemi: [0x8090C0, 0x202030, 0.75], sun: [0x6070A0, 0.25], exp: 0.9, lamps: true},
+    late: {tint: 0x3A4262, label: '💀 All-nighter in the studio', bg: 'linear-gradient(180deg,#161A2A,#0B0E14)', hemi: [0x7080B0, 0x181820, 0.55], sun: [0x505a80, 0.15], exp: 0.85, lamps: true}};
+  const TOD_ORDER = ['morning', 'midday', 'evening', 'night', 'late'];
+  function todNow(){ if (ST3D.todOverride) return ST3D.todOverride; const h = new Date().getHours(); return h >= 2 && h < 5 ? 'late' : h >= 5 && h < 11 ? 'morning' : h >= 11 && h < 17 ? 'midday' : h >= 17 && h < 19 ? 'evening' : 'night'; }
+  async function initStudio3D(){
+    if (ST3D.state !== 'idle') return;
+    ST3D.state = 'loading';
+    const el = document.createElement('div'); el.className = 'st3d'; el.innerHTML = '<div class="st3d-load">Opening the studio…</div><div class="st3d-ov"></div><button class="st3d-tod" type="button"></button><span class="st3d-hint">drag to turn · pinch to zoom</span>';
+    ST3D.el = el;
+    try {
+      const probe = document.createElement('canvas'); if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) throw new Error('no webgl');
+      const THREE = await import('three');
+      const [{GLTFLoader}, {OrbitControls}, {MeshoptDecoder}] = await Promise.all([import('three/addons/loaders/GLTFLoader.js'), import('three/addons/controls/OrbitControls.js'), import('three/addons/libs/meshopt_decoder.module.js')]);
+      const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+      renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2)); renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      const scene = new THREE.Scene();
+      const hemi = new THREE.HemisphereLight(0xffffff, 0x888888, 2.4); scene.add(hemi);
+      const sun = new THREE.DirectionalLight(0xffffff, 1.4); sun.position.set(0.2, 1.2, -1); scene.add(sun);
+      const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, -20, 20);
+      const controls = new OrbitControls(cam, renderer.domElement);
+      controls.enableDamping = true; controls.enablePan = false; controls.minZoom = 0.8; controls.maxZoom = 3;
+      controls.minPolarAngle = 0.55; controls.maxPolarAngle = 1.15; controls.minAzimuthAngle = -Math.PI * 0.85; controls.maxAzimuthAngle = Math.PI * 0.15;
+      controls.target.set(0, 0.08, 0.02);
+      const a = -Math.PI / 4; cam.position.set(Math.sin(a) * 2, 1.7, Math.cos(a) * 2); cam.lookAt(controls.target); controls.update();
+      const gltf = await new Promise((res, rej) => { const l = new GLTFLoader(); l.setMeshoptDecoder(MeshoptDecoder); l.load(ST3D.file, res, undefined, rej); });
+      scene.add(gltf.scene);
+      // the model's lighting is baked into its texture, so day/night tints the materials themselves
+      const mats = []; gltf.scene.traverse(o => { if (o.isMesh) [].concat(o.material).forEach(m => { if (m && m.color && !mats.includes(m)){ m.userData.base = m.color.clone(); m.userData.em = m.emissiveIntensity ?? 1; mats.push(m); } }); });
+      // a real model can name its seats and lamps; use those when present
+      const named = {}; gltf.scene.traverse(o => { const m = /^(seat|lamp)_(\d+)/i.exec(o.name || ''); if (m){ const p = new THREE.Vector3(); o.getWorldPosition(p); (named[m[1].toLowerCase()] ||= {})[+m[2]] = p; } });
+      if (named.seat){ ST3D.seats = Object.keys(named.seat).sort((x, y) => x - y).map(k => { const p = named.seat[k], lp = named.lamp && named.lamp[k]; return {x: p.x, y: p.y, z: p.z, lx: lp ? lp.x : p.x, ly: lp ? lp.y : p.y + 0.1, lz: lp ? lp.z : p.z}; }); }
+      const lamps = ST3D.seats.map(s => { const pl = new THREE.PointLight(0xFFC680, 0, 0.35, 1.6); pl.position.set(s.lx, s.ly, s.lz); scene.add(pl); return pl; });
+      el.appendChild(renderer.domElement); el.querySelector('.st3d-load').remove();
+      ST3D.three = {THREE, renderer, scene, cam, controls, hemi, sun, lamps, mats};
+      const resize = () => { const w = el.clientWidth || 600, h = el.clientHeight || 450, asp = w / h, s = 0.62; cam.left = -s * asp; cam.right = s * asp; cam.top = s; cam.bottom = -s; cam.updateProjectionMatrix(); renderer.setSize(w, h, false); };
+      new ResizeObserver(resize).observe(el); resize();
+      el.querySelector('.st3d-tod').addEventListener('click', () => { const cur = todNow(); ST3D.todOverride = TOD_ORDER[(TOD_ORDER.indexOf(cur) + 1) % TOD_ORDER.length]; applyTod(); clearTimeout(ST3D.todT); ST3D.todT = setTimeout(() => { ST3D.todOverride = null; applyTod(); }, 20000); });
+      applyTod();
+      ST3D.state = 'ready';
+      const v = new THREE.Vector3();
+      (function loop(){
+        requestAnimationFrame(loop);
+        if (tab !== 'studio' || !el.isConnected) return;
+        controls.update(); renderer.render(scene, cam);
+        // keep the buddies and labels pinned to their seats
+        const w = el.clientWidth, h = el.clientHeight;
+        el.querySelectorAll('[data-seat]').forEach(n => { const s = ST3D.seats[+n.dataset.seat]; if (!s) return; v.set(n.dataset.kind === 'glow' ? s.lx : s.x, n.dataset.kind === 'glow' ? s.ly : s.y, n.dataset.kind === 'glow' ? s.lz : s.z).project(cam); n.style.transform = `translate(${((v.x + 1) / 2 * w).toFixed(1)}px,${((1 - v.y) / 2 * h).toFixed(1)}px) translate(-50%,${n.dataset.kind === 'glow' ? '-50%' : '-100%'})`; });
+      })();
+      if (tab === 'studio') renderStudio();
+    } catch(e){ ST3D.state = 'failed'; if (tab === 'studio') renderStudio(); }
+  }
+  function applyTod(){
+    if (!ST3D.three) return;
+    const t = TOD[todNow()], {hemi, sun, renderer, mats, THREE} = ST3D.three, tint = new THREE.Color(t.tint);
+    mats.forEach(m => { m.color.copy(m.userData.base).multiply(tint); if ('emissiveIntensity' in m) m.emissiveIntensity = m.userData.em * (t.lamps ? 0.25 : 1); });
+    hemi.color.setHex(t.hemi[0]); hemi.groundColor.setHex(t.hemi[1]); hemi.intensity = t.hemi[2];
+    sun.color.setHex(t.sun[0]); sun.intensity = t.sun[1]; renderer.toneMappingExposure = t.exp;
+    ST3D.el.style.background = t.bg; ST3D.el.querySelector('.st3d-tod').textContent = t.label;
+    ST3D.el.querySelector('.st3d-hint').style.color = t.lamps ? 'rgba(255,255,255,.6)' : '';
+    paintSeats();
+  }
+  setInterval(() => { if (ST3D.state === 'ready' && !ST3D.todOverride) applyTod(); }, 60000);
+  // who sits where: stable seats (sorted by account id) so nobody jumps around
+  let st3dMembers = [];
+  function paintSeats(){
+    if (!ST3D.el || ST3D.state !== 'ready') return;
+    const ov = ST3D.el.querySelector('.st3d-ov'), now = Date.now(), t = TOD[todNow()];
+    const ms = [...st3dMembers].sort((a, b) => a.uid < b.uid ? -1 : 1).slice(0, ST3D.seats.length);
+    ov.innerHTML = ms.map((m, i) => { const away = now - (m.updatedAt || 0) > 5 * 60000, f = !away && m.s === 'focus' && m.end > now, br = !away && m.s === 'break' && m.end > now;
+      const mood = away ? 'sleepy' : f ? 'focused' : br ? 'stretching' : 'happy';
+      return `${f ? `<div class="st3d-glow" data-seat="${i}" data-kind="glow"></div>` : ''}<div class="st3d-b ${f ? 'f' : ''} ${away ? 'away' : ''}" data-seat="${i}"><span class="lb ${f ? 'st-rt' : ''}" data-end="${f ? m.end : ''}" data-name="${esc(m.name || 'Friend')}">${esc(m.name || 'Friend')}${f ? ' · ' + mmss(m.end - now) : br ? ' · break' : away ? ' · away' : ''}</span><span class="bd">${buddySVG(m.look || WDEF, mood)}</span></div>`; }).join('');
+    // desk lamps: everyone's lamp glows a little at night; focusing people's lamps glow bright
+    ST3D.three.lamps.forEach((pl, i) => { const m = ms[i], f = m && m.s === 'focus' && m.end > now && now - (m.updatedAt || 0) < 5 * 60000; pl.intensity = f ? (t.lamps ? 3.2 : 0.8) : (t.lamps ? 0.9 : 0); });
+  }
 
   // ---------- account: Google sign-in, data saved per person in Firestore ----------
   const FB_CONFIG = {apiKey: 'AIzaSyAhoU0BYkjv5wvri2_D4pkU13PHhVho-eQ', authDomain: 'next-up-f1f1c.firebaseapp.com', projectId: 'next-up-f1f1c', storageBucket: 'next-up-f1f1c.firebasestorage.app', messagingSenderId: '485862714503', appId: '1:485862714503:web:9d6f9687472480e3699c22'};
