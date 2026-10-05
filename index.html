@@ -532,6 +532,28 @@ body.rescue-on{overflow:hidden} body.rescue-on .pet{display:none!important}
 .st-m .focus{color:var(--ok);font-weight:600}
 .st-m .brk{color:var(--warn);font-weight:600}
 .st-input{display:flex;gap:8px;flex-wrap:wrap}
+.st-chat{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:12px}
+.st-chat-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.st-chat-h b{font:700 15px var(--display)}
+.st-msgs{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;padding:2px 2px 2px 0;overscroll-behavior:contain}
+.st-msg{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;align-items:start}
+.st-msg .av{width:30px;height:32px}.st-msg .av svg{width:100%;height:100%}
+.st-bub{background:var(--bg);border-radius:4px 12px 12px 12px;padding:6px 10px;font-size:14px;line-height:1.4;overflow-wrap:anywhere;justify-self:start;max-width:100%}
+.st-bub .who{display:block;font-size:12px;font-weight:600;color:var(--ink2)}
+.st-bub .who time{font:400 11px var(--mono);color:var(--ink3);margin-left:6px}
+.st-msg.me .st-bub{background:var(--accent-soft)}
+.st-msg.big .st-bub{font-size:24px;line-height:1.1;background:none;padding:2px 0}
+.st-ev{text-align:center;font-size:12.5px;color:var(--ink3)}
+.st-ev span{background:var(--bg);border-radius:99px;padding:3px 10px;display:inline-block}
+.st-empty{font-size:13.5px;color:var(--ink3);text-align:center;padding:10px 0}
+.st-quick{display:flex;gap:6px;flex-wrap:wrap}
+.st-quick button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:4px 10px;font-size:13px}
+.st-quick button:hover{border-color:var(--accent)}
+.st-send{display:flex;gap:8px}
+.st-send input{flex:1;min-width:0}
+.st-fold{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--bg);border-radius:10px;padding:10px 12px;font-size:13.5px;color:var(--ink2)}
+.st-new{background:var(--cta);color:var(--cta-ink);border-radius:99px;font:600 11px var(--mono);padding:1px 7px;margin-left:6px}
+.tab-badge{display:inline-block;min-width:16px;height:16px;line-height:16px;border-radius:8px;background:var(--cta);color:var(--cta-ink);font:600 10px var(--mono);margin-left:5px;padding:0 4px;vertical-align:1px}
 .st-input input{flex:1;min-width:140px}
 .st3d{position:relative;width:100%;aspect-ratio:4/3;max-height:560px;border-radius:14px;overflow:hidden;background:#EAF3F6;touch-action:none;transition:background .6s}
 .st3d canvas{display:block;width:100%!important;height:100%!important}
@@ -1295,6 +1317,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     saveDoc('projects', p);
   }
   function celebrate(p){
+    try { roomEvent('finished a project 🎉'); } catch(e){}
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const cv = $('#confetti'), ctx = cv.getContext('2d'); cv.hidden = false;
     const W = cv.width = innerWidth * devicePixelRatio, H = cv.height = innerHeight * devicePixelRatio;
@@ -1314,6 +1337,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     $('#today').textContent = new Date().toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long'});
     $('#hpd').value = hpd; $('#hcd').value = hcd;
     setTimeout(() => { lastTick = null; freshProj = null; }, 0);
+    try { if (typeof chatBadge === 'function') setTimeout(chatBadge, 0); } catch(e){}
     ['next','week','notes','studio'].forEach(t => { $('#p-' + t).hidden = t !== tab; $('#tab-' + t).setAttribute('aria-selected', t === tab); });
     $('#exBanner').hidden = !(projects.some(p => p.example) || notes.some(n => n.example) || classes.some(c => c.example) || dates.some(k => k.example));
     $('#welcome').hidden = !!(projects.length || classes.length || dates.length || notes.length);
@@ -1951,6 +1975,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   function flashPet(mood, text, ms = 5000){ petFlash = {mood, text, until: Date.now() + ms}; renderPet(); setTimeout(renderPet, ms + 50); }
   function logSession(){
     const min = Math.round((Math.min(Date.now(), timer.end) - timer.start) / 60000);
+    if (min >= 15) try { roomEvent(`finished ${min} min of focus 💪`); } catch(e){}
     if (min >= 1){ sessions.push({at: timer.start, min, pid: timer.pid, iid: timer.iid}); saveSessions(); try { checkUnlocks(); cityToast(min); } catch(e){} }
     return min;
   }
@@ -2280,6 +2305,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   }
   function calmLog(){
     const min = Math.round((Math.min(Date.now(), calm.end) - calm.start) / 60000);
+    if (min >= 15) try { roomEvent(`finished ${min} min of focus 💪`); } catch(e){}
     if (min >= 1){ sessions.push({at: calm.start, min, pid: calm.pid, iid: calm.iid}); saveSessions(); calm.total += min; try { checkUnlocks(); cityToast(min); } catch(e){} }
     return min;
   }
@@ -3136,6 +3162,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   function subscribeRoom(){
     if (roomUnsub){ try { roomUnsub(); } catch(e){} roomUnsub = null; }
     roomMembers = [];
+    if (chatRoom !== curRoom) subscribeChat();
     if (!curRoom || !fbStore || !fbUser) return;
     roomUnsub = fbStore.collection(`rooms/${curRoom}/members`).onSnapshot(snap => { roomMembers = snap.docs.map(d => ({uid: d.id, ...d.data()})); if (tab === 'studio') renderStudio(); }, () => { roomMsg = "Couldn't open this room. Check your internet."; if (tab === 'studio') renderStudio(); });
   }
@@ -3248,10 +3275,12 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
         <div class="st-stats"><span><b>${here.length}</b>here now</span><span><b>${foc.length}</b>focusing</span><span><b>${Math.floor(mins / 60)}h ${mins % 60}m</b>focused together today</span></div>
         ${ST3D.state === 'failed' ? `<div class="st-view">${studioSVG(ms)}</div>` : '<div id="st3dSlot"></div>'}
         ${me.s === 'focus' ? `<p>You're focusing. Your friends can see your timer 💪</p>` : `<div class="row"><button class="btn-main" type="button" data-st="focus">▶ Start focusing</button><span class="small">${foc.length ? `${foc.length} ${foc.length === 1 ? 'friend is' : 'friends are'} working right now. Join them?` : 'Be the first one working today.'}</span></div>`}
+        <div id="stChatSlot"></div>
         <div class="st-list">${ms.map(m => { const away = now - (m.updatedAt || 0) > 5 * 60000, f = !away && m.s === 'focus' && m.end > now, br = !away && m.s === 'break' && m.end > now;
           return `<div class="st-m ${away ? 'away' : ''}"><span class="av">${buddySVG(m.look || WDEF, away ? 'sleepy' : f ? 'focused' : 'happy')}</span><span><b>${esc(m.name || 'Friend')}${m.uid === fbUser.uid ? ' (you)' : ''}</b>${f ? `<span class="focus st-rt2" data-end="${m.end}">focusing · ${mmss(m.end - now)}</span>` : br ? '<span class="brk">on a break</span>' : away ? '<span>away</span>' : '<span>here</span>'}</span></div>`; }).join('') || '<p class="small">Nobody here yet. Share the code!</p>'}</div>
       </div>
       <div class="st-card" id="stJoinBox" hidden>${joinCards}</div>`;
+    const cslot = $('#stChatSlot'); if (cslot){ if (!chatEl) buildChat(); cslot.replaceWith(chatEl); if (chatRoom !== curRoom) subscribeChat(); else renderChat(); }
     const slot = $('#st3dSlot');
     if (slot){ st3dMembers = ms; if (ST3D.state === 'idle') initStudio3D(); if (ST3D.el){ slot.replaceWith(ST3D.el); paintSeats(); } }
   }
@@ -3360,6 +3389,98 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     ST3D.three.lamps.forEach((pl, i) => { const m = ms[i], f = m && m.s === 'focus' && m.end > now && now - (m.updatedAt || 0) < 5 * 60000; pl.intensity = f ? (t.lamps ? 3.2 : 0.8) : (t.lamps ? 0.9 : 0); });
   }
 
+
+  // ---------- Studio chat ----------
+  const QUICK = ['👋 hi', '💪 let’s go', '☕ break?', '😭 help', '🎉 nice', '🌙 still up?'];
+  let chatMsgs = [], chatUnsub = null, chatRoom = null, chatPeek = false, lastSent = 0, lastEvent = 0, chatEl = null;
+  const readKey = c => 'nextup.chatRead.' + c;
+  const lastRead = c => { try { return +localStorage.getItem(readKey(c)) || 0; } catch(e){ return 0; } };
+  const unreadCount = () => { if (!chatRoom || !fbUser) return 0; const r = lastRead(chatRoom); return chatMsgs.filter(m => m.at > r && m.uid !== fbUser.uid && m.kind !== 'event').length; };
+  const chatFolded = () => myStatus().s === 'focus' && !chatPeek;
+  function chatVisible(){ return tab === 'studio' && !document.hidden && !chatFolded() && chatEl && chatEl.isConnected; }
+  function markRead(){ if (!chatRoom || !chatMsgs.length) return; const t = chatMsgs[chatMsgs.length - 1].at; if (t > lastRead(chatRoom)){ try { localStorage.setItem(readKey(chatRoom), t); } catch(e){} } }
+  function chatBadge(){
+    const t = $('#tab-studio'); if (!t) return;
+    const n = chatVisible() ? 0 : unreadCount();
+    t.innerHTML = 'Studio' + (n ? `<span class="tab-badge" aria-label="${n} new messages">${n > 9 ? '9+' : n}</span>` : '');
+  }
+  async function memberDoc(code){
+    const st = myStatus();
+    await fbStore.doc(`rooms/${code}/members/${fbUser.uid}`).set({name: firstName(), look: {...WDEF, ...ward.look}, s: st.s, end: st.end, today: todayMins(), updatedAt: Date.now()});
+  }
+  async function subscribeChat(){
+    if (chatUnsub){ try { chatUnsub(); } catch(e){} chatUnsub = null; }
+    chatMsgs = []; chatRoom = curRoom; chatPeek = false;
+    if (!curRoom || !fbStore || !fbUser){ renderChat(); return; }
+    const code = curRoom;
+    try { await memberDoc(code); } catch(e){}   // you have to be in the room to read its chat
+    if (code !== curRoom) return;
+    const since = Date.now() - DAY;
+    chatUnsub = fbStore.collection(`rooms/${code}/msgs`).where('at', '>', since).orderBy('at').limitToLast(80).onSnapshot(snap => {
+      chatMsgs = snap.docs.map(d => d.data()).filter(m => m && m.at > Date.now() - DAY).sort((a, b) => a.at - b.at);
+      renderChat();
+    }, () => { chatMsgs = []; renderChat("Couldn't load the chat. Ask Mixer to update the Firestore rules."); });
+  }
+  async function sendMsg(text, kind = 'chat'){
+    text = String(text || '').replace(/\s+/g, ' ').trim().slice(0, 300);
+    if (!text || !chatRoom || !fbUser) return false;
+    if (kind !== 'event' && Date.now() - lastSent < 400) return false;
+    if (kind !== 'event') lastSent = Date.now();
+    const at = Date.now(), id = at.toString(36) + '-' + fbUser.uid.slice(0, 6) + '-' + Math.random().toString(36).slice(2, 6);
+    const m = {uid: fbUser.uid, name: firstName(), look: {...WDEF, ...ward.look}, text, kind, at};
+    try { await fbStore.doc(`rooms/${chatRoom}/msgs/${id}`).set(m); return true; }
+    catch(e){ if (kind !== 'event') toast("Couldn't send. Check your internet."); return false; }
+  }
+  // little notes the app posts for you, so the room feels alive (never your project names)
+  function roomEvent(text){
+    if (!fbUser || !myRooms.length || Date.now() - lastEvent < 10 * 60000) return;
+    lastEvent = Date.now();
+    const at = Date.now(), m = {uid: fbUser.uid, name: firstName(), look: {...WDEF, ...ward.look}, text, kind: 'event', at};
+    myRooms.forEach(r => { try { fbStore.doc(`rooms/${r.code}/msgs/${at.toString(36)}-${fbUser.uid.slice(0, 6)}-e`).set(m).catch(() => {}); } catch(e){} });
+  }
+  const hhmm = t => new Date(t).toLocaleTimeString('en-GB', {hour: '2-digit', minute: '2-digit'});
+  function buildChat(){
+    chatEl = document.createElement('div'); chatEl.className = 'st-chat';
+    chatEl.innerHTML = `<div class="st-chat-h"><b>💬 Studio chat</b><span class="hint">Only the last 24 hours show</span></div>
+      <div class="st-fold" hidden><span>💬 Chat is folded while you focus<span class="st-new" hidden></span></span><button class="linkbtn" type="button" data-ch="peek">Peek</button></div>
+      <div class="st-open"><div class="st-msgs" role="log" aria-live="polite"></div>
+        <div class="st-quick">${QUICK.map(q => `<button type="button" data-ch="quick">${q}</button>`).join('')}</div>
+        <form class="st-send" autocomplete="off"><input type="text" maxlength="300" placeholder="Say something to the room…" aria-label="Message"><button class="btn pri" type="submit">Send</button></form>
+        <span class="err st-cerr"></span></div>`;
+    chatEl.querySelector('.st-open').style.cssText = 'display:flex;flex-direction:column;gap:10px';
+    chatEl.addEventListener('click', e => {
+      const b = e.target.closest('[data-ch]'); if (!b) return;
+      if (b.dataset.ch === 'peek'){ chatPeek = !chatPeek; renderChat(); }
+      if (b.dataset.ch === 'quick') sendMsg(b.textContent, 'quick');
+    });
+    chatEl.querySelector('form').addEventListener('submit', async e => {
+      e.preventDefault(); const inp = e.target.querySelector('input');
+      if (await sendMsg(inp.value)) inp.value = '';
+    });
+  }
+  function renderChat(err){
+    if (!chatEl) buildChat();
+    const folded = chatFolded(), n = unreadCount();
+    chatEl.querySelector('.st-fold').hidden = !folded && !chatPeek;
+    chatEl.querySelector('.st-fold span').firstChild.textContent = chatPeek ? '💬 Peeking at the chat' : '💬 Chat is folded while you focus';
+    chatEl.querySelector('[data-ch="peek"]').textContent = chatPeek ? 'Fold it' : 'Peek';
+    const nb = chatEl.querySelector('.st-new'); nb.hidden = !n || chatPeek; nb.textContent = `${n} new`;
+    chatEl.querySelector('.st-open').hidden = folded;
+    if (myStatus().s !== 'focus' && chatPeek){ chatPeek = false; chatEl.querySelector('.st-fold').hidden = true; }
+    chatEl.querySelector('.st-cerr').textContent = err || '';
+    const box = chatEl.querySelector('.st-msgs'), atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
+    box.innerHTML = chatMsgs.length ? chatMsgs.map(m => {
+      if (m.kind === 'event') return `<div class="st-ev"><span>${esc(m.name || 'Friend')} ${esc(m.text)} · ${hhmm(m.at)}</span></div>`;
+      const me = fbUser && m.uid === fbUser.uid, big = m.kind === 'quick' ? '' : /^\p{Extended_Pictographic}{1,3}$/u.test(m.text) ? ' big' : '';
+      return `<div class="st-msg${me ? ' me' : ''}${big}"><span class="av">${buddySVG(m.look || WDEF, 'happy')}</span><div class="st-bub"><span class="who">${me ? 'You' : esc(m.name || 'Friend')}<time>${hhmm(m.at)}</time></span>${esc(m.text)}</div></div>`;
+    }).join('') : '<div class="st-empty">No messages today. Say hi 👋</div>';
+    if (atBottom || !box.dataset.done){ box.scrollTop = box.scrollHeight; box.dataset.done = 1; }
+    if (chatVisible()) markRead();
+    chatBadge();
+  }
+  setInterval(() => { if (chatEl && chatRoom){ const f = chatFolded(); if (f !== chatEl.querySelector('.st-open').hidden) renderChat(); } }, 1500);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && chatEl) renderChat(); });
+
   // ---------- account: Google sign-in, data saved per person in Firestore ----------
   const FB_CONFIG = {apiKey: 'AIzaSyAhoU0BYkjv5wvri2_D4pkU13PHhVho-eQ', authDomain: 'next-up-f1f1c.firebaseapp.com', projectId: 'next-up-f1f1c', storageBucket: 'next-up-f1f1c.firebasestorage.app', messagingSenderId: '485862714503', appId: '1:485862714503:web:9d6f9687472480e3699c22'};
   let fbAuth = null, fbStore = null, fbUser = null, authKnown = false, unsubs = [];
@@ -3411,7 +3532,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     let welcomed = false; try { welcomed = localStorage.getItem('nextup.acct.' + user.uid) === '1'; localStorage.setItem('nextup.acct.' + user.uid, '1'); } catch(e){}
     if (!welcomed) toast(moved ? `Signed in ✓ Moved ${moved} thing${moved === 1 ? '' : 's'} from this device into your account.` : 'Signed in ✓ Everything now saves to your account.');
   }
-  function useDevice(){ stopListening(); if (roomUnsub){ try { roomUnsub(); } catch(e){} roomUnsub = null; } roomMembers = []; db = null; store = 'local'; loadLocal(); render(); }
+  function useDevice(){ stopListening(); if (roomUnsub){ try { roomUnsub(); } catch(e){} roomUnsub = null; } roomMembers = []; if (chatUnsub){ try { chatUnsub(); } catch(e){} chatUnsub = null; } chatMsgs = []; chatRoom = null; db = null; store = 'local'; loadLocal(); render(); try { chatBadge(); } catch(e){} }
   const inAppBrowser = () => /FBAN|FBAV|Instagram|Line\/|MicroMessenger|TikTok|; wv\)/i.test(navigator.userAgent);
   function signIn(){
     if (!fbAuth) return toast("Can't reach Google right now. Check your internet and refresh.");
