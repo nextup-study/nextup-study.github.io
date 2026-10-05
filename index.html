@@ -6,6 +6,13 @@
 <meta name="description" content="Next Up: tells you which project to work on next, from your deadlines, deliverables and class timetable.">
 <meta name="theme-color" content="#F3F5F2" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#111715" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Next Up">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif;background:#F3F5F2}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Next Up Beta</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -559,6 +566,10 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     <span class="row"><button id="loadTerm" class="btn pri">Load Term 1 schedule</button><button id="loadEx">Just show me an example</button></span>
   </div>
 
+  <div class="banner" id="installBanner" hidden>
+    <span>📲 Add Next Up to your home screen so it opens like an app.</span>
+    <span class="row"><button id="installHow">Show me how</button><button id="installNo" aria-label="Dismiss">✕</button></span>
+  </div>
   <div class="banner" id="acctBanner" hidden>
     <span>☁ Your stuff only lives on this device. Sign in with Google to keep it safe and use it on your phone and laptop.</span>
     <span class="row"><button id="acctBannerGo" class="gbtn" style="padding:5px 10px;font-size:13px"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg> Sign in</button><button id="acctBannerNo" aria-label="Not now">✕</button></span>
@@ -677,6 +688,11 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
       <button class="btn" type="button" id="tourReplay" style="align-self:flex-start">👋 Replay the tour</button>
       <label class="row small" for="petOn"><input type="checkbox" id="petOn"> Show the buddy (on computers with a mouse or trackpad)</label>
       <div class="row small"><label for="focusMin">Work for</label><input type="number" id="focusMin" min="5" max="180" step="5" style="width:70px"> <span>min, then break for</span><input type="number" id="breakMin" min="1" max="60" style="width:62px"> <span>min</span></div>
+    </section>
+    <section style="display:flex;flex-direction:column;gap:8px" id="installSec">
+      <h4>Put it on your home screen</h4>
+      <p class="small" style="margin:0" id="installTip"></p>
+      <button class="btn pri" type="button" id="installBtn" hidden style="align-self:flex-start">📲 Install app</button>
     </section>
     <section class="backup" style="border:0;padding:0;background:none">
       <h4>Backup</h4>
@@ -1218,6 +1234,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     if (typeof checkUnlocks === 'function') try { checkUnlocks(); } catch(e){}
     if (typeof renderAccount === 'function') try { renderAccount(); } catch(e){}
     if (tab === 'studio' && typeof renderStudio === 'function') try { renderStudio(); } catch(e){}
+    if (typeof showInstallBanner === 'function') try { showInstallBanner(); } catch(e){}
     if (typeof renderCalmBtn === 'function') try { renderCalmBtn(); } catch(e){}
     if (typeof maybeTour === 'function') try { maybeTour(); } catch(e){}
     try { renderRebuild(); renderPace(); $('#rescueBtn').hidden = !projects.some(p => { const s = stats(p); return s.remaining > 0 && s.msLeft > 0 && s.msLeft <= 7 * DAY && s.status !== 'ok'; }); } catch(e){}
@@ -2558,6 +2575,33 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   }
   // one-time tips the first time you open a feature
   function firstTip(key, text){ let seen = {}; try { seen = JSON.parse(localStorage.getItem('nextup.tips') || '{}'); } catch(e){} if (seen[key]) return; seen[key] = 1; try { localStorage.setItem('nextup.tips', JSON.stringify(seen)); } catch(e){} setTimeout(() => toast(text), 500); }
+
+  // ---------- home-screen app ----------
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  let installEvt = null;
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('sw.js').catch(() => {});
+  function renderInstall(){
+    if (standalone){ $('#installTip').textContent = "You're using the app version ✓"; $('#installBtn').hidden = true; return; }
+    $('#installBtn').hidden = !installEvt;
+    $('#installTip').textContent = isIOS
+      ? "In Safari, tap Share (the square with an arrow) → Add to Home Screen. Then open Next Up from your home screen and sign in with Google, and all your stuff will be there."
+      : isAndroid
+      ? (installEvt ? 'Tap Install app below.' : 'In Chrome, tap the ⋮ menu → Add to Home screen (or Install app).')
+      : (installEvt ? 'Click Install app below. It opens in its own window, like a normal app.' : 'In Chrome or Edge, click the install icon at the right end of the address bar.');
+  }
+  addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; renderInstall(); });
+  addEventListener('appinstalled', () => { installEvt = null; try { localStorage.setItem('nextup.installNo', '1'); } catch(e){} renderInstall(); $('#installBanner').hidden = true; });
+  $('#installBtn').addEventListener('click', async () => { if (!installEvt) return; installEvt.prompt(); try { await installEvt.userChoice; } catch(e){} installEvt = null; renderInstall(); });
+  function showInstallBanner(){
+    let no = false; try { no = !!localStorage.getItem('nextup.installNo'); } catch(e){}
+    const phone = matchMedia('(pointer: coarse)').matches;
+    $('#installBanner').hidden = standalone || no || !phone || !(projects.length || classes.length);
+  }
+  $('#installHow').addEventListener('click', () => { openSetup(false); setTimeout(() => $('#installSec').scrollIntoView({block: 'center'}), 50); });
+  $('#installNo').addEventListener('click', () => { try { localStorage.setItem('nextup.installNo', '1'); } catch(e){} $('#installBanner').hidden = true; });
+  renderInstall();
 
   // ---------- theme ----------
   const THEMES = ['auto', 'light', 'dark'], TLABEL = {auto:'◐ Auto', light:'☀ Light', dark:'☾ Dark'};
