@@ -575,9 +575,19 @@ body.rescue-on{overflow:hidden} body.rescue-on .pet{display:none!important}
 .pet-menu [data-pet="focus"]{background:var(--cta);border-color:var(--cta);color:var(--cta-ink);font-weight:600}
 @media (max-width:559px), (hover: none), (pointer: coarse){body:not(.pip) .pet{display:none!important}}
 @media (max-width:1000px){.pet{right:14px;bottom:14px;max-width:300px}.pet-body{width:80px;height:86px}.pet-bubble{margin-bottom:26px}}
-body.pip{margin:0;background:var(--bg);display:flex;align-items:center;justify-content:center;min-height:100vh;font:14px var(--body)}
-body.pip .pet{position:static;max-width:none;padding:10px;flex-direction:row-reverse}
-body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
+body.pip{margin:0;background:var(--bg);display:flex;align-items:flex-end;justify-content:center;height:100vh;overflow:hidden;font:14px var(--body)}
+body.pip .pet{position:static;max-width:none;width:100%;padding:6px 8px 8px;flex-direction:column;align-items:center;gap:4px}
+body.pip .pet-body{width:88px;height:94px;filter:none}
+body.pip .pet-bubble{border-radius:12px;margin:0;font-size:12px;line-height:1.4;padding:7px 9px;width:100%;max-height:calc(100vh - 140px);overflow:auto;box-shadow:none}
+body.pip .pet-bubble.quiet{display:none}
+body.pip .pet-bubble.menu #petText{display:none}
+body.pip .pet-bubble.menu{max-height:calc(100vh - 104px)}
+body.pip .pet-bubble.menu .pet-menu{border-top:0;padding-top:0}
+body.pip .pet-menu{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding-top:6px}
+body.pip .pet-menu button{font-size:11.5px;padding:5px 6px;text-align:center}
+body.pip .pet-menu [data-pet="calm"],body.pip .pet-menu [data-pet="rescue"],body.pip .pet-menu [data-pet="ward"],body.pip .pet-menu [data-pet="city"],body.pip .pet-menu [data-pet="pop"]{display:none}
+.pet-chip{font:600 13px var(--mono);background:var(--ink);color:var(--bg);border-radius:99px;padding:2px 10px;margin-top:-2px}
+.pet-chip.brk{background:var(--warn-soft);color:var(--ink)}
 @media (prefers-reduced-motion:no-preference){
   html{scroll-behavior:smooth}
   @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
@@ -873,6 +883,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     </div>
   </div>
   <button class="pet-body" id="petBody" type="button" aria-label="Study buddy: tap for options"><span id="petArt"></span></button>
+  <span class="pet-chip" id="petChip" hidden></span>
 </div>
 <canvas id="confetti" hidden></canvas>
 <div class="modal" id="briefModal" hidden role="dialog" aria-modal="true" aria-labelledby="briefTitle">
@@ -1964,6 +1975,11 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     else { const L = petLines(); text = L[petLineIdx % L.length]; }
     petText.textContent = text;
     petEl.classList.toggle('mini', petCfg.min && !petMenuOpen);
+    // popped out: stay small. Timer goes in a chip, the bubble only shows when the buddy has news or the menu is open
+    const flashing = petFlash && Date.now() < petFlash.until && petFlash.text, chip = petEl.querySelector('#petChip');
+    petEl.querySelector('.pet-bubble').classList.toggle('quiet', !!petWin && !petMenuOpen && !flashing);
+    petEl.querySelector('.pet-bubble').classList.toggle('menu', !!petWin && petMenuOpen);
+    if (chip){ chip.hidden = !petWin || timer.mode === 'idle'; chip.classList.toggle('brk', timer.mode === 'break'); if (!chip.hidden) chip.textContent = `${timer.mode === 'break' ? '☕' : '🎯'} ${mmss(timer.end - Date.now())}`; }
     petMenu.hidden = !petMenuOpen;
     const running = timer.mode !== 'idle';
     petMenu.querySelector('[data-pet="focus"]').hidden = running;
@@ -2054,11 +2070,12 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   async function popOut(){
     petMenuOpen = false;
     try {
-      const w = await documentPictureInPicture.requestWindow({width: 340, height: 300});
+      const w = await documentPictureInPicture.requestWindow({width: 200, height: 220});
       [...document.styleSheets].forEach(ss => { try { const st = w.document.createElement('style'); st.textContent = [...ss.cssRules].map(r => r.cssText).join('\n'); w.document.head.appendChild(st); } catch(e){ if (ss.href){ const l = w.document.createElement('link'); l.rel = 'stylesheet'; l.href = ss.href; w.document.head.appendChild(l); } } });
       const th = document.documentElement.getAttribute('data-theme'); if (th) w.document.documentElement.setAttribute('data-theme', th);
       w.document.body.classList.add('pip'); w.document.title = 'Next Up buddy';
       petWin = w; w.document.body.append(petEl); renderPet();
+      flashPet(petMood(), timer.mode === 'idle' ? "I'll stay up here. Tap me to start a timer." : "I'll keep your timer up here.", 4000);
       w.addEventListener('pagehide', () => { petWin = null; document.body.append(petEl); renderPet(); });
     } catch(e){ toast('Pop-out only works in Chrome or Edge on a computer'); }
   }
