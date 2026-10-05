@@ -1382,7 +1382,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
 
   // ---------- events ----------
   const find = (pid, iid) => { const p = projects.find(x => x.id === pid); return [p, p && p.items.find(i => i.id === iid)]; };
-  function setTab(t){ tab = t; try { localStorage.setItem('nextup.tab', t); } catch(e){} render(); }
+  function setTab(t){ tab = t; try { localStorage.setItem('nextup.tab', t); } catch(e){} render(); try { maybePageTour(t); } catch(e){} }
   document.addEventListener('click', e => {
     const tb = e.target.closest('[data-tab]'); if (tb) return setTab(tb.dataset.tab);
     const b = e.target.closest('[data-act]'); if (!b) return;
@@ -2626,14 +2626,43 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
 
   // ---------- first-time tour: 6 quick steps, the buddy points at the real buttons ----------
   const TOURKEY = 'nextup.tourDone';
-  const TOUR = [
+  const MAIN_TOUR = [
     {title: "Hi! I'm your study buddy 👋", text: "Next Up looks at your deadlines, your hand-ins and your class timetable, then tells you the one thing to work on next. Here's a 30-second tour."},
     {sel: '#next', title: 'Do this next', text: "This is the main thing. Tap ▶ Start to focus on it with a timer, or ✓ Done when it's finished. Not feeling it? Tap Not now."},
     {sel: '#next .gap', title: 'Got a gap between classes?', text: 'Tap how much time you have, like 30 min, and I pick something that actually fits.'},
     {sel: '#pace', title: 'Today', text: 'How much you need to do today to stay on track. When you hit it, I tell you to stop. Stressful day? 😮‍💨 Simplify shows just one small step, 🚨 Save my week makes an honest plan.'},
+    {sel: '#briefOpen', title: 'Your projects', text: 'Everything you have to hand in, most urgent first. Tap + Add project, or 📄 From a brief to drop in the brief PDF and let me find the deadlines.'},
     {sel: '#tab-notes', title: 'Crit notes', text: 'After a crit, write what Ajan said. Your next steps become tasks with a deadline, so they show up here to tick off.'},
     {sel: '#wardBtn', title: 'Dress me up 🎒', text: 'Finishing work unlocks hats and outfits for me. Every focus session also builds something in your city 🏙'},
-    {title: "That's it. You're ready!", text: 'Tap me (bottom right) anytime for the focus timer. You can replay this tour in ⚙ Settings.'}];
+    {title: "That's it. You're ready!", text: 'Tap me (bottom right) anytime for the focus timer. Each tab has its own quick tour the first time you open it. You can replay them all in ⚙ Settings.'}];
+  // a short tour the first time you open each tab
+  const PAGE_TOURS = {
+    week: [
+      {sel: '.gridwrap', title: 'Your week 📅', text: 'Your classes as blocks, with tags under each day: red = deadline, black = review. Tap a class to edit it, and use the arrows to see other weeks.'},
+      {sel: '#kdForm', title: 'Key dates', text: 'Add crits, reviews, quizzes and no-class days. A no-class day gives you more free time, so your plan gets easier.'},
+      {sel: '#addClass', title: 'Timetable', text: 'Your classes for the term. I use them to know how much time you really have on class days and free days.'},
+      {sel: '#newTerm', title: 'New term 🎓', text: 'When a new term starts, tap this. It clears old classes, moves last term to Past terms, and reads your new briefs.'}],
+    notes: [
+      {sel: '#noteForm', title: 'Crit notes ✏️', text: 'Right after a crit, write what Ajan said here while you still remember it.'},
+      {sel: '#nSteps', title: 'Next steps become tasks', text: 'One step per line. Save the note and each line turns into a task in Projects, with a deadline, so you can tick it off.'},
+      {sel: '#noteChips', title: 'Find old notes', text: 'All your notes stay below. Tap a subject to see only its notes before your next crit.'}],
+    studio: [
+      {sel: '#studio .st-card', title: 'Study together 🪑', text: 'Make a room for your studio group or join with a friend\'s code. Everyone\'s buddy sits at a desk, so you can see who\'s working.'},
+      {sel: '[data-st="share"]', title: 'Invite friends', text: 'Send the invite to your group chat. Friends only see your buddy, first name and timer.'},
+      {sel: '[data-st="focus"]', title: 'Focus together', text: 'Start a timer and everyone sees you working. It\'s easier to start when your friends are working too.'},
+      {sel: '.st-chat', title: 'Studio chat 💬', text: 'Say hi or tap a quick button. While you\'re focusing, the chat folds away so it can\'t distract you.'}]};
+  let TOUR = MAIN_TOUR, tourName = 'next';
+  const tourKeyOf = n => n === 'next' ? TOURKEY : 'nextup.tour.' + n;
+  const tourSeen = n => { try { return !!localStorage.getItem(tourKeyOf(n)); } catch(e){ return true; } };
+  function maybePageTour(t){
+    if (!PAGE_TOURS[t] || tourOn || tourSeen(t) || !tourSeen('next')) return;
+    setTimeout(() => {
+      if (tab !== t || tourOn || tourSeen(t) || document.querySelector('.modal:not([hidden])')) return;
+      if (t === 'studio' && !document.querySelector('[data-st="share"]')) return;   // wait until they're in a room
+      if (!PAGE_TOURS[t].some(st => { const el = document.querySelector(st.sel); return el && el.offsetParent !== null; })) return;
+      startTour(t);
+    }, t === 'studio' ? 900 : 450);
+  }
   let tourStep = 0, tourOn = false;
   function tourPlace(){
     if (!tourOn) return;
@@ -2652,27 +2681,30 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   }
   function tourRender(){
     const st = {...TOUR[tourStep]}, last = tourStep === TOUR.length - 1;
-    if (last && (!petEl || petEl.hidden)) st.text = 'Tap 🎒 Buddy at the top anytime to dress me up or see your city. ▶ Start on the main card runs the focus timer. You can replay this tour in ⚙ Settings.';
+    if (tourName === 'next' && last && (!petEl || petEl.hidden)) st.text = 'Tap 🎒 Buddy at the top anytime to dress me up or see your city. ▶ Start on the main card runs the focus timer. You can replay this tour in ⚙ Settings.';
     const mood = tourStep === 0 ? 'happy' : last ? 'celebrating' : 'happy';
     $('#tourCard').innerHTML = `<div class="tour-top"><div class="tour-buddy">${buddySVG(ward.look, mood)}</div><div><h4 id="tourTitle">${st.title}</h4><p>${st.text}</p></div></div>
       <div class="tour-foot"><span class="tour-dots" aria-label="Step ${tourStep + 1} of ${TOUR.length}">${TOUR.map((_, i) => `<i class="${i === tourStep ? 'on' : ''}"></i>`).join('')}</span>
-        <span class="row">${last ? '' : '<button class="tour-skip" type="button" data-tour="skip">Skip</button>'}${tourStep ? '<button class="btn" type="button" data-tour="back">Back</button>' : ''}<button class="btn pri" type="button" data-tour="next">${last ? "Let's go" : tourStep === 0 ? 'Show me' : 'Next'}</button></span></div>`;
+        <span class="row">${last ? '' : '<button class="tour-skip" type="button" data-tour="skip">Skip</button>'}${tourStep ? '<button class="btn" type="button" data-tour="back">Back</button>' : ''}<button class="btn pri" type="button" data-tour="next">${last ? (tourName === 'next' ? "Let's go" : 'Got it') : tourStep === 0 && tourName === 'next' ? 'Show me' : 'Next'}</button></span></div>`;
     const el = st.sel && document.querySelector(st.sel);
     if (el && el.offsetParent !== null){ el.scrollIntoView({block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'}); setTimeout(tourPlace, 380); }
     tourPlace();
     setTimeout(() => { const b = $('#tourCard [data-tour="next"]'); if (b) b.focus({preventScroll: true}); }, 60);
   }
-  function startTour(){
-    if (tab !== 'next') setTab('next');
+  function startTour(name){
+    name = PAGE_TOURS[name] ? name : 'next'; tourName = name; TOUR = name === 'next' ? MAIN_TOUR : PAGE_TOURS[name];
+    if (name === 'next' && tab !== 'next') setTab('next');
     closeSetup && !$('#setup').hidden && closeSetup();
     petMenuOpen = false; renderPet();
     // skip steps whose button isn't on screen (e.g. no projects yet)
-    tourOn = true; tourStep = 0; $('#tour').hidden = false; tourRender();
+    tourOn = true; tourStep = 0;
+    if (name !== 'next'){ while (tourStep < TOUR.length - 1 && !(document.querySelector(TOUR[tourStep].sel) && document.querySelector(TOUR[tourStep].sel).offsetParent !== null)) tourStep++; }
+    $('#tour').hidden = false; tourRender();
   }
-  function endTour(){ tourOn = false; $('#tour').hidden = true; try { localStorage.setItem(TOURKEY, '1'); } catch(e){} window.scrollTo({top: 0, behavior: 'smooth'}); }
+  function endTour(){ tourOn = false; $('#tour').hidden = true; try { localStorage.setItem(tourKeyOf(tourName), '1'); } catch(e){} window.scrollTo({top: 0, behavior: 'smooth'}); }
   function tourGo(d){
     let i = tourStep + d;
-    while (i > 0 && i < TOUR.length - 1 && TOUR[i].sel && !(document.querySelector(TOUR[i].sel) && document.querySelector(TOUR[i].sel).offsetParent !== null)) i += d;
+    while (i > 0 && (i < TOUR.length - 1 || tourName !== 'next') && i < TOUR.length && TOUR[i].sel && !(document.querySelector(TOUR[i].sel) && document.querySelector(TOUR[i].sel).offsetParent !== null)) i += d;
     if (i >= TOUR.length) return endTour();
     tourStep = Math.max(0, i); tourRender();
   }
@@ -2680,7 +2712,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     const a = b.dataset.tour; if (a === 'skip') endTour(); if (a === 'back') tourGo(-1); if (a === 'next'){ if (tourStep === TOUR.length - 1) endTour(); else tourGo(1); } });
   addEventListener('resize', tourPlace); addEventListener('scroll', () => { if (tourOn) requestAnimationFrame(tourPlace); }, {passive: true});
   document.addEventListener('keydown', e => { if (!tourOn) return; if (e.key === 'Escape'){ e.stopImmediatePropagation(); endTour(); } if (e.key === 'ArrowRight') tourGo(1); if (e.key === 'ArrowLeft') tourGo(-1); }, true);
-  $('#tourReplay').addEventListener('click', () => { closeSetup(); setTimeout(startTour, 150); });
+  $('#tourReplay').addEventListener('click', () => { closeSetup(); try { Object.keys(PAGE_TOURS).forEach(n => localStorage.removeItem(tourKeyOf(n))); } catch(e){} setTimeout(() => startTour('next'), 150); });
   // start once, the first time there's something to point at and nothing else is open
   function maybeTour(){
     let done = false; try { done = !!localStorage.getItem(TOURKEY); } catch(e){}
@@ -3281,6 +3313,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
       </div>
       <div class="st-card" id="stJoinBox" hidden>${joinCards}</div>`;
     const cslot = $('#stChatSlot'); if (cslot){ if (!chatEl) buildChat(); cslot.replaceWith(chatEl); if (chatRoom !== curRoom) subscribeChat(); else renderChat(); }
+    if (cslot) try { maybePageTour('studio'); } catch(e){}
     const slot = $('#st3dSlot');
     if (slot){ st3dMembers = ms; if (ST3D.state === 'idle') initStudio3D(); if (ST3D.el){ slot.replaceWith(ST3D.el); paintSeats(); } }
   }
