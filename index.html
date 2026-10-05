@@ -83,6 +83,53 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .subj{font:500 12px var(--mono);padding:2px 8px;border-radius:6px}
 .quote{white-space:pre-wrap;font-size:14px;color:var(--ink2);border-left:3px solid var(--line);padding-left:10px;margin:0;max-width:65ch}
 .steps-mini{margin:0;padding-left:18px;font-size:14px}
+#briefModal .modal-card{max-width:640px}
+.bf-drop{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;border:2px dashed var(--line);border-radius:12px;padding:26px 14px;cursor:pointer;background:var(--bg);transition:border-color .15s,background .15s}
+.bf-drop b{font:700 16px var(--display)}
+.bf-drop:hover,.bf-drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.bf-drop.slim{padding:10px}.bf-drop.slim span{display:none}
+.bf-drop.slim b{font:600 14px var(--body)}
+.bf-file{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.bf-fhead{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:600;font-size:14px;min-width:0}
+.bf-fhead span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bf-subj{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.bf-subj label{width:100%}
+.bf-subj select,.bf-subj input{flex:1 1 160px;min-width:0}
+.bf-list{display:flex;flex-direction:column;gap:8px}
+.bf-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;padding:10px;border-radius:10px;background:var(--bg)}
+.bf-row>input[type=checkbox]{margin-top:10px}
+.bf-row.off{opacity:.55}
+.bf-main{display:flex;flex-direction:column;gap:6px;min-width:0}
+.bf-name{width:100%;min-width:0;font-weight:600}
+.bf-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.bf-meta input[type=date]{width:142px}.bf-meta input[type=time]{width:120px}.bf-meta select{max-width:180px}
+.bf-meta input,.bf-meta select{padding:6px 8px;font-size:13px}
+.bf-h{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--ink2)}
+.bf-h input[type=number]{width:62px}
+.bf-tag{font:500 11px var(--mono);padding:2px 7px;border-radius:99px;background:var(--sunk);color:var(--ink2)}
+.bf-warn{margin:0;font-size:13.5px;background:var(--warn-soft);color:var(--ink);border-radius:9px;padding:10px 12px}
+.bf-reading{margin:0;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.45}}
+.bf-more summary{cursor:pointer;font-size:13.5px;color:var(--ink2);padding:4px 0}
+.bf-more .bf-list{margin-top:8px}
+.bf-foot{position:sticky;bottom:-22px;background:var(--surface);padding:10px 0 2px;margin-top:-4px}
+.tm-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px}
+.tm-list li{display:flex;gap:8px}.tm-list li::before{content:"✓";color:var(--ok);font-weight:700}
+.tm-keep{background:var(--bg);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.tm-c{display:flex;align-items:center;gap:8px;justify-content:space-between;background:var(--bg);border-radius:9px;padding:6px 8px 6px 10px}
+.tm-c .small{margin-left:auto}
+.tm-cform{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tm-cform input[type=text]{flex:1 1 100%;min-width:0}
+.tm-cform .tm-times{display:flex;gap:6px;flex:1 1 auto;min-width:0}
+.tm-cform input[type=time]{width:104px;min-width:0;padding-inline:6px}
+.tm-k{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.4}.tm-k input{margin-top:1px;flex:none}
+.past-terms{border:1px solid var(--line);border-radius:12px;padding:10px 14px;background:var(--surface)}
+.past-terms summary{cursor:pointer;font-weight:600;font-size:14px}
+.pt{border-top:1px solid var(--line);padding:12px 0 4px;margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.pt-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.pt-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px;font-size:13.5px}
+.pt-list li{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+@media (max-width:520px){.bf-row{padding:8px;gap:8px}.bf-meta{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}.bf-meta input,.bf-meta select{padding:6px 5px}.bf-meta input[type=date],.bf-meta input[type=time],.bf-meta select{width:100%;max-width:none;min-width:0}.bf-h input[type=number]{width:100%;min-width:0}.bf-tag{grid-column:1/-1;justify-self:start}}
 .linkbtn{background:none;border:0;color:var(--accent);padding:0;font-size:13.5px;font-weight:500;text-align:left}
 
 /* strip */
@@ -595,9 +642,10 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
 
     <section class="list">
       <div class="wins" id="wins"></div>
-      <div class="sec-head"><h2 class="sec-title">Projects, most urgent first</h2><button class="btn pri" type="button" data-act="openadd">+ Add project</button></div>
+      <div class="sec-head"><h2 class="sec-title">Projects, most urgent first</h2><span class="row"><button class="btn" type="button" id="briefOpen">📄 From a brief</button><button class="btn pri" type="button" data-act="openadd">+ Add project</button></span></div>
       <div class="chips" id="projChips"></div>
       <div id="projects" class="list"></div>
+      <div id="pastTerms"></div>
     </section>
 
   </section>
@@ -632,9 +680,9 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
 
     <section class="add" style="border-style:solid">
       <h3>Timetable</h3>
-      <p class="small" style="margin:0">Change these whenever your schedule changes, like when term 2 starts. Changes save right away.</p>
+      <p class="small" style="margin:0">Change these whenever your schedule changes. Changes save right away. New term? Tap <b>New term</b> to clear last term out and read your new briefs.</p>
       <div class="classes" id="classes"></div>
-      <div class="row"><button class="btn" id="addClass">+ Add class</button></div>
+      <div class="row"><button class="btn" id="addClass">+ Add class</button><button class="btn" id="newTerm" type="button">🎓 New term</button></div>
     </section>
   </section>
 
@@ -719,6 +767,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
 <div class="modal" id="addModal" hidden role="dialog" aria-modal="true" aria-labelledby="addTitle">
   <form class="modal-card" id="addForm" autocomplete="off">
     <h3 id="addTitle">Add a project</h3>
+    <p class="small" style="margin:-6px 0 0">Got the brief as a PDF? <button type="button" class="linkbtn" id="addFromBrief">Let Next Up read it →</button></p>
     <div class="field"><label class="small" for="newName">Project name</label><input type="text" id="newName" placeholder="e.g. Studio final review"></div>
     <div class="stack">
       <div class="field"><label class="small" for="newSubj">Subject</label><select id="newSubj"></select>
@@ -804,6 +853,46 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   <button class="pet-body" id="petBody" type="button" aria-label="Study buddy: tap for options"><span id="petArt"></span></button>
 </div>
 <canvas id="confetti" hidden></canvas>
+<div class="modal" id="briefModal" hidden role="dialog" aria-modal="true" aria-labelledby="briefTitle">
+  <div class="modal-card bf-card">
+    <span class="label" id="bfStep" hidden>New term · step 3 of 3</span>
+    <h3 id="briefTitle" style="margin:0;font:700 20px var(--display)">Add from a brief</h3>
+    <p class="small" style="margin:0">Drop in the brief PDF for each subject. Next Up finds the deadlines and reviews, you check them, then it adds them for you. The file stays on your device.</p>
+    <label class="bf-drop" id="bfDrop" for="bfFile"><b id="bfDropT">📄 Drop brief PDFs here</b><span class="small">or tap to choose. You can add a few at once.</span></label>
+    <input type="file" id="bfFile" accept="application/pdf,.pdf" multiple hidden>
+    <div id="bfFiles" class="list" style="gap:12px"></div>
+    <div class="row bf-foot"><button class="btn pri" id="bfAdd" type="button" disabled>Add</button><button class="btn" id="bfCancel" type="button">Cancel</button><span class="err" id="bfErr"></span></div>
+  </div>
+</div>
+<div class="modal" id="termModal" hidden role="dialog" aria-modal="true" aria-labelledby="tmTitle">
+  <div class="modal-card">
+    <div id="tmOne" style="display:flex;flex-direction:column;gap:14px">
+      <span class="label">New term · step 1 of 3</span>
+      <h3 id="tmTitle" style="margin:0;font:700 20px var(--display)">Start a new term</h3>
+      <p class="small" style="margin:0">Clear last term out so Next Up only shows what's coming. Nothing gets deleted.</p>
+      <ul class="tm-list"><li><span>Your classes clear, so you can add this term's</span></li><li><span id="tmGoing"></span></li><li><span>Your city, buddy, wardrobe and focus history all stay</span></li></ul>
+      <div class="tm-keep" id="tmKeepBox" hidden><span class="small"><b>Still due.</b> These stay unless you untick them:</span><div id="tmKeepList" style="display:flex;flex-direction:column;gap:6px"></div></div>
+      <div class="row"><button class="btn pri" type="button" id="tmGo">Start new term</button><button class="btn" type="button" id="tmCancel">Cancel</button></div>
+    </div>
+    <div id="tmTwo" hidden style="display:flex;flex-direction:column;gap:12px">
+      <span class="label">New term · step 2 of 3</span>
+      <h3 style="margin:0;font:700 20px var(--display)">This term's classes</h3>
+      <p class="small" style="margin:0">Add each class once. Next Up uses them to work out how much free time you have.</p>
+      <div id="tmClasses" style="display:flex;flex-direction:column;gap:6px"></div>
+      <form class="tm-cform" id="tmClassForm" autocomplete="off">
+        <input type="text" id="tmSubj" list="tmSubjList" placeholder="Subject, e.g. Studio" aria-label="Subject">
+        <datalist id="tmSubjList"></datalist>
+        <div class="tm-times">
+          <select id="tmDay" aria-label="Day"><option value="0">Mon</option><option value="1">Tue</option><option value="2">Wed</option><option value="3">Thu</option><option value="4">Fri</option><option value="5">Sat</option><option value="6">Sun</option></select>
+          <input type="time" id="tmStart" value="09:00" aria-label="Starts"><input type="time" id="tmEnd" value="12:00" aria-label="Ends">
+        </div>
+        <button class="btn" type="submit">+ Add</button>
+      </form>
+      <span class="err" id="tmErr"></span>
+      <div class="row"><button class="btn pri" type="button" id="tmNext">Next: add briefs</button><button class="btn" type="button" id="tmDone">Done, no briefs</button></div>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast" role="status"></div>
 
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
@@ -816,7 +905,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   const HOUR = 3600e3, DAY = 24 * HOUR;
   const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   let lastPick = '', lastTick = null, freshProj = null, freshSoon = 99;
-  let projects = [], classes = [], notes = [], dates = [], showPast = false, projFilter = 'all', pendingRestore = null, editingKd = null, showAllSoon = false;
+  let projects = [], classes = [], notes = [], dates = [], terms = [], showPast = false, projFilter = 'all', pendingRestore = null, editingKd = null, showAllSoon = false;
   const KIND = {review:'Review', crit:'Desk crit', due:'Deadline', quiz:'Quiz', online:'Online', noclass:'No class', trip:'Trip', other:'Note'};
   let hpd = 6, hcd = 3, asked = false;
   let skip = 0, pinned = null, open = new Set();
@@ -1228,7 +1317,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     ['next','week','notes','studio'].forEach(t => { $('#p-' + t).hidden = t !== tab; $('#tab-' + t).setAttribute('aria-selected', t === tab); });
     $('#exBanner').hidden = !(projects.some(p => p.example) || notes.some(n => n.example) || classes.some(c => c.example) || dates.some(k => k.example));
     $('#welcome').hidden = !!(projects.length || classes.length || dates.length || notes.length);
-    renderNext(); renderUpNext(); renderSoon(); renderWins(); renderProjects(); if (typeof renderPet === 'function') try { renderPet(); } catch(e){}
+    renderNext(); renderUpNext(); renderSoon(); renderWins(); renderProjects(); renderPastTerms(); if (typeof renderPet === 'function') try { renderPet(); } catch(e){}
     renderWeek(); renderClassList(); renderKeyDates();
     renderNoteForm(); renderNotes();
     if (typeof checkUnlocks === 'function') try { checkUnlocks(); } catch(e){}
@@ -1258,8 +1347,8 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   // ---------- persistence ----------
   const queues = {};
   function q(key, fn){ queues[key] = (queues[key] || Promise.resolve()).then(fn).catch(e => toast(e && e.code === 'quota_exceeded' ? 'Storage is full. Delete old items.' : 'Could not save. Check your connection.')); }
-  function saveLocal(){ try { localStorage.setItem(LS, JSON.stringify({projects, classes, notes, dates, hpd, hcd, asked})); } catch(e){} }
-  function loadLocal(){ try { const d = JSON.parse(localStorage.getItem(LS) || 'null'); if (d){ projects = d.projects || []; classes = d.classes || []; notes = d.notes || []; dates = d.dates || []; hpd = d.hpd ?? 6; hcd = d.hcd ?? 3; asked = !!d.asked; } } catch(e){} }
+  function saveLocal(){ try { localStorage.setItem(LS, JSON.stringify({projects, classes, notes, dates, terms, hpd, hcd, asked})); } catch(e){} }
+  function loadLocal(){ try { const d = JSON.parse(localStorage.getItem(LS) || 'null'); if (d){ projects = d.projects || []; classes = d.classes || []; notes = d.notes || []; dates = d.dates || []; terms = d.terms || []; hpd = d.hpd ?? 6; hcd = d.hcd ?? 3; asked = !!d.asked; } } catch(e){} }
   const clone = o => JSON.parse(JSON.stringify(o));
   function saveDoc(coll, obj){ if (store === 'local') return saveLocal(); const b = clone(obj); q(coll + obj.id, () => db.doc(coll + '/' + obj.id).set(b)); }
   function delDoc(coll, id){ if (store === 'local') return saveLocal(); q(coll + id, () => db.doc(coll + '/' + id).delete()); }
@@ -1457,7 +1546,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   setInterval(() => { if (!editing()) render(); }, 60e3);
 
   // ---------- backup ----------
-  function snapshot(){ return {app: 'nextup', version: 1, exportedAt: new Date().toISOString(), projects, classes, dates, notes, hpd, hcd}; }
+  function snapshot(){ return {app: 'nextup', version: 1, exportedAt: new Date().toISOString(), projects, classes, dates, notes, terms, hpd, hcd}; }
   $('#bkSave').addEventListener('click', async () => {
     const json = JSON.stringify(snapshot(), null, 2), filename = `nextup-backup-${ymd(new Date())}.json`;
     let dl = null; try { dl = await window.claude?.use?.('downloads'); } catch(e){}
@@ -1480,14 +1569,14 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     rd.readAsText(f);
   });
   function restoreBackup(d){
-    const old = {projects, notes, dates};
-    projects = d.projects || []; classes = d.classes || []; dates = d.dates || []; notes = d.notes || [];
+    const old = {projects, notes, dates, terms};
+    projects = d.projects || []; classes = d.classes || []; dates = d.dates || []; notes = d.notes || []; terms = d.terms || [];
     hpd = d.hpd ?? hpd; hcd = d.hcd ?? hcd; pendingRestore = null; $('#bkConfirm').hidden = true; pinned = null; skip = 0;
     if (store === 'local') saveLocal();
     else {
-      const cur = {projects: clone(projects), notes: clone(notes), dates: clone(dates)}, tt = {classes: clone(classes)}, st = {hoursPerDay: hpd, classDayHours: hcd};
+      const cur = {projects: clone(projects), notes: clone(notes), dates: clone(dates), terms: clone(terms)}, tt = {classes: clone(classes)}, st = {hoursPerDay: hpd, classDayHours: hcd};
       q('restore', async () => {  // one write at a time so the store isn't flooded
-        for (const coll of ['projects', 'notes', 'dates']){
+        for (const coll of ['projects', 'notes', 'dates', 'terms']){
           const keep = new Set(cur[coll].map(x => x.id));
           for (const x of old[coll]) if (!keep.has(x.id)) await db.doc(coll + '/' + x.id).delete();
           for (const x of cur[coll]) await db.doc(coll + '/' + x.id).set(x);
@@ -1985,7 +2074,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   function wardStats(){
     const now = Date.now(), hr = t => new Date(t).getHours();
     const done = [], fin = [];
-    projects.forEach(p => {
+    allProjects().forEach(p => {
       const studio = /studio/i.test(p.subject || '');
       p.items.forEach(i => { if (i.done) done.push({t: i.doneAt || 0, studio, p}); });
       if (p.items.length && p.items.every(i => i.done)){
@@ -2040,7 +2129,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   const owned = it => !it.lock || ward.got.includes(it.id);
   function checkUnlocks(){
     const m = wardStats(), fresh = [];
-    if (!ward.seeded && !projects.length && !sessions.length) return m;   // wait until your data has loaded
+    if (!ward.seeded && !projects.length && !terms.length && !sessions.length) return m;   // wait until your data has loaded
     WARD.CATS.forEach(c => c.list.forEach(it => { if (it.lock && !ward.got.includes(it.id)){ const [h, n] = goalProg(it.lock, m); if (h >= n){ ward.got.push(it.id); fresh.push(it); } } }));
     if (!ward.seeded){ ward.seeded = true; saveWard(); if (fresh.length) setTimeout(() => flashPet('celebrating', `Your past work already unlocked ${fresh.length} item${fresh.length === 1 ? '' : 's'} 🎁 Tap me → Dress me up.`, 9000), 1500); }
     else if (fresh.length){ saveWard(); const nm = fresh[0].name.replace(' ★', '');
@@ -2421,9 +2510,9 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
         if (w % 3 === 2) out.push({at: t0 + w * 7 * DAY + 6 * DAY, kind: 'landmark', subject: subs[w % subs.length], label: 'Finished project'}); }
       return out;
     }
-    const out = sessions.map(x => { const p = projects.find(p => p.id === x.pid), it = p && p.items.find(i => i.id === x.iid);
+    const out = sessions.map(x => { const p = allProjects().find(p => p.id === x.pid), it = p && p.items.find(i => i.id === x.iid);
       return {at: x.at, kind: kindOf(x.min), min: x.min, subject: p ? p.subject : '', label: `${x.min} min${it ? ' · ' + it.name : p ? ' · ' + p.name : ''}`}; });
-    projects.forEach(p => { if (p.items.length && p.items.every(i => i.done)){ const t = p.finishedAt || Math.max(...p.items.map(i => i.doneAt || 0)); if (t) out.push({at: t, kind: 'landmark', subject: p.subject, label: `${p.name} (finished)`}); } });
+    allProjects().forEach(p => { if (p.items.length && p.items.every(i => i.done)){ const t = p.finishedAt || Math.max(...p.items.map(i => i.doneAt || 0)); if (t) out.push({at: t, kind: 'landmark', subject: p.subject, label: `${p.name} (finished)`}); } });
     return out.sort((a, b) => a.at - b.at);
   }
   function citySVG(items){
@@ -2575,6 +2664,398 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   }
   // one-time tips the first time you open a feature
   function firstTip(key, text){ let seen = {}; try { seen = JSON.parse(localStorage.getItem('nextup.tips') || '{}'); } catch(e){} if (seen[key]) return; seen[key] = 1; try { localStorage.setItem('nextup.tips', JSON.stringify(seen)); } catch(e){} setTimeout(() => toast(text), 500); }
+
+  // ---------- brief reader: finds deadlines in a brief PDF (runs in the browser, file never leaves the device) ----------
+  const BF = (() => {
+    const MONTHS = [
+      ['jan', 'january', 'มกราคม', 'ม.ค.'], ['feb', 'february', 'กุมภาพันธ์', 'ก.พ.'], ['mar', 'march', 'มีนาคม', 'มี.ค.'], ['apr', 'april', 'เมษายน', 'เม.ย.'],
+      ['may', 'พฤษภาคม', 'พ.ค.'], ['jun', 'june', 'มิถุนายน', 'มิ.ย.'], ['jul', 'july', 'กรกฎาคม', 'ก.ค.'], ['aug', 'august', 'สิงหาคม', 'ส.ค.'],
+      ['sep', 'sept', 'september', 'กันยายน', 'ก.ย.'], ['oct', 'october', 'ตุลาคม', 'ต.ค.'], ['nov', 'november', 'พฤศจิกายน', 'พ.ย.'], ['dec', 'december', 'ธันวาคม', 'ธ.ค.']];
+    const MIDX = {}; MONTHS.forEach((l, i) => l.forEach(w => MIDX[w] = i));
+    const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const MON = '(' + Object.keys(MIDX).sort((a, b) => b.length - a.length).map(reEsc).join('|') + ')';
+    const END = '(?![a-z\\u0E00-\\u0E7F])';
+    const RANGE = '(?:\\s*[-–]\\s*\\d{1,2}(?!\\d))?';
+    const YR = '(?:[,\\s]*(\\d{4}|\\d{2})(?![\\d:.]))?';
+    const PATS = [
+      // 25 August 2026 · 03-Aug · 9-11 Oct · 5 Aug. · 14 พ.ย. 2569
+      {re: new RegExp('(?<![\\d.])(\\d{1,2})(?:st|nd|rd|th)?(?!\\d)' + RANGE + '[\\s\\-.]*' + MON + END + '\\.?' + YR, 'gi'), d: 1, m: 2, y: 3},
+      // August 25 · October 16, 2026 · Oct 13***
+      {re: new RegExp('(?<![a-z])' + MON + END + '\\.?\\s*(\\d{1,2})(?:st|nd|rd|th)?(?!\\d)' + RANGE + YR, 'gi'), m: 1, d: 2, y: 3},
+      // 14/11/2026 · 14.11.69 (day first, like in Thailand)
+      {re: /(?<![\d.\/])(\d{1,2})[\/.](\d{1,2})[\/.](\d{4}|\d{2})(?![\d\/.])/g, d: 1, m: 2, y: 3, num: true}];
+    const fixYear = y => { if (y == null || y === '') return null; y = +y; if (y < 100) y = y > 50 ? 1957 + y : 2000 + y; if (y > 2400) y -= 543; return y; };
+
+    // all dates in a piece of text: [{i, len, d, m, y}]
+    function findDates(text){
+      const out = [];
+      for (const p of PATS){
+        p.re.lastIndex = 0; let x;
+        while ((x = p.re.exec(text))){
+          const d = +x[p.d], m = p.num ? +x[p.m] - 1 : MIDX[x[p.m].toLowerCase()];
+          if (!(d >= 1 && d <= 31 && m >= 0 && m <= 11)) continue;
+          if (out.some(o => x.index < o.i + o.len && o.i < x.index + x[0].length)) continue;
+          out.push({i: x.index, len: x[0].length, d, m, y: fixYear(x[p.y])});
+        }
+      }
+      return out.sort((a, b) => a.i - b.i);
+    }
+    function findTime(text){
+      let x = text.match(/(?<![\d.\/])(\d{1,2})[:.](\d{2})\s*(am|pm|a\.m\.|p\.m\.|น\.)?(?![\d%])/i);
+      if (x && +x[1] <= 24 && +x[2] < 60){ let h = +x[1] % 24; const ap = (x[3] || '').toLowerCase(); if (ap.startsWith('p') && h < 12) h += 12; if (ap.startsWith('a') && h === 12) h = 0; return `${String(h).padStart(2, '0')}:${x[2]}`; }
+      x = text.match(/(?<![\d.])(\d{1,2})\s*(am|pm|a\.m\.|p\.m\.)(?![a-z])/i);
+      if (x && +x[1] >= 1 && +x[1] <= 12){ let h = +x[1] % 12; if (x[2].toLowerCase().startsWith('p')) h += 12; return `${String(h).padStart(2, '0')}:00`; }
+      if (/\bmidnight\b/i.test(text)) return '23:59';
+      if (/\bnoon\b/i.test(text)) return '12:00';
+      return '';
+    }
+    // what kind of thing is happening on that date
+    function kindOf(t){
+      t = t.toLowerCase().replace(/\bdue to\b/g, 'because of');
+      if (/no[\s-]?class|holiday|\bbreak\b|no school|ไม่มีเรียน|งดเรียน|วันหยุด/.test(t)) return 'noclass';
+      if (/\bquiz|\bexam\b|\bexamination|\btest\b|สอบ/.test(t)) return 'quiz';
+      if (/submi|\bdue\b|deadline|hand[\s-]?in|deliverable|assignment|asgmt|exercise|\bpaper\b|report|essay|portfolio|\bbook\b|\bmodel\b|\bfinal\b|review|pin[\s-]?up|\bjury|presentation|cross[\s-]?crit|\d+\s*%|ส่งงาน|กำหนดส่ง|นำเสนอ/.test(t)) return 'project';
+      if (/crit|consultation|tutorial|ตรวจแบบ/.test(t)) return 'crit';
+      if (/field trip|site visit|\btrip\b|ทัศนศึกษา/.test(t)) return 'trip';
+      return 'other';
+    }
+    const isReviewish = t => /review|pin[\s-]?up|jury|presentation|crit|นำเสนอ/i.test(t);
+    const WEEKDAY = /^(mon|tue|tues|wed|thu|thur|thurs|fri|sat|sun)(day)?\.?,?$|^(week|wk)\s*\d+$|^\d{1,2}$|^จ\.|^อ\.|^พ\.|^พฤ\.|^ศ\.|^ส\.|^อา\./i;
+    function clean(t){
+      return t.replace(/\*+/g, ' ')
+        .replace(/(?:[-–:,]\s*)?(?:\b(?:due|date|deadline|on|by|at)\b\s*:?\s*)*§(?:\s*(?:at|by|@)?\s*\d{1,2}([:.]\d{2})?\s*(am|pm)?)?/gi, ' ')
+        .replace(/\b(mon|tue|tues|wed|thu|thur|thurs|fri|sat|sun)(day)?\b,?/gi, ' ')
+        .replace(/\(\s*[-–:,]?\s*\)/g, ' ').replace(/\s*[-–:,]\s*\)/g, ')').replace(/\(\s*[-–:,]\s*/g, '(')
+        .replace(/[●•▪◦·​]/g, ' ').replace(/(^|\s)l\s+(?=[A-Z])/g, '$1').replace(/\s+\)/g, ')').replace(/\s+/g, ' ').replace(/^[\s\-–:,.;|)]+|[\s\-–:,;|(]+$/g, '').trim();
+    }
+    const usable = t => t.length >= 3 && /[a-z฀-๿]{2}/i.test(t) && !WEEKDAY.test(t);
+
+    // lines: [{segs:[{x, x2, text}], y, page, size}] in reading order. today: Date.
+    function scan(lines, today = new Date()){
+      // join "23-25" + "Nov" when the month sits on the next line, under it
+      const monOnly = new RegExp('^' + MON + END + '\\.?$', 'i');
+      lines.forEach((ln, li) => ln.segs.forEach(s => {
+        const r = s.text.match(/(?<![\d\/.])(\d{1,2})\s*[-–]\s*(\d{1,2})(?![\d\/.%])/);
+        if (!r || findDates(s.text).length || +r[1] > 31 || +r[2] > 31) return;
+        for (const nx of lines.slice(li + 1, li + 3)){
+          if (nx.page !== ln.page) break;
+          const k = nx.segs.findIndex(o => o.x >= s.x - 40 && o.x <= s.x2 + 10 && monOnly.test(o.text.trim()));
+          if (k >= 0){ const at = r.index + r[0].length; s.text = s.text.slice(0, at) + ' ' + nx.segs[k].text.trim() + s.text.slice(at); nx.segs.splice(k, 1); break; }
+        }
+      }));
+      // a year written anywhere next to a full date is the brief's year
+      const full = []; lines.forEach(ln => ln.segs.forEach(s => findDates(s.text).forEach(d => d.y && full.push(d))));
+      const raw = [];
+      lines.forEach((ln, li) => ln.segs.forEach((s, si) => {
+        const ds = findDates(s.text).filter((d, k, all) => !(k > 0 && /^\s*(to|until|till|through|[-–]|ถึง)\s*$/i.test(s.text.slice(all[k - 1].i + all[k - 1].len, d.i)))); if (!ds.length) return;
+        ds.forEach((d, di) => {
+          // the text around this date: rest of this cell, then the cells to its right
+          const cellEnd = di + 1 < ds.length ? ds[di + 1].i : s.text.length, cellStart = di > 0 ? ds[di - 1].i + ds[di - 1].len : 0;
+          const own = s.text.slice(cellStart, d.i) + '§' + s.text.slice(d.i + d.len, cellEnd);
+          const right = ds.length > 1 && di < ds.length - 1 ? [] : ln.segs.slice(si + 1).map(o => o.text).filter(t => !findDates(t).length);
+          let label = [clean(own), ...right.map(clean)].filter(usable).join(' · ');
+          let ctx = own + ' ' + right.join(' ');
+          if (!label){ // nothing next to it: use the line just above, in the same column
+            const up = lines[li - 1]; const near = up && up.page === ln.page && up.segs.slice().sort((a, b) => Math.abs(a.x - s.x) - Math.abs(b.x - s.x))[0];
+            if (near && !findDates(near.text).length && usable(clean(near.text))){ label = clean(near.text); ctx += ' ' + near.text; }
+          }
+          if (!label) return;
+          if (label.length > 70) label = label.slice(0, 68).replace(/\s+\S*$/, '') + '…';
+          raw.push({d: d.d, m: d.m, y: d.y, label, ctx, time: findTime(ctx.replace(/§/g, ' ')), page: ln.page});
+        });
+      }));
+      // pick the year: the brief's own year if it says one, otherwise the one closest to today
+      const t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+      const cnt = {}; full.forEach(d => cnt[d.y] = (cnt[d.y] || 0) + 1);
+      const baseY = Object.keys(cnt).length ? +Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] : null;
+      const items = raw.map(r => {
+        let y = r.y;
+        if (!y && baseY){ const fy = full.filter(d => d.y === baseY).map(d => d.m); const lo = Math.min(...fy); y = baseY + (r.m < lo - 4 ? 1 : 0); }
+        if (!y){ let best = null; for (const cy of [today.getFullYear() - 1, today.getFullYear(), today.getFullYear() + 1]){ const dt = new Date(cy, r.m, r.d).getTime(), off = dt - t0, score = off < -75 * 864e5 ? 1e15 + Math.abs(off) : Math.abs(off); if (!best || score < best.s) best = {y: cy, s: score}; } y = best.y; }
+        const dt = new Date(y, r.m, r.d);
+        if (dt.getMonth() !== r.m) return null;
+        const kind = kindOf(r.ctx), pct = (r.ctx.match(/(\d{1,3})\s*%/) || [])[1];
+        const date = `${y}-${String(r.m + 1).padStart(2, '0')}-${String(r.d).padStart(2, '0')}`;
+        const time = r.time || (kind === 'project' ? (isReviewish(r.label) ? '09:00' : '23:59') : '');
+        const hours = kind === 'project' ? (pct ? Math.max(3, Math.min(30, Math.round(+pct * 0.8))) : 6) : 0;
+        const score = (pct ? 3 : 0) + (/exercise|assignment|deliverable|submission|review|final|phase/i.test(r.label) ? 2 : 0) + Math.min(r.label.length, 40) / 40;
+        return {date, time, title: r.label, kind, hours, pct: pct ? +pct : null, passed: dt.getTime() < t0, score};
+      }).filter(Boolean);
+      // one entry per date + kind: keep the most informative
+      const best = new Map();
+      items.forEach(it => { const k = it.date + it.kind, o = best.get(k); if (!o || it.score > o.score) best.set(k, it); });
+      return [...best.values()].sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+    }
+
+    // turn a PDF's text into lines of cells, using where each bit of text sits on the page
+    function linesFromItems(pages){
+      const lines = [];
+      pages.forEach((items, pi) => {
+        const rows = [];
+        items.filter(it => it.str && it.str.trim()).forEach(it => {
+          const x = it.transform[4], y = it.transform[5], size = Math.hypot(it.transform[2], it.transform[3]) || it.height || 10;
+          let r = rows.find(r => Math.abs(r.y - y) < size * 0.45);
+          if (!r){ r = {y, size, items: []}; rows.push(r); }
+          r.items.push({x, x2: x + (it.width || it.str.length * size * 0.5), str: it.str, size});
+        });
+        rows.sort((a, b) => b.y - a.y).forEach(r => {
+          r.items.sort((a, b) => a.x - b.x);
+          const segs = [];
+          r.items.forEach(it => {
+            const last = segs[segs.length - 1], gap = last ? it.x - last.x2 : Infinity;
+            if (last && gap < it.size * 1.6){ last.text += (gap > it.size * 0.12 && !/\s$/.test(last.text) && !/^\s/.test(it.str) ? ' ' : '') + it.str; last.x2 = Math.max(last.x2, it.x2); }
+            else segs.push({x: it.x, x2: it.x2, text: it.str});
+          });
+          // big runs of spaces inside one bit of text are column gaps too
+          const split = []; segs.forEach(s => { const parts = s.text.split(/\s{3,}/); let x = s.x; const cw = (s.x2 - s.x) / Math.max(1, s.text.length); let pos = 0;
+            parts.forEach(p => { const at = s.text.indexOf(p, pos); pos = at + p.length; if (p.trim()) split.push({x: s.x + at * cw, x2: s.x + pos * cw, text: p.trim()}); }); });
+          lines.push({segs: split, y: r.y, page: pi, size: r.size});
+        });
+      });
+      return lines;
+    }
+    let lib = null;
+    async function loadLib(){
+      if (lib) return lib;
+      const base = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+      if (!window.pdfjsLib) await new Promise((ok, bad) => { const s = document.createElement('script'); s.src = base + 'pdf.min.js'; s.onload = ok; s.onerror = () => bad(new Error('load')); document.head.appendChild(s); });
+      lib = window.pdfjsLib; lib.GlobalWorkerOptions.workerSrc = base + 'pdf.worker.min.js';
+      return lib;
+    }
+    async function read(file, today){
+      const L = await loadLib();
+      const doc = await L.getDocument({data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false}).promise;
+      const pages = [];
+      for (let i = 1; i <= Math.min(doc.numPages, 40); i++){ const pg = await doc.getPage(i); pages.push((await pg.getTextContent()).items); }
+      const chars = pages.reduce((a, p) => a + p.reduce((b, it) => b + (it.str || '').trim().length, 0), 0);
+      const lines = linesFromItems(pages);
+      const head = lines.slice(0, 40).map(l => l.segs.map(s => s.text).join(' ')).join('\n');
+      return {scanned: chars < 40, items: chars < 40 ? [] : scan(lines, today), head};
+    }
+    return {read, scan, findDates, findTime, kindOf, linesFromItems};
+  })();
+  // ---------- add from a brief ----------
+  let bfFiles = [], bfTerm = false;
+  const BFKIND = {project: 'Project', review: 'Review (date only)', crit: 'Desk crit', quiz: 'Quiz / exam', noclass: 'No class', trip: 'Field trip', other: 'Note'};
+  const allProjects = () => [...projects, ...terms.flatMap(t => t.projects || [])];
+  const normT = s => String(s || '').toLowerCase().replace(/[^a-z0-9฀-๿]+/g, '');
+  function niceName(fn){
+    return fn.replace(/\.pdf$/i, '').replace(/^[0-9a-f]{8}[-_]/i, '').replace(/[_]+/g, ' ').replace(/\b\d{5,}\b/g, ' ')
+      .replace(/\b(inda|syllabus|course outline|brief)\b/gi, ' ').replace(/\bS\d\b|\b\d{1,2}-\d{4}\b|\b\d{4}(-\d{2,4})?\b/g, ' ').replace(/\s+/g, ' ').replace(/^[\s\-–]+|[\s\-–]+$/g, '').trim();
+  }
+  function guessSubject(fn, head){
+    const subs = subjects(), hay = (fn + ' ' + head.split('\n').slice(0, 12).join(' ')).toLowerCase();
+    const hit = subs.find(s => s.length > 2 && hay.includes(s.toLowerCase()));
+    if (hit) return {subject: hit, newSubj: ''};
+    if (/studio|arch(itectural|\.)?\s*(design|dsgn)|\bad\s?\d\b/i.test(hay)){ const st = subs.find(isStudio); return st ? {subject: st, newSubj: ''} : {subject: '__new', newSubj: 'Studio'}; }
+    return {subject: '__new', newSubj: niceName(fn).slice(0, 40)};
+  }
+  const isDup = it => it.kind === 'project'
+    ? allProjects().some(p => p.deadline && ymd(new Date(p.deadline)) === it.date && normT(p.name) === normT(it.title))
+    : dates.some(k => k.date === it.date && normT(k.title) === normT(it.title));
+  function openBrief(fromTerm){
+    bfFiles = []; bfTerm = !!fromTerm; $('#bfErr').textContent = '';
+    $('#bfStep').hidden = !bfTerm; $('#briefTitle').textContent = bfTerm ? 'Drop in this term’s briefs' : 'Add from a brief';
+    $('#bfCancel').textContent = bfTerm ? 'Skip for now' : 'Cancel';
+    renderBrief(); $('#briefModal').hidden = false;
+  }
+  function closeBrief(){ $('#briefModal').hidden = true; if (bfTerm){ bfTerm = false; toast('New term ready 🎓'); } }
+  async function addBriefFiles(list){
+    const pdfs = [...list].filter(f => /pdf$/i.test(f.type) || /\.pdf$/i.test(f.name));
+    if (!pdfs.length){ $('#bfErr').textContent = 'That isn’t a PDF. Save the brief as a PDF first.'; return; }
+    $('#bfErr').textContent = '';
+    for (const f of pdfs){
+      const e = {id: uid(), name: f.name, status: 'reading', items: [], subject: '', newSubj: ''};
+      bfFiles.push(e); renderBrief();
+      try {
+        const r = await BF.read(f);
+        Object.assign(e, guessSubject(f.name, r.head || ''));
+        if (r.scanned) e.status = 'scan';
+        else {
+          e.status = 'done';
+          e.items = r.items.map(it => { const dup = isDup(it); return {...it, id: uid(), dup, on: !it.passed && !dup && ['project', 'quiz', 'noclass', 'trip'].includes(it.kind)}; });
+        }
+      } catch(err){ e.status = String(err && err.message) === 'load' ? 'offline' : 'error'; }
+      renderBrief();
+    }
+  }
+  function bfRow(f, it){
+    const tags = (it.passed ? '<span class="bf-tag">already passed</span>' : '') + (it.dup ? '<span class="bf-tag">already in Next Up</span>' : '');
+    return `<div class="bf-row${it.on ? '' : ' off'}" data-f="${f.id}" data-i="${it.id}">
+      <input type="checkbox" data-bf="on" ${it.on ? 'checked' : ''} aria-label="Add this">
+      <div class="bf-main">
+        <input type="text" class="bf-name" data-bf="title" value="${esc(it.title)}" aria-label="Name">
+        <div class="bf-meta">
+          <input type="date" data-bf="date" value="${it.date}" aria-label="Date">
+          <input type="time" data-bf="time" value="${it.time || ''}" aria-label="Time">
+          <select data-bf="kind" aria-label="Type">${Object.entries(BFKIND).map(([k, v]) => `<option value="${k}"${k === it.kind ? ' selected' : ''}>${v}</option>`).join('')}</select>
+          ${it.kind === 'project' ? `<label class="bf-h"><input type="number" data-bf="hours" value="${it.hours}" min="0.5" max="80" step="0.5" aria-label="Rough hours"> h</label>` : ''}
+          ${tags}
+        </div>
+      </div>
+    </div>`;
+  }
+  function renderBrief(){
+    const subs = subjects();
+    $('#bfFiles').innerHTML = bfFiles.map(f => {
+      let body = '';
+      if (f.status === 'reading') body = '<p class="small bf-reading">Reading the brief…</p>';
+      else if (f.status === 'scan') body = '<p class="bf-warn">This PDF is a scan (a photo of the pages), so there’s no text to read. Add its deadlines with <b>+ Add project</b> instead.</p>';
+      else if (f.status === 'offline') body = '<p class="bf-warn">Couldn’t load the PDF reader. Check your internet and try again.</p>';
+      else if (f.status === 'error') body = '<p class="bf-warn">Couldn’t open this PDF. It might be locked with a password.</p>';
+      else {
+        const main = f.items.filter(it => !['crit', 'other'].includes(it.kind)), more = f.items.filter(it => ['crit', 'other'].includes(it.kind));
+        body = `<div class="bf-subj"><label class="small" for="bfs-${f.id}">Subject</label>
+          <select id="bfs-${f.id}" data-bfs="${f.id}">${subs.map(s => `<option${s === f.subject ? ' selected' : ''}>${esc(s)}</option>`).join('')}<option value="__new"${f.subject === '__new' ? ' selected' : ''}>New subject…</option></select>
+          <input type="text" data-bfn="${f.id}" value="${esc(f.newSubj)}" placeholder="Subject name" ${f.subject === '__new' ? '' : 'hidden'}></div>
+          ${f.items.length ? `<p class="small" style="margin:0">Found ${main.length} deadline${main.length === 1 ? '' : 's'} and key date${main.length === 1 ? '' : 's'}. Check the names and dates, untick anything you don’t want.</p>` : '<p class="bf-warn">No dates found in this brief. Add its deadlines with <b>+ Add project</b>.</p>'}
+          <div class="bf-list">${main.map(it => bfRow(f, it)).join('')}</div>
+          ${more.length ? `<details class="bf-more"><summary>Desk crits and other dates (${more.length})</summary><div class="bf-list">${more.map(it => bfRow(f, it)).join('')}</div></details>` : ''}`;
+      }
+      return `<div class="bf-file"><div class="bf-fhead"><span>📄 ${esc(f.name)}</span><button class="x" type="button" data-bfx="${f.id}" aria-label="Remove this file">×</button></div>${body}</div>`;
+    }).join('');
+    $('#bfDrop').classList.toggle('slim', bfFiles.length > 0); $('#bfDropT').textContent = bfFiles.length ? '+ Add another brief' : '📄 Drop brief PDFs here';
+    bfCount();
+  }
+  function bfCount(){
+    let np = 0, nd = 0; bfFiles.forEach(f => f.status === 'done' && f.items.forEach(it => { if (it.on) it.kind === 'project' ? np++ : nd++; }));
+    const parts = []; if (np) parts.push(`${np} project${np === 1 ? '' : 's'}`); if (nd) parts.push(`${nd} date${nd === 1 ? '' : 's'}`);
+    $('#bfAdd').disabled = !(np + nd); $('#bfAdd').textContent = parts.length ? 'Add ' + parts.join(' + ') : 'Add';
+  }
+  $('#bfFile').addEventListener('change', e => { const l = e.target.files; if (l && l.length) addBriefFiles(l); e.target.value = ''; });
+  const drop = $('#bfDrop');
+  ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => { if (e.dataTransfer && e.dataTransfer.files.length) addBriefFiles(e.dataTransfer.files); });
+  $('#briefModal').addEventListener('dragover', e => e.preventDefault());
+  $('#briefModal').addEventListener('drop', e => { e.preventDefault(); if (!drop.contains(e.target) && e.dataTransfer && e.dataTransfer.files.length) addBriefFiles(e.dataTransfer.files); });
+  $('#bfFiles').addEventListener('click', e => { const x = e.target.closest('[data-bfx]'); if (x){ bfFiles = bfFiles.filter(f => f.id !== x.dataset.bfx); renderBrief(); } });
+  $('#bfFiles').addEventListener('change', e => {
+    const t = e.target;
+    if (t.dataset.bfs){ const f = bfFiles.find(x => x.id === t.dataset.bfs); f.subject = t.value; const n = document.querySelector(`[data-bfn="${f.id}"]`); n.hidden = t.value !== '__new'; if (!n.hidden) n.focus(); return; }
+    const row = t.closest('.bf-row'); if (!row || !t.dataset.bf) return;
+    const f = bfFiles.find(x => x.id === row.dataset.f), it = f && f.items.find(x => x.id === row.dataset.i); if (!it) return;
+    const k = t.dataset.bf;
+    if (k === 'on'){ it.on = t.checked; row.classList.toggle('off', !it.on); }
+    else if (k === 'kind'){ const was = it.kind; it.kind = t.value; if (t.value === 'project' && !it.hours) it.hours = it.pct ? Math.max(3, Math.min(30, Math.round(it.pct * 0.8))) : 6; if ((was === 'project') !== (t.value === 'project')){ it.on = true; renderBrief(); return; } }
+    else if (k === 'hours') it.hours = parseFloat(t.value) || it.hours;
+    else it[k] = t.value;
+    bfCount();
+  });
+  $('#bfFiles').addEventListener('input', e => {
+    const t = e.target;
+    if (t.dataset.bfn){ const f = bfFiles.find(x => x.id === t.dataset.bfn); if (f) f.newSubj = t.value; return; }
+    const row = t.closest('.bf-row'); if (row && t.dataset.bf === 'title'){ const f = bfFiles.find(x => x.id === row.dataset.f), it = f && f.items.find(x => x.id === row.dataset.i); if (it) it.title = t.value; }
+  });
+  $('#bfCancel').addEventListener('click', closeBrief);
+  $('#bfAdd').addEventListener('click', () => {
+    const newP = [], newD = [];
+    for (const f of bfFiles){
+      if (f.status !== 'done') continue;
+      const on = f.items.filter(it => it.on && it.title.trim() && it.date); if (!on.length) continue;
+      const subj = f.subject === '__new' ? f.newSubj.trim() : f.subject;
+      if (!subj){ $('#bfErr').textContent = `Pick a subject for ${f.name}.`; return; }
+      on.forEach(it => {
+        const title = it.title.trim();
+        if (it.kind === 'project'){
+          const t = it.time || '23:59', short = title.replace(/\s*\([^)]*\)/g, '').replace(/\s*·.*$/, '').trim() || title;
+          newP.push({id: uid(), name: title, subject: subj, deadline: new Date(`${it.date}T${t}`).toISOString(),
+            items: [{id: uid(), name: `Work on ${short}`, hours: +it.hours || 6, done: false}], example: false, createdAt: Date.now(), brief: f.name});
+        } else newD.push({id: uid(), date: it.date, time: it.time || '', subject: subj, kind: it.kind, title});
+      });
+    }
+    if (!newP.length && !newD.length) return;
+    projects.push(...newP); dates.push(...newD);
+    newP.forEach(p => saveDoc('projects', p)); newD.forEach(k => saveDoc('dates', k));
+    const term = bfTerm; bfTerm = false; $('#briefModal').hidden = true; skip = 0; render();
+    const parts = []; if (newP.length) parts.push(`${newP.length} project${newP.length === 1 ? '' : 's'}`); if (newD.length) parts.push(`${newD.length} date${newD.length === 1 ? '' : 's'}`);
+    toast((term ? 'New term ready 🎓 ' : '') + 'Added ' + parts.join(' + '), () => {
+      const ip = new Set(newP.map(p => p.id)), id = new Set(newD.map(k => k.id));
+      projects = projects.filter(p => !ip.has(p.id)); dates = dates.filter(k => !id.has(k.id));
+      newP.forEach(p => delDoc('projects', p.id)); newD.forEach(k => delDoc('dates', k.id));
+    });
+    if (newP.length) setTab('next');
+  });
+
+  // ---------- new term ----------
+  let tmKeep = new Set(), tmAdded = [];
+  function termLabel(list){
+    const ds = list.map(p => new Date(p.deadline)).filter(d => !isNaN(d)).sort((a, b) => a - b);
+    const mo = d => d.toLocaleDateString('en-GB', {month: 'short'});
+    if (!ds.length) return 'Term to ' + new Date().toLocaleDateString('en-GB', {month: 'short', year: 'numeric'});
+    const a = ds[0], b = ds[ds.length - 1];
+    return a.getFullYear() === b.getFullYear() ? (mo(a) === mo(b) ? `${mo(a)} ${a.getFullYear()}` : `${mo(a)}–${mo(b)} ${b.getFullYear()}`) : `${mo(a)} ${a.getFullYear()} – ${mo(b)} ${b.getFullYear()}`;
+  }
+  function openTerm(){
+    const now = Date.now();
+    const still = projects.filter(p => !p.example && stats(p).remaining > 0 && new Date(p.deadline).getTime() > now);
+    tmKeep = new Set(still.map(p => p.id)); tmAdded = [];
+    const going = projects.length - still.length;
+    $('#tmOne').hidden = false; $('#tmTwo').hidden = true;
+    $('#tmGoing').innerHTML = projects.length ? `${going ? `<b>${going} project${going === 1 ? '' : 's'}</b> (finished or past) move` : 'Your projects move'} to <b>Past terms</b>. You can open them or bring them back anytime.` : 'Nothing to tidy up yet, so this just gets your new term set up.';
+    $('#tmKeepBox').hidden = !still.length;
+    $('#tmKeepList').innerHTML = still.map(p => `<label class="tm-k"><input type="checkbox" data-keep="${p.id}" checked><span>Keep <b>${esc(p.name)}</b> <span class="hint">due ${fmtDue(p.deadline)}</span></span></label>`).join('');
+    $('#termModal').hidden = false;
+  }
+  $('#tmKeepList').addEventListener('change', e => { const id = e.target.dataset.keep; if (id){ e.target.checked ? tmKeep.add(id) : tmKeep.delete(id); } });
+  $('#tmCancel').addEventListener('click', () => { $('#termModal').hidden = true; });
+  $('#tmGo').addEventListener('click', () => {
+    const arch = projects.filter(p => !tmKeep.has(p.id) && !p.example), ex = projects.filter(p => p.example);
+    let t = null;
+    if (arch.length || classes.length){
+      t = {id: uid(), label: termLabel(arch), archivedAt: Date.now(), projects: clone(arch), classes: clone(classes)};
+      terms.push(t); saveDoc('terms', t);
+    }
+    ex.forEach(p => delDoc('projects', p.id)); arch.forEach(p => delDoc('projects', p.id));
+    projects = projects.filter(p => tmKeep.has(p.id) && !p.example); classes = []; saveTimetable(); pinned = null; skip = 0;
+    if (store === 'local') saveLocal();
+    render();
+    $('#tmOne').hidden = true; $('#tmTwo').hidden = false; renderTmClasses();
+    setTimeout(() => $('#tmSubj').focus(), 60);
+    if (t) toast('Last term moved to Past terms', () => restoreTerm(t.id, true));
+  });
+  function renderTmClasses(){
+    $('#tmClasses').innerHTML = classes.length ? classes.map(c => `<div class="tm-c"><span class="subj" style="${subjStyle(c.subject)}">${esc(c.subject)}</span><span class="small">${DAYS[c.day]} ${c.start}–${c.end}</span><button class="x" type="button" data-tmx="${c.id}" aria-label="Remove">×</button></div>`).join('') : '<p class="hint" style="margin:0">No classes yet.</p>';
+    $('#tmSubjList').innerHTML = subjects().map(s => `<option value="${esc(s)}">`).join('');
+    $('#tmNext').textContent = classes.length ? 'Next: add briefs' : 'Skip to briefs';
+  }
+  $('#tmClasses').addEventListener('click', e => { const x = e.target.closest('[data-tmx]'); if (x){ classes = classes.filter(c => c.id !== x.dataset.tmx); saveTimetable(); renderTmClasses(); render(); } });
+  $('#tmClassForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const subject = $('#tmSubj').value.trim(), start = $('#tmStart').value, end = $('#tmEnd').value;
+    if (!subject){ $('#tmErr').textContent = 'Type the subject name.'; return; }
+    if (!start || !end || toMin(end) <= toMin(start)){ $('#tmErr').textContent = 'The end time has to be after the start.'; return; }
+    $('#tmErr').textContent = '';
+    classes.push({id: uid(), subject, day: +$('#tmDay').value, start, end}); saveTimetable();
+    $('#tmSubj').value = ''; renderTmClasses(); render(); $('#tmSubj').focus();
+  });
+  $('#tmNext').addEventListener('click', () => { $('#termModal').hidden = true; openBrief(true); });
+  $('#tmDone').addEventListener('click', () => { $('#termModal').hidden = true; toast('New term ready 🎓'); });
+
+  // ---------- past terms ----------
+  function restoreTerm(id, undo){
+    const t = terms.find(x => x.id === id); if (!t) return;
+    const have = new Set(projects.map(p => p.id)), back = (t.projects || []).filter(p => !have.has(p.id));
+    projects.push(...back); back.forEach(p => saveDoc('projects', p));
+    if (!classes.length && (t.classes || []).length){ classes = clone(t.classes); saveTimetable(); }
+    terms = terms.filter(x => x.id !== id); delDoc('terms', id);
+    if (store === 'local') saveLocal();
+    render(); if (!undo) toast(`Brought back ${back.length} project${back.length === 1 ? '' : 's'} from ${t.label}`);
+  }
+  function renderPastTerms(){
+    const el = $('#pastTerms'); if (!el) return;
+    if (!terms.length){ el.innerHTML = ''; return; }
+    const wasOpen = el.querySelector('details')?.open;
+    el.innerHTML = `<details class="past-terms"${wasOpen ? ' open' : ''}><summary>Past terms (${terms.length})</summary>${terms.slice().sort((a, b) => b.archivedAt - a.archivedAt).map(t => {
+      const ps = t.projects || [], fin = ps.filter(p => p.items.length && p.items.every(i => i.done)).length;
+      return `<div class="pt"><div class="pt-head"><div><b>${esc(t.label)}</b><div class="small">${ps.length ? `${ps.length} project${ps.length === 1 ? '' : 's'} · ${fin} finished` : 'Old timetable'}${(t.classes || []).length ? ` · ${t.classes.length} class${t.classes.length === 1 ? '' : 'es'}` : ''}</div></div><button class="btn" type="button" data-ptr="${t.id}">Bring back</button></div>
+        <ul class="pt-list">${ps.map(p => { const s = stats(p); return `<li><span class="subj" style="${subjStyle(p.subject)}">${esc(p.subject || 'Other')}</span> ${esc(p.name)} <span class="hint">${s.pct}%</span></li>`; }).join('')}</ul></div>`;
+    }).join('')}</details>`;
+  }
+  $('#pastTerms').addEventListener('click', e => { const b = e.target.closest('[data-ptr]'); if (b) restoreTerm(b.dataset.ptr); });
+  $('#briefOpen').addEventListener('click', () => openBrief(false));
+  $('#addFromBrief').addEventListener('click', () => { closeAdd(); openBrief(false); });
+  $('#newTerm').addEventListener('click', openTerm);
 
   // ---------- home-screen app ----------
   const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
@@ -2885,7 +3366,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   const GSVG = '<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
   function saveEverything(){
     if (store !== 'db') return saveLocal();
-    projects.forEach(p => saveDoc('projects', p)); notes.forEach(n => saveDoc('notes', n)); dates.forEach(k => saveDoc('dates', k));
+    projects.forEach(p => saveDoc('projects', p)); notes.forEach(n => saveDoc('notes', n)); dates.forEach(k => saveDoc('dates', k)); terms.forEach(t => saveDoc('terms', t));
     saveTimetable(); saveSettings();
   }
   function stopListening(){ unsubs.forEach(u => { try { u(); } catch(e){} }); unsubs = []; }
@@ -2895,6 +3376,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
     L(db.collection('projects'), snap => { projects = snap.docs.map(d => clone(d.data())); softRender(); }, e => { toast("Couldn't load your account data. Check your connection."); });
     L(db.collection('notes'), snap => { notes = snap.docs.map(d => clone(d.data())); softRender(); });
     L(db.collection('dates'), snap => { dates = snap.docs.map(d => clone(d.data())); softRender(); });
+    L(db.collection('terms'), snap => { terms = snap.docs.map(d => clone(d.data())); softRender(); });
     L(db.doc('stats/focus'), sn => { if (sn.exists && Array.isArray(sn.data().sessions) && sn.data().sessions.length >= sessions.length){ sessions = clone(sn.data().sessions); try { localStorage.setItem(SESSKEY, JSON.stringify(sessions)); } catch(e){} } });
     L(db.doc('settings/wardrobe'), sn => { if (!sn.exists){ if (ward.seeded) saveWard(); return; } const d = sn.data(); const got = [...new Set([...(d.got || []), ...ward.got])], seen = [...new Set([...(d.seen || []), ...ward.seen])];
       ward = {...ward, ...clone(d), got, seen}; try { localStorage.setItem(WARDKEY, JSON.stringify(ward)); } catch(e){} renderPet(); if (wdOpen) renderWard(); });
@@ -2905,7 +3387,7 @@ body.pip .pet-bubble{border-radius:14px 14px 14px 4px;margin-bottom:26px}
   // first sign-in on a device: move what's here into the account (nothing is overwritten or lost)
   async function moveDeviceDataIn(){
     let moved = 0;
-    for (const [coll, list] of [['projects', projects], ['notes', notes], ['dates', dates]]){
+    for (const [coll, list] of [['projects', projects], ['notes', notes], ['dates', dates], ['terms', terms]]){
       if (!list.length) continue;
       const snap = await db.collection(coll).get(), have = new Set(snap.docs.map(d => d.id));
       for (const x of list) if (!have.has(x.id)){ await db.doc(coll + '/' + x.id).set(clone(x)); moved++; }
