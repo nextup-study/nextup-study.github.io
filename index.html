@@ -467,6 +467,27 @@ body.rescue-on{overflow:hidden} body.rescue-on .pet{display:none!important}
 .rebuild .rb-row b{font-weight:600}
 #noteForm>.field,#noteForm .nt-box .field{flex:none}
 .nt-box{background:var(--sunk);border-radius:10px;padding:10px 12px;gap:8px}
+.nph{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.nph-t{position:relative;width:76px;height:76px;border-radius:10px;overflow:hidden;background:var(--sunk);flex:none;border:1px solid var(--line)}
+.nph-t img{width:100%;height:100%;object-fit:cover;display:block}
+.nph-t .x{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.55);color:#fff;border-radius:50%;width:22px;height:22px;padding:0;font-size:14px;line-height:22px}
+.nph-t.busy::after{content:"";position:absolute;inset:0;background:color-mix(in srgb,var(--surface) 60%,transparent);animation:pulse 1s ease-in-out infinite}
+.nph-add{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.nthumbs{display:flex;gap:8px;flex-wrap:wrap}
+.nthumbs button{width:92px;height:92px;border-radius:10px;overflow:hidden;border:1px solid var(--line);padding:0;background:var(--sunk);flex:none}
+.nthumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.nthumbs img:not([src]){visibility:hidden}
+.ph-chip{border:0;background:var(--accent-soft);color:var(--accent);border-radius:99px;font:600 11.5px var(--mono);padding:1px 8px;margin-left:6px;vertical-align:1px;cursor:pointer}
+.phv{position:fixed;inset:0;z-index:60;background:#0B0F0E;display:flex;flex-direction:column}
+.phv-top{display:flex;justify-content:space-between;align-items:center;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;color:#fff;font-size:14px;gap:10px}
+.phv-top button{background:rgba(255,255,255,.14);border:0;color:#fff;border-radius:99px;padding:7px 13px;font-size:14px}
+.phv-stage{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;touch-action:pinch-zoom pan-x pan-y}
+.phv-stage img{max-width:100%;max-height:100%;object-fit:contain;cursor:zoom-in;user-select:none}
+.phv-stage.zoom{align-items:flex-start;justify-content:flex-start}
+.phv-stage.zoom img{max-width:none;max-height:none;width:250%;cursor:zoom-out}
+.phv-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.5);box-shadow:0 0 0 1px rgba(255,255,255,.25);border:0;color:#fff;width:44px;height:44px;border-radius:50%;font-size:22px}
+.phv-nav.prev{left:10px}.phv-nav.next{right:10px}
+.phv-cap{color:rgba(255,255,255,.75);font-size:13px;text-align:center;padding:8px 16px calc(12px + env(safe-area-inset-bottom,0px))}
 .note-proj{font-size:13px;color:var(--ink2);margin:0}
 .note-proj b{color:var(--ink)}
 /* the city: every focus session builds something */
@@ -732,6 +753,12 @@ body.pip .pet-menu [data-pet="calm"],body.pip .pet-menu [data-pet="rescue"],body
         <textarea id="nText" placeholder="Ajan liked the flood-edge idea but said the section doesn't show how water moves through the site…" required></textarea>
       </div>
       <div class="field">
+        <span class="small">Photos: Ajan's sketch, your marked-up drawings</span>
+        <div class="nph" id="nPhotos"></div>
+        <span class="hint" id="nPhotoHint"></span>
+        <input type="file" id="nPhotoIn" accept="image/*" multiple hidden>
+      </div>
+      <div class="field">
         <label class="small" for="nSteps">Next steps, one per line</label>
         <textarea id="nSteps" class="mono" placeholder="Redraw long section with water levels&#10;Test 2 more massing options"></textarea>
         <span class="hint">Each line becomes a task you can tick off in Projects and Do this next.</span>
@@ -925,6 +952,12 @@ body.pip .pet-menu [data-pet="calm"],body.pip .pet-menu [data-pet="rescue"],body
       <div class="row"><button class="btn pri" type="button" id="tmNext">Next: add briefs</button><button class="btn" type="button" id="tmDone">Done, no briefs</button></div>
     </div>
   </div>
+</div>
+<div class="phv" id="phView" hidden role="dialog" aria-modal="true" aria-label="Photo">
+  <div class="phv-top"><span id="phCount"></span><button type="button" id="phClose">Close ✕</button></div>
+  <div class="phv-stage" id="phStage"><img id="phImg" alt="Crit sketch"></div>
+  <button class="phv-nav prev" type="button" id="phPrev" aria-label="Previous photo">‹</button><button class="phv-nav next" type="button" id="phNext" aria-label="Next photo">›</button>
+  <div class="phv-cap" id="phCap"></div>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
@@ -1198,7 +1231,7 @@ body.pip .pet-menu [data-pet="calm"],body.pip .pet-menu [data-pet="rescue"],body
           <ul class="items">${p.items.map(i => `
             <li class="${i.done ? 'done' : ''} ${lastTick && lastTick.i === i.id ? 'justticked' : ''}">
               <input type="checkbox" id="c-${i.id}" data-act="tick" data-p="${p.id}" data-i="${i.id}" ${i.done ? 'checked' : ''} aria-label="${esc(i.name)}">
-              <span><button class="iname" type="button" data-act="editname" data-p="${p.id}" data-i="${i.id}" title="Tap to rename">${esc(i.name)}</button></span>
+              <span><button class="iname" type="button" data-act="editname" data-p="${p.id}" data-i="${i.id}" title="Tap to rename">${esc(i.name)}</button>${(() => { const pn = notePhotosForItem(i.id); return pn ? `<button class="ph-chip" type="button" data-phopen="${pn.id}" title="See the sketch from this crit">📷 ${pn.photos.length}</button>` : ''; })()}</span>
               <button class="hrs-btn" type="button" data-act="edithrs" data-p="${p.id}" data-i="${i.id}" title="Tap to change hours">${fmtH(+i.hours || 0)}</button>
               <span>${i.done ? '' : `<button class="x" title="Do this now" aria-label="Do this now" data-act="pin" data-p="${p.id}" data-i="${i.id}">▲</button>`}<button class="x" title="Remove" aria-label="Remove ${esc(i.name)}" data-act="rm" data-p="${p.id}" data-i="${i.id}">×</button></span>
             </li>`).join('') || '<li class="small">No deliverables yet.</li>'}</ul>
@@ -1298,12 +1331,14 @@ body.pip .pet-menu [data-pet="calm"],body.pip .pet-menu [data-pet="rescue"],body
           <div class="note-head"><span class="subj" style="${subjStyle(n.subject)}">${esc(n.subject)}</span><span class="date">${fmtDate(n.date)}</span>${n.example ? '<span class="ex">example</span>' : ''}
             <span class="sp"><button class="btn" data-act="editnote" data-n="${n.id}">Edit</button><button class="btn danger" data-act="delnote" data-n="${n.id}">Delete</button></span></div>
           <p class="text">${esc(n.text)}</p>
+          ${(n.photos || []).length ? `<div class="nthumbs">${n.photos.map((r, i) => `<button type="button" data-phopen="${n.id}" data-i="${i}" aria-label="Open photo ${i + 1}"><img data-ph="${phAttr(r)}" alt=""></button>`).join('')}</div>` : ''}
           ${(n.steps || []).length ? `<ul class="steps">${n.steps.map(x => `<li class="${x.done ? 'done' : ''}"><input type="checkbox" id="st-${x.id}" data-act="step" data-n="${n.id}" data-x="${x.id}" ${x.done ? 'checked' : ''}><label for="st-${x.id}">${esc(x.text)} ${x.sent && !x.pid ? `<span class="sent">→ in ${esc(x.sent)}</span>` : ''}</label></li>`).join('')}</ul>` : ''}
           ${[...new Set((n.steps || []).map(x => x.pid).filter(Boolean))].map(pid => { const lp = projects.find(p => p.id === pid); if (!lp) return ''; const mine = n.steps.filter(x => x.pid === pid), dn = mine.filter(x => x.done).length;
             return `<p class="note-proj">📌 In Projects: <b>${esc(lp.name)}</b> · due ${fmtDue(lp.deadline)} · ${dn}/${mine.length} done</p>`; }).join('')}
           ${unsent.length && projects.length ? `<div class="row small"><span>Send ${unsent.length} step${unsent.length > 1 ? 's' : ''} to</span><select id="sp-${n.id}" aria-label="Project">${projOpts}</select><button class="btn" data-act="sendsteps" data-n="${n.id}">Add as tasks</button></div>` : ''}
         </article>`;
       }).join('')}</div>`).join('');
+    hydratePhotos($('#notes'));
   }
 
   // ---------- render ----------
@@ -1439,9 +1474,11 @@ body.pip .pet-menu [data-pet="calm"],body.pip .pet-menu [data-pet="rescue"],body
     if (act === 'newnote'){ setTab('notes'); $('#nSubj').value = b.dataset.s; $('#nText').focus(); }
     if (act === 'editnote'){ const n = notes.find(x => x.id === b.dataset.n); if (!n) return; editingNote = n.id;
       renderNoteForm(); $('#nSubj').value = n.subject; $('#nDate').value = n.date; $('#nText').value = n.text; $('#nSteps').value = (n.steps || []).map(x => x.text).join('\n');
+      formPhotos = (n.photos || []).map(r => ({...r, kept: true})); renderFormPhotos();
       $('#noteFormTitle').textContent = 'Edit note'; $('#noteSubmit').textContent = 'Save changes'; $('#noteCancel').hidden = false; renderTaskBox(true); window.scrollTo({top:0, behavior:'smooth'}); }
     if (act === 'delnote'){ const n = notes.find(x => x.id === b.dataset.n); notes = notes.filter(x => x.id !== b.dataset.n); delDoc('notes', b.dataset.n); render();
-      toast('Note deleted', () => { notes.push(n); saveDoc('notes', n); }); }
+      let undone = false; toast('Note deleted', () => { undone = true; notes.push(n); saveDoc('notes', n); });
+      setTimeout(() => { if (!undone && n && !notes.some(x => x.id === n.id)) (n.photos || []).forEach(dropPhoto); }, 6500); }
     if (act === 'sendsteps'){ const n = notes.find(x => x.id === b.dataset.n), p = projects.find(x => x.id === $('#sp-' + b.dataset.n).value); if (!n || !p) return;
       const unsent = n.steps.filter(x => !x.sent && !x.done);
       unsent.forEach(x => { const it = {id: uid(), name: x.text, hours: 1, done: false}; p.items.push(it); x.sent = p.name; x.pid = p.id; x.iid = it.id; });
@@ -1540,7 +1577,7 @@ body.pip .pet-menu [data-pet="calm"],body.pip .pet-menu [data-pet="rescue"],body
     projects.push(p); saveDoc('projects', p); closeAdd(); skip = 0; freshProj = p.id; render(); setTimeout(() => document.querySelector(`.proj-card[data-id="${p.id}"]`)?.scrollIntoView({block: 'center'}), 60); toast('Project added', () => { projects = projects.filter(x => x.id !== p.id); delDoc('projects', p.id); });
   });
 
-  function resetNoteForm(){ editingNote = null; $('#noteForm').reset(); $('#nDate').value = ymd(new Date()); $('#noteFormTitle').textContent = 'New crit note'; $('#noteSubmit').textContent = 'Save note'; $('#noteCancel').hidden = true; renderNoteForm(); $('#nDue').value = ''; renderTaskBox(true); }
+  function resetNoteForm(){ if (!editingNote) formPhotos.forEach(r => { if (!r.busy && !r.kept) dropPhoto(r); }); formPhotos = []; renderFormPhotos(); editingNote = null; $('#noteForm').reset(); $('#nDate').value = ymd(new Date()); $('#noteFormTitle').textContent = 'New crit note'; $('#noteSubmit').textContent = 'Save note'; $('#noteCancel').hidden = true; renderNoteForm(); $('#nDue').value = ''; renderTaskBox(true); }
   $('#noteCancel').addEventListener('click', resetNoteForm);
   $('#noteForm').addEventListener('submit', e => {
     e.preventDefault();
@@ -1548,13 +1585,16 @@ body.pip .pet-menu [data-pet="calm"],body.pip .pet-menu [data-pet="rescue"],body
     if (!text || !date){ $('#noteErr').textContent = 'Write something and pick a date.'; return; }
     $('#noteErr').textContent = '';
     const lines = $('#nSteps').value.split('\n').map(l => l.trim()).filter(Boolean);
+    if (formPhotos.some(r => r.busy)){ $('#noteErr').textContent = 'Wait a second, a photo is still saving.'; return; }
     let n = editingNote && notes.find(x => x.id === editingNote);
+    const photos = formPhotos.map(r => ({k: r.k, id: r.id}));
+    if (n) (n.photos || []).forEach(r => { if (!photos.some(p => p.id === r.id)) dropPhoto(r); });
     if (n){
       const old = n.steps || [];
       n.steps = lines.map(l => old.find(o => o.text === l) || {id: uid(), text: l, done: false});
-      Object.assign(n, {subject, date, text});
+      Object.assign(n, {subject, date, text, photos});
     } else {
-      n = {id: uid(), subject, date, text, steps: lines.map(l => ({id: uid(), text: l, done: false})), example: false, createdAt: Date.now()};
+      n = {id: uid(), subject, date, text, photos, steps: lines.map(l => ({id: uid(), text: l, done: false})), example: false, createdAt: Date.now()};
       notes.push(n);
     }
     let msg = editingNote ? 'Note updated' : 'Note saved';
@@ -1575,7 +1615,7 @@ body.pip .pet-menu [data-pet="calm"],body.pip .pet-menu [data-pet="rescue"],body
         msg += `. ${pending.length} task${pending.length === 1 ? '' : 's'} added to ${p.name}`;
       }
     }
-    saveDoc('notes', n); toast(msg); noteFilter = 'all'; resetNoteForm(); render();
+    formPhotos = []; saveDoc('notes', n); toast(msg); noteFilter = 'all'; resetNoteForm(); render();
   });
 
   setInterval(() => { if (!editing()) render(); }, 60e3);
@@ -3132,6 +3172,109 @@ body.pip .pet-menu [data-pet="calm"],body.pip .pet-menu [data-pet="rescue"],body
   $('#addFromBrief').addEventListener('click', () => { closeAdd(); openBrief(false); });
   $('#newTerm').addEventListener('click', openTerm);
 
+
+  // ---------- crit-note photos ----------
+  // where photos live: the private version's own file storage, a signed-in account (photoCloud), or this device (IndexedDB)
+  let assetsNS = null, photoCloud = null, formPhotos = [], phList = [], phIdx = 0;
+  const phCache = new Map(), cloudOn = () => !!photoCloud && store === 'db';
+  const IDB = (() => {
+    let dbp = null;
+    const open = () => dbp || (dbp = new Promise((ok, bad) => { try { const r = indexedDB.open('nextup-photos', 1); r.onupgradeneeded = () => r.result.createObjectStore('p'); r.onsuccess = () => ok(r.result); r.onerror = () => bad(r.error); } catch(e){ bad(e); } }));
+    const tx = (mode, fn) => open().then(d => new Promise((ok, bad) => { const t = d.transaction('p', mode), st = t.objectStore('p'), r = fn(st); t.oncomplete = () => ok(r && r.result); t.onerror = () => bad(t.error); }));
+    return {put: (k, v) => tx('readwrite', st => st.put(v, k)), get: k => tx('readonly', st => st.get(k)), del: k => tx('readwrite', st => st.delete(k))};
+  })();
+  // shrink to a sharp but small JPEG (handwriting stays readable)
+  async function shrink(file){
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = bad; i.src = url; });
+      let max = 1600, q = 0.72, out;
+      for (let k = 0; k < 4; k++){
+        const r = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement('canvas');
+        c.width = Math.round(img.naturalWidth * r); c.height = Math.round(img.naturalHeight * r);
+        const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+        out = c.toDataURL('image/jpeg', q);
+        if (out.length < 700000) break;
+        max = Math.round(max * 0.8); q -= 0.06;
+      }
+      return out;
+    } finally { URL.revokeObjectURL(url); }
+  }
+  const dataToBlob = d => { const [h, b] = d.split(','), bin = atob(b), a = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return new Blob([a], {type: h.slice(5, h.indexOf(';'))}); };
+  async function putPhoto(data){
+    if (assetsNS){ const r = await assetsNS.upload(dataToBlob(data), {type: 'image/jpeg'}); phCache.set(r.id, r.url); return {k: 'a', id: r.id}; }
+    const id = 'ph' + Date.now().toString(36) + uid();
+    if (cloudOn()){ await photoCloud.put(id, data); phCache.set(id, data); return {k: 'f', id}; }
+    await IDB.put(id, data); phCache.set(id, data); return {k: 'l', id};
+  }
+  async function photoSrc(ref){
+    if (!ref) return '';
+    if (phCache.has(ref.id)) return phCache.get(ref.id);
+    let src = '';
+    try {
+      if (ref.k === 'a') src = '/_blob/' + ref.id;
+      else if (ref.k === 'f') src = cloudOn() ? await photoCloud.get(ref.id) : '';
+      else src = await IDB.get(ref.id) || '';
+    } catch(e){ src = ''; }
+    if (src) phCache.set(ref.id, src);
+    return src;
+  }
+  function dropPhoto(ref){
+    phCache.delete(ref.id);
+    try { if (ref.k === 'a' && assetsNS) assetsNS.delete(ref.id).catch(() => {}); else if (ref.k === 'f' && cloudOn()) photoCloud.del(ref.id); else if (ref.k === 'l') IDB.del(ref.id).catch(() => {}); } catch(e){}
+  }
+  // fill in <img data-ph="..."> after a render
+  function hydratePhotos(root = document){
+    root.querySelectorAll('img[data-ph]:not([src])').forEach(async im => { const ref = JSON.parse(im.dataset.ph); const src = await photoSrc(ref); if (src) im.src = src; else im.closest('button,.nph-t')?.setAttribute('title', 'This photo is saved on another device'); });
+  }
+  const phAttr = ref => esc(JSON.stringify({k: ref.k, id: ref.id}));
+  function renderFormPhotos(){
+    $('#nPhotos').innerHTML = formPhotos.map((r, i) => `<div class="nph-t${r.busy ? ' busy' : ''}">${r.busy ? '' : `<img data-ph="${phAttr(r)}" alt="Photo ${i + 1}">`}<button class="x" type="button" data-phx="${i}" aria-label="Remove photo">×</button></div>`).join('')
+      + `<label class="btn nph-add" for="nPhotoIn">📷 ${formPhotos.length ? 'Add another' : 'Add photo'}</label>`;
+    const where = assetsNS ? '' : cloudOn() ? 'Saved to your account.' : 'Saved on this device only. Sign in to keep photos on all your devices.';
+    $('#nPhotoHint').textContent = formPhotos.length ? where : '';
+    hydratePhotos($('#nPhotos'));
+  }
+  $('#nPhotoIn').addEventListener('change', async e => {
+    const files = [...e.target.files].filter(f => /^image\//.test(f.type) || /\.(jpe?g|png|webp|heic|heif)$/i.test(f.name)); e.target.value = '';
+    for (const f of files.slice(0, 8)){
+      const slot = {busy: true}; formPhotos.push(slot); renderFormPhotos();
+      try { const d = await shrink(f); Object.assign(slot, await putPhoto(d)); delete slot.busy; }
+      catch(err){ formPhotos = formPhotos.filter(x => x !== slot); toast(err && err.code === 'quota_or_state' ? 'Photo storage is full. Delete some old photos.' : "Couldn't add that photo. Try a JPG or PNG."); }
+      renderFormPhotos();
+    }
+  });
+  $('#nPhotos').addEventListener('click', e => {
+    const x = e.target.closest('[data-phx]'); if (x){ const r = formPhotos[+x.dataset.phx]; formPhotos.splice(+x.dataset.phx, 1); if (r && !r.busy && !r.kept) dropPhoto(r); renderFormPhotos(); return; }
+    const t = e.target.closest('.nph-t'); if (t){ const i = [...$('#nPhotos').querySelectorAll('.nph-t')].indexOf(t); openPhotos(formPhotos.filter(r => !r.busy), i, ''); }
+  });
+  // full-screen viewer: tap to zoom, arrows or swipe for the next one
+  async function showPhoto(){
+    const ref = phList[phIdx]; $('#phStage').classList.remove('zoom'); $('#phImg').removeAttribute('src');
+    $('#phCount').textContent = phList.length > 1 ? `${phIdx + 1} of ${phList.length}` : '';
+    $('#phPrev').hidden = $('#phNext').hidden = phList.length < 2;
+    const src = await photoSrc(ref); if (phList[phIdx] === ref){ if (src) $('#phImg').src = src; else $('#phCap').textContent = 'This photo is saved on another device. Sign in there to sync it.'; }
+  }
+  function openPhotos(list, i, cap){ phList = list.filter(Boolean); if (!phList.length) return; phIdx = Math.max(0, Math.min(i || 0, phList.length - 1)); $('#phCap').textContent = cap || 'Tap the photo to zoom in'; $('#phView').hidden = false; showPhoto(); }
+  const closePhotos = () => { $('#phView').hidden = true; };
+  const stepPhoto = d => { phIdx = (phIdx + d + phList.length) % phList.length; showPhoto(); };
+  $('#phClose').addEventListener('click', closePhotos);
+  $('#phPrev').addEventListener('click', () => stepPhoto(-1));
+  $('#phNext').addEventListener('click', () => stepPhoto(1));
+  $('#phImg').addEventListener('click', e => { const st = $('#phStage'), z = !st.classList.contains('zoom'); st.classList.toggle('zoom', z);
+    if (z){ const r = e.target.getBoundingClientRect(), fx = (e.clientX - r.left) / r.width, fy = (e.clientY - r.top) / r.height; requestAnimationFrame(() => { st.scrollLeft = fx * st.scrollWidth - st.clientWidth / 2; st.scrollTop = fy * st.scrollHeight - st.clientHeight / 2; }); } });
+  document.addEventListener('keydown', e => { if ($('#phView').hidden) return; if (e.key === 'Escape') closePhotos(); if (e.key === 'ArrowLeft') stepPhoto(-1); if (e.key === 'ArrowRight') stepPhoto(1); });
+  let phTouch = null;
+  $('#phStage').addEventListener('touchstart', e => { phTouch = e.touches.length === 1 && !$('#phStage').classList.contains('zoom') ? e.touches[0].clientX : null; }, {passive: true});
+  $('#phStage').addEventListener('touchend', e => { if (phTouch == null || phList.length < 2) return; const dx = e.changedTouches[0].clientX - phTouch; if (Math.abs(dx) > 60) stepPhoto(dx < 0 ? 1 : -1); phTouch = null; });
+  // open photos from a note card, or from a task that came from that note
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-phopen]'); if (!b) return;
+    const n = notes.find(x => x.id === b.dataset.phopen); if (!n) return;
+    openPhotos(n.photos || [], +(b.dataset.i || 0), `${n.subject || 'Crit'} · ${fmtDate(n.date)}`);
+  });
+  const notePhotosForItem = iid => notes.find(n => (n.photos || []).length && (n.steps || []).some(x => x.iid === iid));
+
   // ---------- home-screen app ----------
   const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -3558,6 +3701,8 @@ body.pip .pet-menu [data-pet="calm"],body.pip .pet-menu [data-pet="rescue"],body
   // first sign-in on a device: move what's here into the account (nothing is overwritten or lost)
   async function moveDeviceDataIn(){
     let moved = 0;
+    // photos taken before signing in move into the account too
+    for (const n of notes) for (const r of (n.photos || [])) if (r.k === 'l'){ try { const d = await IDB.get(r.id); if (d){ await db.doc('photos/' + r.id).set({data: d, at: Date.now()}); r.k = 'f'; } } catch(e){} }
     for (const [coll, list] of [['projects', projects], ['notes', notes], ['dates', dates], ['terms', terms]]){
       if (!list.length) continue;
       const snap = await db.collection(coll).get(), have = new Set(snap.docs.map(d => d.id));
@@ -3576,6 +3721,7 @@ body.pip .pet-menu [data-pet="calm"],body.pip .pet-menu [data-pet="rescue"],body
   }
   async function useAccount(user){
     db = {collection: n => fbStore.collection(`users/${user.uid}/${n}`), doc: p => fbStore.doc(`users/${user.uid}/${p}`)};
+    photoCloud = {put: (id, data) => db.doc('photos/' + id).set({data, at: Date.now()}), get: async id => { const sn = await db.doc('photos/' + id).get(); return sn.exists ? sn.data().data : ''; }, del: id => db.doc('photos/' + id).delete().catch(() => {})};
     let moved = 0;
     try { moved = await moveDeviceDataIn(); } catch(e){ toast("Signed in, but couldn't move this device's data yet. It's still here."); }
     store = 'db'; listen(); render(); try { loadRooms(); } catch(e){}
