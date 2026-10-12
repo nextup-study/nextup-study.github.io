@@ -3274,6 +3274,7 @@ body.pip .pet-menu [data-pet="calm"],body.pip .pet-menu [data-pet="rescue"],body
     openPhotos(n.photos || [], +(b.dataset.i || 0), `${n.subject || 'Crit'} · ${fmtDate(n.date)}`);
   });
   const notePhotosForItem = iid => notes.find(n => (n.photos || []).length && (n.steps || []).some(x => x.iid === iid));
+  renderFormPhotos();   // draw the 📷 button as soon as the page loads
 
   // ---------- home-screen app ----------
   const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
